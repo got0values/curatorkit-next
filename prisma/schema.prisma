@@ -1,0 +1,553 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model CompMasterPW {
+  userId              String              @db.Char(36)
+  pw                  String              @unique(map: "pw") @db.VarChar(20)
+  minutes             Int
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], map: "fk_foreign_compmasterpw_user_id")
+
+  @@index([userId], map: "fk_foreign_compmasterpw_user_id")
+}
+
+model CompSignIns {
+  transid             Int                 @id @unique(map: "transid") @default(autoincrement())
+  userId              String              @db.VarChar(60)
+  name                String              @db.VarChar(60)
+  datetimein          DateTime?           @db.DateTime(6)
+  datetimeout         DateTime?           @db.DateTime(6)
+  barcode             String?             @db.VarChar(30)
+  computer            Int
+  length              Int
+  notes               String?             @db.VarChar(150)
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "CompSignIns_ibfk_2")
+  Computers           Computers           @relation(fields: [computer], references: [id], onDelete: Cascade, map: "fk_foreign_computer_id")
+
+  @@index([userId], map: "fk_foreign_compsignin_id")
+  @@index([computer], map: "fk_foreign_computer_id")
+}
+
+model Computers {
+  id                  Int                 @id @unique(map: "id") @default(autoincrement())
+  userId              String              @db.VarChar(40)
+  name                String              @db.VarChar(40)
+  CompSignIns         CompSignIns[]
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "Computers_ibfk_2")
+
+  @@index([userId], map: "fk_foreign_compsignin_list_user_id")
+}
+
+model ComputersPW {
+  transid             Int                 @id @default(autoincrement())
+  userId              String              @db.Char(36)
+  PW                  String              @unique(map: "PW") @db.VarChar(50)
+  InUse               Boolean
+  TimeStamp           DateTime?           @db.DateTime(6)
+  Comp                String?             @db.VarChar(50)
+  MinutesGiven        Int?
+  funds               Decimal?            @db.Decimal(10, 2)
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], map: "fk_foreign_computers_list_user_id")
+
+  @@index([userId], map: "fk_foreign_computers_list_user_id")
+}
+
+model History {
+  PW                  String               @db.VarChar(50)
+  DateTimeIn          DateTime?            @db.DateTime(6)
+  DateTimeOut         DateTime?            @db.DateTime(6)
+  Comp                String?              @db.VarChar(50)
+  MinutesGiven        Int?
+  userId              String?              @db.VarChar(36)
+  transId             Int                  @id
+  emailpassword_users emailpassword_users? @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "History_ibfk_1")
+
+  @@index([userId], map: "fk_foreign_computers_history_user_id")
+}
+
+model SignInLists {
+  id                                   Int       @id @unique(map: "id") @default(autoincrement())
+  library                              Int
+  name                                 String    @db.VarChar(100)
+  library_SignInLists_libraryTolibrary library   @relation("SignInLists_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "SignInLists_ibfk_1")
+  SignIns                              SignIns[]
+
+  @@index([library], map: "fk_foreign_signin_list_user_id")
+}
+
+model SignIns {
+  transId                          Int         @id @unique(map: "transId") @default(autoincrement())
+  listId                           Int
+  library                          Int
+  card                             String      @db.Text
+  name                             String?     @db.Text
+  datetime                         DateTime    @db.DateTime(0)
+  notes                            String?     @db.Text
+  library_SignIns_libraryTolibrary library     @relation("SignIns_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "SignIns_ibfk_1")
+  SignInLists                      SignInLists @relation(fields: [listId], references: [id], onDelete: Cascade, map: "fk_foreign_signin_list_id")
+
+  @@index([datetime], map: "datetime")
+  @@index([listId], map: "listId")
+  @@index([library], map: "userId")
+}
+
+model all_auth_recipe_users {
+  user_id     String @id @db.Char(36)
+  recipe_id   String @db.VarChar(128)
+  time_joined BigInt @db.UnsignedBigInt
+
+  @@index([time_joined(sort: Desc), user_id(sort: Desc)], map: "all_auth_recipe_users_pagination_index")
+}
+
+model allowed_modules {
+  id                                       Int     @id @default(autoincrement())
+  library                                  Int
+  event_calendar                           Int     @default(1) @db.TinyInt
+  computers                                Int     @default(0) @db.TinyInt
+  room_signin                              Int     @default(1) @db.TinyInt
+  computer_signin                          Int     @default(1) @db.TinyInt
+  readability                              Int     @default(1) @db.TinyInt
+  item_lookup                              Int     @default(1) @db.TinyInt
+  room_reserve                             Int     @default(1) @db.TinyInt
+  reading_club                             Int     @default(1) @db.TinyInt
+  library_allowed_modules_libraryTolibrary library @relation("allowed_modules_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "allowed_modules_ibfk_1")
+
+  @@index([library], map: "user_id")
+}
+
+model customize_front_end {
+  id                                           Int     @id @default(autoincrement())
+  library                                      Int
+  big_calendar_view                            Boolean @default(false)
+  primary_color                                String? @db.Text
+  secondary_color                              String? @db.Text
+  library_url                                  String? @db.VarChar(100)
+  allow_dark_mode                              Int     @default(0) @db.TinyInt
+  header_info                                  String? @db.Text
+  keep_accordions_open                         Int     @default(0) @db.TinyInt
+  show_event_calendar                          Int     @default(0) @db.TinyInt
+  show_request_study_room                      Int     @default(0) @db.TinyInt
+  show_reading_club                            Int     @default(0) @db.TinyInt
+  library_customize_front_end_libraryTolibrary library @relation("customize_front_end_libraryTolibrary", fields: [library], references: [id], onUpdate: Restrict, map: "customize_front_end_ibfk_1")
+
+  @@index([library], map: "user_id")
+}
+
+model email_reminders {
+  id             Int            @id @default(autoincrement())
+  email          String         @db.Char(40)
+  event_id       Int
+  date_to_send   DateTime       @db.Date
+  sent           Int            @default(0) @db.TinyInt
+  event_calendar event_calendar @relation(fields: [event_id], references: [transid], onDelete: Cascade, onUpdate: Restrict, map: "email_reminders_ibfk_1")
+
+  @@index([event_id], map: "event_id")
+}
+
+model emailpassword_users {
+  user_id                     String                        @id @db.Char(36)
+  email                       String                        @unique(map: "email") @db.VarChar(256)
+  password_hash               String                        @db.VarChar(128)
+  time_joined                 BigInt                        @db.UnsignedBigInt
+  user_name                   String?                       @unique(map: "user_name") @db.VarChar(50)
+  time_zone                   String                        @default("US/Eastern") @db.VarChar(50)
+  subdomain                   String?                       @db.Char(50)
+  admin_pw                    String                        @default("bananas") @db.VarChar(50)
+  CompMasterPW                CompMasterPW[]
+  CompSignIns                 CompSignIns[]
+  Computers                   Computers[]
+  ComputersPW                 ComputersPW[]
+  History                     History[]
+  event_calendar              event_calendar[]
+  event_equipment             event_equipment[]
+  event_form_data             event_form_data[]
+  event_forms                 event_forms[]
+  event_rooms                 event_rooms[]
+  event_types                 event_types[]
+  in_house_checkout           in_house_checkout[]
+  in_house_checkout_items     in_house_checkout_items[]
+  logos                       logos[]
+  posts                       posts[]
+  reading_club_form_data      reading_club_form_data[]
+  reading_club_forms          reading_club_forms[]
+  reading_club_registrations  reading_club_registrations[]
+  reading_clubs               reading_clubs[]
+  reference_count             reference_count[]
+  reference_count_departments reference_count_departments[]
+  reference_count_types       reference_count_types[]
+  reserve_forms               reserve_forms[]
+  schools                     schools[]
+  study_room_form_data        study_room_form_data[]
+  study_rooms                 study_rooms[]
+}
+
+model event_calendar {
+  transid             Int                 @id @unique(map: "transid") @default(autoincrement())
+  userId              String              @db.Char(36)
+  room                Int?
+  reservestart        DateTime            @db.DateTime(6)
+  reserveend          DateTime            @db.DateTime(6)
+  eventname           String              @db.VarChar(50)
+  eventstart          DateTime            @db.DateTime(6)
+  eventend            DateTime            @db.DateTime(6)
+  notes               String?             @db.Text
+  eventhidden         Boolean?
+  eventtype           Int?
+  description         String?             @db.VarChar(10000)
+  form_id             Int?
+  displaystart        DateTime?           @db.DateTime(6)
+  displayend          DateTime?           @db.DateTime(6)
+  equipment           String?             @db.LongText
+  tags                String?             @db.LongText
+  showroom            Boolean?            @default(true)
+  email_reminders     email_reminders[]
+  event_forms         event_forms?        @relation(fields: [form_id], references: [id], map: "event_calendar_ibfk_1")
+  event_rooms         event_rooms?        @relation(fields: [room], references: [id], map: "event_calendar_ibfk_2")
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "event_calendar_ibfk_4")
+  event_types         event_types?        @relation(fields: [eventtype], references: [id], map: "fk_foreign_room_calendar_typeid")
+
+  @@index([room], map: "fk_foreign_room_calendar_roomid")
+  @@index([eventtype], map: "fk_foreign_room_calendar_typeid")
+  @@index([userId], map: "fk_foreign_room_calendar_user_id")
+  @@index([form_id], map: "form_id")
+}
+
+model event_equipment {
+  id                  Int                 @id @default(autoincrement())
+  user_id             String              @db.Char(36)
+  name                String              @db.TinyText
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "event_equipment_ibfk_3")
+
+  @@index([user_id], map: "user_id")
+}
+
+model event_form_data {
+  id                  Int                 @id @default(autoincrement())
+  form_id             Int
+  form_data           String?             @db.Text
+  datetime            DateTime            @db.DateTime(6)
+  eventtypename       String?             @db.Text
+  eventtypeid         Int?
+  user_id             String              @db.Char(36)
+  event_forms         event_forms         @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "event_form_data_ibfk_3")
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "event_form_data_ibfk_6")
+
+  @@index([form_id], map: "fk_foreign_event_form_data_form_id")
+  @@index([user_id], map: "user_id")
+}
+
+model event_forms {
+  id                  Int                 @id @default(autoincrement())
+  userId              String              @db.Char(36)
+  title               String?             @db.Text
+  form_schema         String?             @db.Text
+  form_ui_schema      String?             @db.Text
+  date_created        DateTime?           @db.DateTime(6)
+  attendees           Int?
+  waitinglist         Int?
+  event_calendar      event_calendar[]
+  event_form_data     event_form_data[]
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "event_forms_ibfk_1")
+
+  @@index([userId], map: "fk_foreign_event_forms_user_id")
+}
+
+model event_rooms {
+  id                  Int                 @id @unique(map: "id") @default(autoincrement())
+  userId              String              @db.VarChar(60)
+  name                String              @db.VarChar(100)
+  event_calendar      event_calendar[]
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "event_rooms_ibfk_2")
+
+  @@index([userId], map: "fk_foreign_rooms_user_id")
+}
+
+model event_types {
+  id                  Int                 @id @default(autoincrement())
+  userId              String              @db.Char(36)
+  name                String              @db.Text
+  color               String              @db.Text
+  event_calendar      event_calendar[]
+  emailpassword_users emailpassword_users @relation(fields: [userId], references: [user_id], onDelete: Cascade, map: "event_types_ibfk_1")
+
+  @@index([userId], map: "fk_foreign_event_types_user_id")
+  @@index([id], map: "id")
+}
+
+model in_house_checkout {
+  id                      Int                     @id @default(autoincrement())
+  user_id                 String                  @db.Char(36)
+  card                    String                  @db.Text
+  name                    String?                 @db.Text
+  item                    Int
+  checked_out             DateTime                @db.DateTime(0)
+  returned                DateTime?               @db.DateTime(0)
+  emailpassword_users     emailpassword_users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "in_house_checkout_ibfk_3")
+  in_house_checkout_items in_house_checkout_items @relation(fields: [item], references: [id], onDelete: Cascade, map: "in_house_checkout_ibfk_4")
+
+  @@index([item], map: "item")
+  @@index([user_id], map: "user_id")
+}
+
+model in_house_checkout_items {
+  id                  Int                 @id @default(autoincrement())
+  user_id             String              @db.Char(36)
+  name                String              @db.Char(36)
+  in_house_checkout   in_house_checkout[]
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "in_house_checkout_items_ibfk_2")
+
+  @@index([user_id], map: "user_id")
+}
+
+model jwt_signing_keys {
+  key_id     String  @id @db.VarChar(255)
+  key_string String  @db.Text
+  algorithm  String  @db.VarChar(10)
+  created_at BigInt? @db.UnsignedBigInt
+}
+
+model key_value {
+  name            String  @id @db.VarChar(128)
+  value           String? @db.Text
+  created_at_time BigInt? @db.UnsignedBigInt
+}
+
+model library {
+  id                                                       Int                   @id @default(autoincrement())
+  name                                                     String                @db.Text
+  subdomain                                                String                @db.Text
+  timezone                                                 String                @default("US/Eastern") @db.VarChar(50)
+  admin_pw                                                 String                @default("bananas") @db.Text
+  created_on                                               DateTime              @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  SignInLists_SignInLists_libraryTolibrary                 SignInLists[]         @relation("SignInLists_libraryTolibrary")
+  SignIns_SignIns_libraryTolibrary                         SignIns[]             @relation("SignIns_libraryTolibrary")
+  allowed_modules_allowed_modules_libraryTolibrary         allowed_modules[]     @relation("allowed_modules_libraryTolibrary")
+  customize_front_end_customize_front_end_libraryTolibrary customize_front_end[] @relation("customize_front_end_libraryTolibrary")
+  namelist_namelist_libraryTolibrary                       namelist[]            @relation("namelist_libraryTolibrary")
+  user_user_libraryTolibrary                               user[]                @relation("user_libraryTolibrary")
+}
+
+model logos {
+  id                  Int                 @id @default(autoincrement())
+  user_id             String              @db.Char(36)
+  logo_blob           Bytes?
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "logos_ibfk_2")
+
+  @@index([user_id], map: "user_id")
+}
+
+model namelist {
+  id                                Int     @id @default(autoincrement())
+  card                              String  @db.VarChar(50)
+  name                              String? @db.VarChar(100)
+  library                           Int
+  library_namelist_libraryTolibrary library @relation("namelist_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "namelist_ibfk_1")
+
+  @@index([library], map: "fk_foreign_namelist_user_id")
+}
+
+model posts {
+  transid             Int                 @id @default(autoincrement())
+  userid              String              @db.Char(36)
+  post                String?             @db.VarChar(500)
+  datetime            DateTime            @db.DateTime(6)
+  emailpassword_users emailpassword_users @relation(fields: [userid], references: [user_id], map: "fk_foreign_posts_user_id")
+
+  @@index([userid], map: "fk_foreign_posts_user_id")
+}
+
+model reading_club_form_data {
+  id                  Int                 @id @default(autoincrement())
+  form_id             Int?
+  form_data           String?             @db.Text
+  datetime            DateTime            @db.DateTime(0)
+  reading_club_name   String?             @db.VarChar(100)
+  reading_club_id     Int?
+  user_id             String              @db.Char(36)
+  user_reg_id         String              @db.VarChar(150)
+  reading_club_forms  reading_club_forms? @relation(fields: [form_id], references: [id], map: "reading_club_form_data_ibfk_4")
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reading_club_form_data_ibfk_5")
+  reading_clubs       reading_clubs?      @relation(fields: [reading_club_id], references: [id], onDelete: Cascade, map: "reading_club_form_data_ibfk_6")
+
+  @@index([form_id], map: "form_id")
+  @@index([reading_club_id], map: "reading_club_id")
+  @@index([user_id], map: "user_id")
+}
+
+model reading_club_forms {
+  id                     Int                      @id @default(autoincrement())
+  user_id                String                   @db.Char(36)
+  title                  String?                  @db.Text
+  form_schema            String?                  @db.Text
+  form_ui_schema         String?                  @db.Text
+  date_created           DateTime?                @db.DateTime(0)
+  reading_club_form_data reading_club_form_data[]
+  emailpassword_users    emailpassword_users      @relation(fields: [user_id], references: [user_id], onUpdate: Restrict, map: "reading_club_forms_ibfk_1")
+  reading_clubs          reading_clubs[]
+
+  @@index([user_id], map: "user_id")
+}
+
+model reading_club_registrations {
+  id                  Int                 @id @default(autoincrement())
+  user_id             String              @db.Char(36)
+  first_name          String              @db.VarChar(100)
+  last_name           String              @db.VarChar(100)
+  age                 String?             @db.VarChar(5)
+  grade               String?             @db.VarChar(30)
+  school              Int?
+  phone_number        String?             @db.VarChar(100)
+  email               String              @db.VarChar(100)
+  registrationid      String?             @db.VarChar(150)
+  notes               String?             @db.VarChar(1000)
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reading_club_registrations_ibfk_3")
+  schools             schools?            @relation(fields: [school], references: [id], map: "reading_club_registrations_ibfk_5")
+
+  @@unique([user_id, first_name, last_name, email], map: "user_id_first_name_last_name_email")
+  @@index([school], map: "school")
+}
+
+model reading_clubs {
+  id                     Int                      @id @default(autoincrement())
+  user_id                String                   @db.Char(36)
+  name                   String                   @db.VarChar(100)
+  description            String?                  @db.VarChar(700)
+  form                   Int?
+  milestones             String?                  @db.Text
+  display                Int                      @default(1) @db.TinyInt
+  reading_club_form_data reading_club_form_data[]
+  reading_club_forms     reading_club_forms?      @relation(fields: [form], references: [id], onDelete: NoAction, map: "reading_clubs_ibfk_3")
+  emailpassword_users    emailpassword_users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reading_clubs_ibfk_4")
+
+  @@unique([name, user_id], map: "name_user_id")
+  @@index([form], map: "form")
+  @@index([user_id], map: "user_id")
+}
+
+model reference_count {
+  id                          Int                         @id @default(autoincrement())
+  user_id                     String                      @db.Char(36)
+  department                  Int
+  type                        Int
+  notes                       String?                     @db.VarChar(400)
+  datetime                    DateTime                    @default(dbgenerated("('0000-00-00 00:00:00.000000')")) @db.DateTime(6)
+  reference_count_departments reference_count_departments @relation(fields: [department], references: [id], onDelete: Cascade, map: "reference_count_ibfk_6")
+  reference_count_types       reference_count_types       @relation(fields: [type], references: [id], onDelete: Cascade, map: "reference_count_ibfk_7")
+  emailpassword_users         emailpassword_users         @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reference_count_ibfk_8")
+
+  @@index([datetime], map: "datetime")
+  @@index([department], map: "department")
+  @@index([type], map: "type")
+  @@index([user_id], map: "user_id")
+}
+
+model reference_count_departments {
+  id                  Int                 @id @default(autoincrement())
+  user_id             String              @db.Char(36)
+  name                String              @db.VarChar(20)
+  reference_count     reference_count[]
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reference_count_departments_ibfk_2")
+
+  @@index([user_id], map: "user_id")
+}
+
+model reference_count_types {
+  id                  Int                 @id @default(autoincrement())
+  user_id             String              @db.Char(36)
+  name                String              @db.VarChar(20)
+  reference_count     reference_count[]
+  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reference_count_types_ibfk_2")
+
+  @@index([user_id], map: "user_id")
+}
+
+model reserve_forms {
+  id                   Int                    @id @default(autoincrement())
+  user_id              String                 @db.Char(36)
+  title                String?                @db.Text
+  form_schema          String?                @db.Text
+  form_ui_schema       String?                @db.Text
+  date_created         DateTime?              @db.DateTime(0)
+  emailpassword_users  emailpassword_users    @relation(fields: [user_id], references: [user_id], onUpdate: Restrict, map: "reserve_forms_ibfk_1")
+  study_room_form_data study_room_form_data[]
+  study_rooms          study_rooms[]
+
+  @@index([user_id], map: "user_id")
+}
+
+model schools {
+  id                         Int                          @id @default(autoincrement())
+  user_id                    String                       @db.Char(36)
+  name                       String                       @db.VarChar(100)
+  reading_club_registrations reading_club_registrations[]
+  emailpassword_users        emailpassword_users          @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "schools_ibfk_2")
+
+  @@index([user_id], map: "user_id")
+}
+
+model session_info {
+  session_handle       String  @id @db.VarChar(255)
+  user_id              String  @db.VarChar(128)
+  refresh_token_hash_2 String  @db.VarChar(128)
+  session_data         String? @db.Text
+  expires_at           BigInt  @db.UnsignedBigInt
+  created_at_time      BigInt  @db.UnsignedBigInt
+  jwt_user_payload     String? @db.Text
+}
+
+model study_room_form_data {
+  id                    Int                 @id @default(autoincrement())
+  user_id               String              @db.Char(36)
+  form_id               Int
+  form_data             String?             @db.Text
+  study_room_name       String?             @db.Text
+  study_room_id         Int
+  request_datetime_from DateTime            @db.DateTime(6)
+  request_datetime_to   DateTime            @db.DateTime(6)
+  datetime_submitted    DateTime            @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  confirmed             Int?                @default(0) @db.TinyInt
+  emailpassword_users   emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "study_room_form_data_ibfk_4")
+  study_rooms           study_rooms         @relation(fields: [study_room_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_5")
+  reserve_forms         reserve_forms       @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_6")
+
+  @@index([form_id], map: "form_id")
+  @@index([study_room_id], map: "study_room_id")
+  @@index([user_id], map: "user_id")
+}
+
+model study_rooms {
+  id                   Int                    @id @default(autoincrement())
+  user_id              String                 @db.Char(36)
+  name                 String                 @db.VarChar(100)
+  description          String?                @db.VarChar(700)
+  form                 Int?
+  minimum_capacity     Int?
+  maximum_capacity     Int?
+  study_room_form_data study_room_form_data[]
+  emailpassword_users  emailpassword_users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "study_rooms_ibfk_2")
+  reserve_forms        reserve_forms?         @relation(fields: [form], references: [id], onDelete: NoAction, map: "study_rooms_ibfk_5")
+
+  @@index([form], map: "form")
+  @@index([user_id], map: "user_id")
+}
+
+model user {
+  id                            Int      @id @default(autoincrement())
+  email                         String   @unique(map: "email") @db.VarChar(128)
+  password                      String   @db.VarChar(128)
+  library                       Int
+  created_on                    DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  library_user_libraryTolibrary library  @relation("user_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_ibfk_2")
+
+  @@index([library], map: "library")
+}
+
+model user_last_active {
+  user_id          String  @id @db.VarChar(128)
+  last_active_time BigInt? @db.UnsignedBigInt
+}
