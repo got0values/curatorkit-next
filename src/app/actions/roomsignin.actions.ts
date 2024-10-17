@@ -110,7 +110,7 @@ export async function postSignIn(roomId: string, cardNum: string): Promise<Serve
     if (nameList && nameList.name) {
       name = nameList.name;
     }
-console.log("AHHHHHHH", Number(roomId))
+
     await prisma.signIns.create({
       data: {
         listId: Number(roomId),
