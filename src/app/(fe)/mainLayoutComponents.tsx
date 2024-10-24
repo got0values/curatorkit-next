@@ -588,7 +588,7 @@ export const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         icon={<FiMenu />}
       />
       <Image 
-        src={`/scribementorlogo2_${colorMode}.png`}
+        src={`/CuratorKitLogo2small_${colorMode}.png`}
         alt="logo"
         maxW="90%" 
         maxH="3rem"

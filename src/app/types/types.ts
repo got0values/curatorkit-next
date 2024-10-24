@@ -34,3 +34,8 @@ export type ServerResponseType = {
     datetime: Date;
     notes: string | null;
   }
+
+  export type NameListType = {
+    card: string;
+    name: string;
+  }

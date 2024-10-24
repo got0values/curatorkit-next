@@ -19,6 +19,7 @@ import {
   Spinner
 } from "@chakra-ui/react"
 import { getNameList, postAddCard, deleteCard, postAddCards } from '@/app/actions/namelist.actions';
+import { NameListType } from '@/app/types/types';
 
 const NameList = () => {
   const [nameList, setNameList] = useState<any[]>([]);
@@ -121,17 +122,17 @@ const NameList = () => {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  {pages.length > 0 && pages[page].map((nl, i: number)=>{
+                  {pages.length > 0 && pages[page].map((nl: NameListType, i: number)=>{
                     return (
                       <Tr key={i + 1}>
                         <Td>
                           <Box as="span" color="gray">{page > 0 ? ((i + 1) + (page * 100)) : i + 1}</Box>
                         </Td>
                         <Td> 
-                          <Button size="sm" colorScheme="red" onClick={e=>deleteName(e)} value={Object.values(nl)[0]}>Delete</Button>
+                          <Button size="sm" colorScheme="red" onClick={e=>deleteName(e)} value={nl.card}>Delete</Button>
                         </Td>
-                        <Td>{Object.values(nl)[0]}</Td>
-                        <Td>{Object.values(nl)[1]}</Td>
+                        <Td>{nl.card}</Td>
+                        <Td>{nl.name}</Td>
                       </Tr>
                     )
                   })}
