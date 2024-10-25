@@ -335,37 +335,6 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             >
               <h2>
                 <AccordionButton display="flex" justifyContent="space-between" gap={1}>
-                  <Flex alignItems="center" gap={5}><Icon as={BiBookReader} fontSize="2xl"/>Reading Club</Flex>
-                  <AccordionIcon/>
-                </AccordionButton>
-              </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2} textAlign="left">
-                  <ListItem ps="2.8rem" fontSize="sm">
-                    <Link href="/reading_clubs" onClick={onClose}>Reading Clubs</Link>
-                  </ListItem>
-                  <ListItem ps="2.8rem" fontSize="sm">
-                    <Link href="/reading_clubs_registrants" onClick={onClose}>Registrants</Link>
-                  </ListItem>
-                  <ListItem ps="2.8rem" fontSize="sm">
-                    <Link href="/readingclubformbuilder" onClick={onClose}>Form Builder</Link>
-                  </ListItem>
-                </List>
-              </AccordionPanel>
-            </AccordionItem>
-            <AccordionItem 
-              border={0}
-              rounded="md"
-              m={2}
-              py={.75}
-              _hover={{
-                '.chakra-accordion__icon': {
-                  visibility: "visible"
-                }
-              }}
-            >
-              <h2>
-                <AccordionButton display="flex" justifyContent="space-between" gap={1}>
                   <Flex alignItems="center" gap={5}><Icon as={HiPencilAlt} fontSize="2xl"/>Room Sign-ins</Flex>
                   <AccordionIcon/>
                 </AccordionButton>

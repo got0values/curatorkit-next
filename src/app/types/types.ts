@@ -39,3 +39,87 @@ export type ServerResponseType = {
     card: string;
     name: string;
   }
+
+  export type EventType = {
+    transid: number;
+    roomid: number | null;
+    room: {
+        id: number;
+        name: string;
+        library: number;
+    } | null;
+    event: string;
+    reservedate: string;
+    reservestart: string;
+    eventstart: string;
+    eventend: string;
+    reserveend: string;
+    notes: string;
+    eventhidden: boolean | null;
+    typeid: number | null,
+    type: {
+      id: number;
+      library: number;
+      name: string;
+      color: string;
+    } | null;
+    description: string | null;
+    formid: number | null,
+    displaystart: string | null,
+    displayend: string | null,
+    formmeta: {
+      id: number;
+      title: string | null;
+      form_schema: string | null;
+      date_created: Date | null;
+      attendees: number | null;
+      waitinglist: number | null;
+    } | null;
+    formdata: {
+      id: number;
+      form_id: number;
+      form_data: string | null;
+    }[];
+    equipment_ids: string | never[];
+    tags: string | never[];
+    showroom: boolean | null;
+  }
+
+  export type GetEventsReturnType = {
+    events: EventType[];
+    eventtypes: {
+      id: number;
+      color: string;
+      name: string;
+    }[];
+    eventrooms: {
+      id: number;
+      name: string;
+    }[];
+    equipment: {
+      id: number;
+      name: string;
+    }[];
+    eventforms: {
+      id: number;
+      title: string | null;
+      form_schema: string | null;
+      date_created: Date | null;
+      attendees: number | null;
+      waitinglist: number | null;
+    }[];
+    eventformdata: {
+      id: number;
+      form_id: number;
+      form_data: string | null;
+    }[];
+    subdomain: string | undefined;
+    eventsTwo: {
+      id: number;
+      title: string;
+      allDay: boolean;
+      start: string;
+      end: string;
+    }[];
+    eventscount: number;
+  }
