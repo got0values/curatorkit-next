@@ -12,129 +12,168 @@ import {
   Heading,
   Select,
   Input,
-  Text
+  Text, 
+  useToast
 } from "@chakra-ui/react"
 import { hexToRgb } from '../../utils/hexToRgb';
+import { postRoom, deleteRoom, postType, postTypeColor } from '@/app/actions/eventcalendar/drawers.actions';
+import { EventType, EventRoomType, EventTypeType, EquipmentType, GetEventsReturnType } from '@/app/types/types';
 
-const EventCalendarDrawers = (props) => {
-  const {fetchEvents,setEventRooms,events,eventRooms,setRoomFormErrorMsg,roomFormErrorMsg,setEventTypes,eventTypes,eventEquipment,closeModal,setEventEquipment} = props;
+type EventCalendarDrawersProps = {
+  fetchEvents: ()=>Promise<void>,
+  eventRooms: EventRoomType[],
+  setRoomFormErrorMsg: React.Dispatch<React.SetStateAction<string>>,
+  roomFormErrorMsg: string,
+  eventTypes: EventTypeType[],
+  eventEquipment: EquipmentType[],
+  closeModal: ()=>void
+}
 
-  const [roomName,setRoomName] = useState();
-  const [deleteRoomId,setDeleteRoomId] = useState("Select One");
-  async function addRoom(e) {
+const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
+  const {fetchEvents,eventRooms,setRoomFormErrorMsg,roomFormErrorMsg,eventTypes,eventEquipment,closeModal} = props;
+
+  const toast = useToast();
+
+  const [roomName,setRoomName] = useState<string>("");
+  const [deleteRoomId,setDeleteRoomId] = useState("");
+  async function addRoom(e: any) {
     e.preventDefault();
-    try {
-      await axios
-      .put(server + "/eventrooms", {
-          roomform: {
-              room_name: roomName
-          }
-      })
-      .then((response)=>{
-        if (response.data === "OK") {
-          setRoomName();
+    await postRoom(roomName)
+      .then(async (response)=>{
+        if (response.success) {
+          setRoomName("");
           closeModal();
-          fetchEvents();
-          setEventRooms(events.eventrooms);
+          await fetchEvents();
         }
         else {
-          setRoomFormErrorMsg(response.data)
+          setRoomFormErrorMsg(response.message);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((error)=> {
+        console.error(error)
+        toast({
+          description: error.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
+      })
   }
 
-  async function deleteRoom(e) {
+  async function removeRoom(e: any) {
     e.preventDefault();
     if (window.confirm("Are you sure you want to delete this room?")) {
-      try {
-        await axios
-        .delete(server + "/eventrooms", {
-            data: {
-              room_delete_id: JSON.stringify(e.target.dataset.deleteroomid)
-            }
-        })
+      await deleteRoom(deleteRoomId)
         .then((response)=>{
-          if (response.data === "OK") {
+          if (response.success) {
             closeModal();
             fetchEvents();
-            setEventRooms(events.eventrooms);
           }
           else {
             setRoomFormErrorMsg(response.data)
+            toast({
+              description: response.message,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            });
           }
         })
-      } catch(error) {
-          console.log(error);
-      }
+        .catch((error)=>{
+          console.error(error)
+          toast({
+            description: error.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
+        })
     }
   }
 
-  const [typeName,setTypeName] = useState();
+  const [typeName,setTypeName] = useState("");
   const eventTypeColorRef = useRef();
   const [typeFormErrorMsg,setTypeFormErrorMsg] = useState();
-  const [colorDeleteTypeId,setColorDeleteTypeId] = useState("Select One");
-  async function addType(e) {
+  async function addType(e: any) {
     e.preventDefault();
     try {
-      await axios
-      .put(server + "/eventtypes", {
-          typeform: {
-              type_name: typeName,
-              type_color: {
-                hex: eventTypeColorRef.current.value,
-                rgb: hexToRgb(eventTypeColorRef.current.value)
-              }
+      await postType(typeName, {hex: (eventTypeColorRef.current as any).value,rgb: hexToRgb((eventTypeColorRef.current as any).value)})
+        .then((response)=>{
+          if (response.success) {
+            setTypeName("");
+            closeModal();
+            fetchEvents();
           }
-      })
-      .then((response)=>{
-        if (response.data === "OK") {
-          setTypeName();
-          closeModal();
-          fetchEvents();
-          setEventTypes(events.eventtypes);
-        }
-        else {
-          setTypeFormErrorMsg(response.data)
-        }
+          else {
+            setTypeFormErrorMsg(response.data)
+            toast({
+              description: response.message,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            });
+            console.error(response)
+          }
+        })
+      .catch((error)=>{
+        toast({
+          description: error.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
+        console.error(error)
       })
     } catch(error) {
         console.log(error);
     }
   }
 
-  const eventTypeColorEditRef = useRef();
-  const typeSelectRef = useRef();
-  const [eventTypeColorEdit,setEventTypeColorEdit] = useState(null);
-  async function saveTypeColor(e) {
+  const [eventTypeColorEdit,setEventTypeColorEdit] = useState("");
+  const [eventTypeId,setEventTypeId] = useState("");
+  async function saveTypeColor(e: any) {
     e.preventDefault();
-    if (typeSelectRef.current.selectedIndex !== 0) {
-      try {
-        await axios
-        .put(server + "/typecolor", {
-            type_color_id: typeSelectRef.current.options[typeSelectRef.current.selectedIndex].value,
-            color: {
-              hex: eventTypeColorEditRef.current.value,
-              rgb: hexToRgb(eventTypeColorEditRef.current.value)
-            }
-        })
-        .then((response)=>{
-          if (response.data === "OK") {
-            window.alert("Event type color saved!")
+    if (eventTypeId !== "") {
+      await postTypeColor(eventTypeId, {hex: eventTypeColorEdit, rgb: hexToRgb(eventTypeColorEdit)})
+        .then(async (response)=>{
+          if (response.success) {
+            await fetchEvents();
+            toast({
+              description: "Event type color saved",
+              status: 'success',
+              duration: 4000,
+              isClosable: true,
+            });
           }
           else {
             setTypeFormErrorMsg(response.data)
+            toast({
+              description: response.message,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            });
           }
         })
-      } catch(error) {
-          console.log(error);
-      }
+        .catch((error)=>{
+          toast({
+            description: error.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
+          console.error(error)
+        })
     }
   }
 
-  async function deleteType(e) {
+  async function deleteType(e: any) {
     e.preventDefault();
     if (window.confirm("Are you sure you want to delete this event type?")) {
       try {
@@ -162,7 +201,7 @@ const EventCalendarDrawers = (props) => {
   const [equipmentName,setEquipmentName] = useState();
   const [deleteEquipmentId,setDeleteEquipmentId] = useState();
   const [equipmentFormErrorMsg,setEquipmentFormErrorMsg] = useState()
-  async function addEquipment(e) {
+  async function addEquipment(e: any) {
     e.preventDefault();
     try {
       await axios
@@ -172,8 +211,8 @@ const EventCalendarDrawers = (props) => {
           }
       })
       .then((response)=>{
-        if (response.data === "OK") {
-          setEquipmentName();
+        if (response.success) {
+          setEquipmentName("");
           closeModal();
           fetchEvents();
           setEventEquipment(events.equipment);
@@ -187,7 +226,7 @@ const EventCalendarDrawers = (props) => {
     }
   }
 
-  async function deleteEquipment(e) {
+  async function deleteEquipment(e: any) {
     e.preventDefault();
     if (window.confirm("Are you sure you want to delete this equipment?")) {
       try {
@@ -198,7 +237,7 @@ const EventCalendarDrawers = (props) => {
             }
         })
         .then((response)=>{
-          if (response.data === "OK") {
+          if (response.success) {
             closeModal();
             fetchEvents();
           }
@@ -291,14 +330,14 @@ const EventCalendarDrawers = (props) => {
                 color: "white"
               }}
             >
-              <option value="Select One">Select One</option>
-              {eventRooms && eventRooms.length >= 1 && eventRooms.map((room,i)=>{
+              <option value="">Select One</option>
+              {eventRooms && eventRooms.length >= 1 && eventRooms.map((room)=>{
                 return (
-                  <option key={room['id']} value={room['id']}>{room['roomName']}</option>
+                  <option key={room.id} value={room.id}>{room.name}</option>
                 )
               })}
             </Select>
-            <Button colorScheme="red" size="sm" data-deleteroomid={deleteRoomId} onClick={e=>deleteRoom(e)}>Delete</Button>
+            <Button colorScheme="red" size="sm" onClick={e=>removeRoom(e)}>Delete</Button>
           </Flex>
           <Text color="red" mt={3}>
             {roomFormErrorMsg ? roomFormErrorMsg : ""}
@@ -331,14 +370,14 @@ const EventCalendarDrawers = (props) => {
             </Heading>
           </DrawerHeader>
           <Flex gap={2} mb={3}>
-            <Input type="color" ref={eventTypeColorRef} size="sm" p={0} w={100}/>
+            <Input type="color" ref={eventTypeColorRef as any} size="sm" p={0} w={100}/>
             <Input 
               size="sm" 
               color="black"
               borderColor="black" 
               placeholder="Event Type" 
               type="text" 
-              onChange={e=>setTypeName(e.target.value)}
+              onChange={(e: any)=>setTypeName(e.target.value)}
               _dark={{
                 color: "white"
               }}
@@ -357,9 +396,8 @@ const EventCalendarDrawers = (props) => {
             <Input 
               type="color" 
               size="sm"
-              ref={eventTypeColorEditRef} 
               value={eventTypeColorEdit}
-              onChange={e=>setEventTypeColorEdit(e.target.value)}
+              onChange={(e: any)=>setEventTypeColorEdit(e.target.value)}
               p={0} 
               w={100}
             />
@@ -368,13 +406,17 @@ const EventCalendarDrawers = (props) => {
               size="sm" 
               color="black"
               borderColor="black" 
-              ref={typeSelectRef}
-              onChange={e=>{setEventTypeColorEdit(e.target.options[e.target.selectedIndex].dataset.color)}}
+              value={eventTypeId}
+              onChange={(e: any)=>{
+                setEventTypeId(e.target.options[e.target.selectedIndex].value);
+                console.log(e.target.options[e.target.selectedIndex].dataset.color)
+                setEventTypeColorEdit(e.target.options[e.target.selectedIndex].dataset.color)
+              }}
               _dark={{
                 color: "white"
               }}
             >
-              <option value="Select One">Select One</option>
+              <option value="">Select One</option>
               {eventTypes && eventTypes.length >= 1 && eventTypes.map((type,i)=>{
                 return (
                     <option 
@@ -383,7 +425,7 @@ const EventCalendarDrawers = (props) => {
                     data-color={type.color.hex ? type.color.hex : "#ababab"}
                     value={type.id}
                   >
-                    {type.typeName}
+                    {type.name}
                   </option>
                 )
               })}
@@ -431,7 +473,7 @@ const EventCalendarDrawers = (props) => {
               id="equipmentName" 
               placeholder="Equipment Name" 
               type="text" 
-              onChange={e=>setEquipmentName(e.target.value)}
+              onChange={(e: any)=>setEquipmentName(e.target.value)}
               _dark={{
                 color: "white"
               }}
@@ -450,7 +492,7 @@ const EventCalendarDrawers = (props) => {
               size="sm" 
               color="black"
               borderColor="black" 
-              onChange={e=>{setDeleteEquipmentId(e.target.value)}}
+              onChange={(e: any)=>{setDeleteEquipmentId(e.target.value)}}
               _dark={{
                 color: "white"
               }}
@@ -458,7 +500,7 @@ const EventCalendarDrawers = (props) => {
               <option value="Select One">Select One</option>
               {eventEquipment && eventEquipment.length >= 1 && eventEquipment.map((equipment,i)=>{
                 return (
-                  <option key={equipment['id']} value={equipment['id']}>{equipment['equipmentName']}</option>
+                  <option key={equipment.id} value={equipment.id}>{equipment.name}</option>
                 )
               })}
             </Select>

@@ -1,8 +1,8 @@
 'use server'
 
-import {tokenCookieToLibraryId} from '../helpers/tokenCookieToUserId';
+import {tokenCookieToLibraryId} from '../../helpers/tokenCookieToUserId';
 import { PrismaClient } from '@prisma/client';
-import { ServerResponseType, SignInType } from '../types/types';
+import { ServerResponseType, SignInType } from '../../types/types';
 import momentTimezone from 'moment-timezone';
 
 const prisma = new PrismaClient()
@@ -27,15 +27,17 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
     let libraryTimezone = library?.timezone ?? "US/Eastern";
 
     var results = null;
+    let dateStart = new Date(inputDate);
+    let dateEnd = new Date(new Date(inputDate).setHours(new Date(inputDate).getHours() + 24));
     if (calRoomId === "All") {
       results = await prisma.event_calendar.findMany({
         where: {
           library: libraryId,
           reservestart: {
-            gte: new Date(inputDate)
+            gte: dateStart
           },
           reserveend: {
-            lte: new Date(inputDate)
+            lte: dateEnd
           }
         },
         select: {
@@ -65,10 +67,10 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
           library: libraryId,
           room: Number(calRoomId),
           reservestart: {
-            gte: new Date(inputDate)
+            gte: dateStart
           },
           reserveend: {
-            lte: new Date(inputDate)
+            lte: dateEnd
           }
         },
         select: {
@@ -106,24 +108,24 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
     let events = [];
 
     for (var result of formattedResults) {
-      let roomName = await prisma.event_rooms.findFirst({
+      let roomName = result.room ? await prisma.event_rooms.findFirst({
         where: {
           library: libraryId,
-          id: result.room!
+          id: result.room
         }
-      })
+      }) : null
 
-      let eventType = await prisma.event_types.findFirst({
+      let eventType = result.eventtype ? await prisma.event_types.findFirst({
         where: {
           library: libraryId,
-          id: result.eventtype!
+          id: result.eventtype
         }
-      })
+      }) : null
 
-      let formMeta = await prisma.event_forms.findFirst({
+      let formMeta = result.form_id ? await prisma.event_forms.findFirst({
         where: {
           library: libraryId,
-          id: result.form_id!
+          id: result.form_id
         },
         select: {
           id: true,
@@ -133,9 +135,9 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
           attendees: true,
           waitinglist: true
         }
-      })
+      }) : null
 
-      let eventFormData = await prisma.event_form_data.findMany({
+      let eventFormData = result.form_id ? await prisma.event_form_data.findMany({
         where: {
           library: libraryId,
           form_id: result.form_id!
@@ -145,7 +147,7 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
           form_id: true,
           form_data: true
         }
-      })
+      }) : null
 
       let eventData = {
         transid: result.transid,

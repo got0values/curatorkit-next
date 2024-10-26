@@ -1,7 +1,7 @@
 'use server'
 
 import { PrismaClient } from '@prisma/client'
-import tokenCookieToUserId from '../helpers/tokenCookieToUserId';
+import {tokenCookieToUserId} from '../helpers/tokenCookieToUserId';
 
 export default async function checkIfLoggedIn(): Promise<boolean> {
     const prisma = new PrismaClient();

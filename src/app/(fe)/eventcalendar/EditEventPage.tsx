@@ -21,7 +21,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import {AiOutlineArrowLeft} from 'react-icons/ai';
-import { postCreateEvent } from '@/app/actions/eventcalendar.actions';
+import { postCreateEvent } from '@/app/actions/eventcalendar/eventcalendar.actions';
 import { EditEventPageFormDataType, EquipmentType, EventFormType, EventRoomType, EventTypeType } from '@/app/types/types';
 
 type EditEventPageProps = {
@@ -33,7 +33,7 @@ type EditEventPageProps = {
   regForms: EventFormType[],
   formErrorMsg: string,
   closeModal: ()=>void,
-  fetchEvents: ()=>void,
+  fetchEvents: ()=>Promise<void>,
   setFormErrorMsg: React.Dispatch<React.SetStateAction<string>>,
   setPageIsEditableForEvent: React.Dispatch<React.SetStateAction<boolean>>
 }
@@ -60,9 +60,9 @@ const EditEventPage = (props: EditEventPageProps) => {
   async function createEvent(formData: FormData) {
     try {
       await postCreateEvent(formData)
-        .then((response)=>{
+        .then(async (response)=>{
           if (response.success) {
-            fetchEvents();
+            await fetchEvents();
             setPageIsEditableForEvent(false);
           }
           else {

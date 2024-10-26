@@ -23,7 +23,8 @@ import {
   Tabs,
   Text,
   Modal,
-  Spinner
+  Spinner,
+  useToast
 } from "@chakra-ui/react";
 import {MdAdd} from 'react-icons/md';
 import showAdminDrawer from '../../utils/showAdminDrawer';
@@ -36,10 +37,11 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {BiLinkExternal} from 'react-icons/bi';
 import 'react-calendar/dist/Calendar.css';
-import { getEvents, getBigCalData, deleteEvent } from '@/app/actions/eventcalendar.actions';
+import { getEvents, getBigCalData, deleteEvent } from '@/app/actions/eventcalendar/eventcalendar.actions';
 import { GetEventsReturnType, EventType, EventRoomType, EventFormType, EditEventPageFormDataType, EquipmentType, EventTypeType, EventsTwoType } from '@/app/types/types';
 
 const EventCalendar = () => {
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showDrawer,setShowDrawer] = useState(false);
   const [calEventRoomId,setCalEventRoomId] = useState("All");
@@ -86,24 +88,29 @@ const EventCalendar = () => {
   }
 
   const fetchEvents = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      await getEvents(inputDate,calEventRoomId)
-        .then((response) => {
-          let responseData: GetEventsReturnType = response.data;
-          setRegForms(responseData.eventforms)
-          setEventTypes(responseData.eventtypes)
-          setEvents(responseData.events);
-          setEventRooms(responseData.eventrooms)
-          setEventEquipment(responseData.equipment)
-          setSubdomain(responseData.subdomain)
-          setEventsTwo(responseData.eventsTwo);
-          setEventsCount(responseData.eventscount)
-          setIsLoading(false)
+    setIsLoading(true)
+    await getEvents(inputDate,calEventRoomId)
+      .then((response) => {
+        let responseData: GetEventsReturnType = response.data;
+        setRegForms(responseData.eventforms)
+        setEventTypes(responseData.eventtypes)
+        setEvents(responseData.events);
+        setEventRooms(responseData.eventrooms)
+        setEventEquipment(responseData.equipment)
+        setSubdomain(responseData.subdomain)
+        setEventsTwo(responseData.eventsTwo);
+        setEventsCount(responseData.eventscount)
+        setIsLoading(false)
+      })
+      .catch((error)=>{
+        toast({
+          description: error.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
         })
-    } catch(error) {
-        console.log(error);
-    }
+        setIsLoading(false)
+      })
   },[inputDate,calEventRoomId])
   useEffect(()=>{
     fetchEvents()
@@ -121,8 +128,9 @@ const EventCalendar = () => {
         setModalData(response.data)
         setModalIsViewEvent(true)
       })
-    } catch(error) {
-        console.error(error);
+    } 
+    catch(error) {
+      console.error(error);
     }
   }
 
@@ -359,12 +367,8 @@ const EventCalendar = () => {
           roomFormErrorMsg={roomFormErrorMsg}
           fetchEvents={fetchEvents}
           closeModal={closeModal}
-          setEventRooms={setEventRooms}
           eventTypes={eventTypes} 
-          setEventTypes={setEventTypes}
-          events={events}
           eventEquipment={eventEquipment} 
-          setEventEquipment={setEventEquipment}
         />
       </Drawer>
       <Button 
