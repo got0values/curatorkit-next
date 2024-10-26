@@ -406,6 +406,314 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
   }
 }
 
+export async function postCreateEvent(formData: FormData): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+    const library = await prisma.library.findUnique({
+      where: {
+        id: libraryId
+      },
+      select: {
+        timezone: true
+      }
+    })
+    let libraryTimezone = library?.timezone ?? "US/Eastern";
+
+    let transId = formData.get("transId")?.valueOf();
+    let eventName = formData.get("eventName")?.valueOf();
+    let roomId = formData.get("roomId")?.valueOf();
+    let reserveDate = formData.get("reserveDate")?.valueOf();
+    let reserveStart = formData.get("reserveStart")?.valueOf();
+    let reserveEnd = formData.get("reserveEnd")?.valueOf();
+    let eventStart = formData.get("eventStart")?.valueOf();
+    let eventEnd = formData.get("eventEnd")?.valueOf();
+    let typeId = formData.get("typeId")?.valueOf();
+    let eventDescription = formData.get("eventDescription")?.valueOf();
+    let registrationForm = formData.get("registrationForm")?.valueOf();
+    let regFormAttendees = formData.get("regFormAttendees")?.valueOf();
+    let regFormWaitingList = formData.get("regFormWaitingList")?.valueOf();
+    let showRoom = formData.get("showRoom")?.valueOf();
+    let displayStart = formData.get("displayStart")?.valueOf();
+    let displayEnd = formData.get("displayEnd")?.valueOf();
+    let tags = formData.get("tags")?.valueOf();
+    let equipmentIds = formData.get("equipmentIds")?.valueOf();
+    let eventHidden = formData.get("eventHidden")?.valueOf();
+    let notes = formData.get("notes")?.valueOf();
+
+    if (!eventName) {
+      return {success: false, message: "Please enter a name for your event"}
+    }
+
+    if (!roomId) {
+      return {success: false, message: "Please select a room for the event"}
+    }
+
+    if (!reserveDate) {
+      return {success: false, message: "Please select a reserve date"}
+    }
+
+    if (!reserveStart) {
+      return {success: false, message: "Please select a reserve start time"}
+    }
+
+    if (!reserveEnd) {
+      return {success: false, message: "Please select a reserve end time"}
+    }
+
+    if (!eventStart) {
+      return {success: false, message: "Please select an event start time"}
+    }
+
+    if (!eventEnd) {
+      return {success: false, message: "Please select an event end time"}
+    }
+
+    if (eventStart < reserveStart) {
+      return {success: false, message: "Event start must be after reserve start"}
+    }
+
+    if (eventStart > reserveEnd) {
+      return {success: false, message: "Event start must be before reserve end"}
+    }
+
+    if (eventEnd > reserveEnd) {
+      return {success: false, message: "Event end must be before reserve end"}
+    }
+
+    if (!displayStart && !eventHidden) {
+      return {success: false, message: "Please enter a display start"}
+    }
+
+    if (!displayEnd && !eventHidden) {
+      return {success: false, message: "Please enter a display end"}
+    }
+
+    if (!eventHidden) {
+      displayStart = (displayStart as string).replace("T", " ");
+      displayEnd = (displayEnd as string).replace("T", " ");
+    }
+    else {
+      displayStart = undefined;
+      displayEnd = undefined;
+    }
+
+    if (displayEnd && displayStart && displayEnd < displayStart) {
+      return {success: false, message: "Please start must be before display end"}
+    }
+    
+    if (!typeId) {
+      typeId = undefined;
+    }
+    
+    equipmentIds = JSON.stringify(equipmentIds);
+
+    if (registrationForm && (regFormAttendees || regFormWaitingList)) {
+      await prisma.event_forms.update({
+        where: {
+          id: Number(registrationForm),
+          library: libraryId
+        },
+        data: {
+          attendees: Number(regFormAttendees),
+          waitinglist: Number(regFormWaitingList)
+        }
+      })
+    }
+
+    //for updating existing event
+    if (transId) {
+      const selectedRoom = await prisma.event_rooms.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(roomId)
+        },
+        select: {
+          name: true
+        }
+      })
+      //If "None" room is selected
+      if (selectedRoom && selectedRoom.name != "None") {
+        const utcReserveStart = momentTimezone.tz(reserveStart, libraryTimezone).utc().toDate();
+        const utcReserveEnd = momentTimezone.tz(reserveEnd, libraryTimezone).utc().toDate();
+        const conflictingEvents = await prisma.event_calendar.findMany({
+          where: {
+            room: Number(roomId),
+            library: libraryId,
+            transid: { not: Number(transId) },
+            OR: [
+              {
+                reservestart: {
+                  lte: utcReserveEnd,
+                },
+                reserveend: {
+                  gte: utcReserveStart,
+                }
+              },
+              {
+                reservestart: {
+                  gte: utcReserveStart,
+                  lte: utcReserveEnd,
+                }
+              },
+              {
+                reserveend: {
+                  gte: utcReserveStart,
+                  lte: utcReserveEnd,
+                }
+              }
+            ]
+          }
+        });
+
+        if (conflictingEvents.length) {
+          let conflictingRooms = conflictingEvents.map(async e => {
+              let room = await prisma.event_rooms.findUnique({
+                where: {
+                  id: Number(e.room),
+                  library: libraryId
+                },
+                select: {
+                  name: true
+                }
+              })
+              return room?.name
+            });
+          return {success: false, message: `Overlapping reserves: ${conflictingRooms.join(", ")}`}
+        }
+      }
+      await prisma.event_calendar.update({
+        where: {
+          library: libraryId,
+          transid: Number(transId)
+        },
+        data: {
+          room: Number(roomId),
+          eventname: eventName,
+          reservestart: momentTimezone.tz(reserveStart, libraryTimezone).utc().toDate(),
+          reserveend: momentTimezone.tz(reserveEnd, libraryTimezone).utc().toDate(),
+          eventstart: momentTimezone.tz(eventStart, libraryTimezone).utc().toDate(),
+          eventend: momentTimezone.tz(eventEnd, libraryTimezone).utc().toDate(),
+          notes: notes,
+          eventtype: Number(typeId),
+          eventhidden: eventHidden ? true : false,
+          description: eventDescription,
+          form_id: Number(registrationForm),
+          displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
+          displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
+          equipment: equipmentIds,
+          tags: tags,
+          showroom: showRoom ? true : false
+        }
+      })
+      return {success: true, message: "Success"}
+    }
+    else {
+      let events = await prisma.event_calendar.findMany({
+        where: {
+          library: libraryId
+        },
+        select: {transid: true}
+      })
+
+      let eventCount = events.length;
+
+      if (eventCount <= 1000) {
+        const selectedRoom = await prisma.event_rooms.findUnique({
+          where: {
+            library: libraryId,
+            id: Number(roomId)
+          },
+          select: {
+            name: true
+          }
+        })
+        //this is if a library creates a room named "None" - allows override of check double booking
+        if (selectedRoom && selectedRoom.name != "None") {
+          const utcReserveStart = momentTimezone.tz(reserveStart, libraryTimezone).utc().toDate();
+          const utcReserveEnd = momentTimezone.tz(reserveEnd, libraryTimezone).utc().toDate();
+          const conflictingEvents = await prisma.event_calendar.findMany({
+            where: {
+              room: Number(roomId),
+              library: libraryId,
+              transid: { not: Number(transId) },
+              OR: [
+                {
+                  reservestart: {
+                    lte: utcReserveEnd,
+                  },
+                  reserveend: {
+                    gte: utcReserveStart,
+                  }
+                },
+                {
+                  reservestart: {
+                    gte: utcReserveStart,
+                    lte: utcReserveEnd,
+                  }
+                },
+                {
+                  reserveend: {
+                    gte: utcReserveStart,
+                    lte: utcReserveEnd,
+                  }
+                }
+              ]
+            }
+          });
+  
+          if (conflictingEvents.length) {
+            let conflictingRooms = conflictingEvents.map(async e => {
+                let room = await prisma.event_rooms.findUnique({
+                  where: {
+                    id: Number(e.room),
+                    library: libraryId
+                  },
+                  select: {
+                    name: true
+                  }
+                })
+                return room?.name
+              });
+            return {success: false, message: `Overlapping reserves: ${conflictingRooms.join(", ")}`}
+          }
+        }
+        await prisma.event_calendar.create({
+          data: {
+            library: libraryId,
+            room: Number(roomId),
+            eventname: eventName as string,
+            reservestart: momentTimezone.tz(reserveStart, libraryTimezone).utc().toDate(),
+            reserveend: momentTimezone.tz(reserveEnd, libraryTimezone).utc().toDate(),
+            eventstart: momentTimezone.tz(eventStart, libraryTimezone).utc().toDate(),
+            eventend: momentTimezone.tz(eventEnd, libraryTimezone).utc().toDate(),
+            notes: notes as string,
+            eventtype: Number(typeId),
+            eventhidden: eventHidden ? true : false,
+            description: eventDescription as string,
+            form_id: Number(registrationForm),
+            displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
+            displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
+            equipment: equipmentIds as string,
+            tags: tags as string,
+            showroom: showRoom ? true : false
+          }
+        })
+        return {success: true, message: "Success"}
+      }
+      else {
+        return {success: false, message: "Number of event limit exceeded"}
+      }
+    }
+  }
+  catch (res) {
+    console.error(res);
+    return {success: false, message: "Failed to create event"}
+  }
+}
+
 export async function deleteEvent(eventId: string): Promise<ServerResponseType> {
   try {
     const libraryId = await tokenCookieToLibraryId();

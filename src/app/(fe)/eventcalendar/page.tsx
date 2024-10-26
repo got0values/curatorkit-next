@@ -37,50 +37,29 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import {BiLinkExternal} from 'react-icons/bi';
 import 'react-calendar/dist/Calendar.css';
 import { getEvents, getBigCalData, deleteEvent } from '@/app/actions/eventcalendar.actions';
-import { GetEventsReturnType, EventType } from '@/app/types/types';
-
-type FormData = {
-  eventName: string | null;
-  roomId: number | null;
-  typeId: number | null;
-  reserveDate: string | null;
-  reserveStart: string | null;
-  reserveEnd: string | null;
-  eventStart: string | null;
-  eventEnd: string | null;
-  notes: string | null;
-  eventDescription: string | null;
-  eventHidden: boolean | null;
-  transId: number | null;
-  registrationForm: number | null;
-  displayStart: string | null;
-  displayEnd: string | null;
-  equipment_ids: string | never[];
-  tags: string | never[] | null;
-  showRoom: boolean | null;
-}
+import { GetEventsReturnType, EventType, EventRoomType, EventFormType, EditEventPageFormDataType, EquipmentType, EventTypeType, EventsTwoType } from '@/app/types/types';
 
 const EventCalendar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDrawer,setShowDrawer] = useState(false);
   const [calEventRoomId,setCalEventRoomId] = useState("All");
   const [events, setEvents] = useState<EventType[] | []>([]);
-  const [eventsTwo,setEventsTwo] = useState<GetEventsReturnType["eventsTwo"] | undefined>();
+  const [eventsTwo,setEventsTwo] = useState<EventsTwoType[] | undefined>();
   const [eventsCount,setEventsCount] = useState(0);
   const [dateHeading,setDateHeading] = useState(new Date().toDateString());
-  const [regForms,setRegForms] = useState<GetEventsReturnType["eventforms"] | []>([])
+  const [regForms,setRegForms] = useState<EventFormType[] | []>([])
   const [pageIsEditableForEvent,setPageIsEditableForEvent] = useState(false);
   const [modalIsViewEvent, setModalIsViewEvent] = useState(false);
   const [formErrorMsg,setFormErrorMsg] = useState("")
   const [modalData, setModalData] = useState<EventType>();
   const [roomFormErrorMsg,setRoomFormErrorMsg] = useState("")
   const [inputDate, setInputDate] = useState(moment(new Date()).format('YYYY-MM-DD'));
-  const [eventTypes,setEventTypes] = useState<GetEventsReturnType["eventtypes"] | []>([]);
-  const [eventEquipment,setEventEquipment] = useState<GetEventsReturnType["equipment"] | []>([]);
-  const [subdomain,setSubdomain] = useState<GetEventsReturnType["subdomain"] | undefined>();
-  const [eventRooms,setEventRooms] = useState<GetEventsReturnType["eventrooms"] | []>([]);
+  const [eventTypes,setEventTypes] = useState<EventTypeType[] | []>([]);
+  const [eventEquipment,setEventEquipment] = useState<EquipmentType[] | []>([]);
+  const [subdomain,setSubdomain] = useState<string | undefined>();
+  const [eventRooms,setEventRooms] = useState<EventRoomType[] | []>([]);
   const [bigCalendarView,setBigCalendarView] = useState(true)
-  const [formData,setFormData] = useState<FormData>({
+  const [formData,setFormData] = useState<EditEventPageFormDataType>({
     eventName: null,
     roomId: null,
     typeId: null,
@@ -166,7 +145,7 @@ const EventCalendar = () => {
         displayStart: modalData.displaystart ? new Date(modalData.displaystart).toLocaleDateString('fr-CA') + " " + new Date(modalData.displaystart).toTimeString().split(" ")[0] : "",
         displayEnd: modalData.displayend ? new Date(modalData.displayend).toLocaleDateString('fr-CA') + " " + new Date(modalData.displayend).toTimeString().split(" ")[0] : "",
         equipment_ids: modalData.equipment_ids?.length ? modalData.equipment_ids : [],
-        tags: modalData.tags?.length > 0 ? modalData.tags : null,
+        tags: modalData.tags?.length > 0 ? modalData.tags : [],
         showRoom: modalData.showroom,
       })
       setModalIsViewEvent(false);
@@ -265,7 +244,7 @@ const EventCalendar = () => {
       displayStart: null,
       displayEnd: null,
       equipment_ids: [],
-      tags: null,
+      tags: [],
       showRoom: false
     })
     fetchEvents()

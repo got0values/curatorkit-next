@@ -17,77 +17,69 @@ import {
   Badge,
   Tag,
   TagLabel,
-  TagCloseButton
+  TagCloseButton,
+  useToast
 } from "@chakra-ui/react";
 import {AiOutlineArrowLeft} from 'react-icons/ai';
+import { postCreateEvent } from '@/app/actions/eventcalendar.actions';
+import { EditEventPageFormDataType, EquipmentType, EventFormType, EventRoomType, EventTypeType } from '@/app/types/types';
 
-const EditEventPage = (props) => {
+type EditEventPageProps = {
+  formData: EditEventPageFormDataType,
+  setFormData: React.Dispatch<React.SetStateAction<EditEventPageFormDataType>>,
+  eventRooms: EventRoomType[],
+  eventTypes: EventTypeType[],
+  eventEquipment: EquipmentType[],
+  regForms: EventFormType[],
+  formErrorMsg: string,
+  closeModal: ()=>void,
+  fetchEvents: ()=>void,
+  setFormErrorMsg: React.Dispatch<React.SetStateAction<string>>,
+  setPageIsEditableForEvent: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const EditEventPage = (props: EditEventPageProps) => {
   const {formData,setFormData,eventRooms,eventTypes,eventEquipment,regForms,formErrorMsg,closeModal,fetchEvents,setFormErrorMsg,setPageIsEditableForEvent} = props;
 
-  const eventNameRef = useRef();
-  const formDescriptionRef = useRef()
-  const hiddenRef = useRef();
-  const roomRef = useRef();
-  const notesRef = useRef();
-  const regFormAttendeesRef = useRef();
-  const regFormWaitingListRef = useRef();
+  const toast = useToast();
+
+  // const eventNameRef = useRef();
+  // const formDescriptionRef = useRef()
+  // const hiddenRef = useRef();
+  // const roomRef = useRef();
+  // const notesRef = useRef();
+  // const regFormAttendeesRef = useRef();
+  // const regFormWaitingListRef = useRef();
   const tagInputRef = useRef();
-  const showRoomRef = useRef();
+  // const showRoomRef = useRef();
 
   useEffect(()=>{
-    return setFormErrorMsg(null)
+    return setFormErrorMsg("")
   },[])
 
-  const createEvent = useCallback(async (e) => {
-    e.preventDefault();
+  async function createEvent(formData: FormData) {
     try {
-        await axios
-        .post(server + "/eventcalendar", {
-          formdata: {
-            trans_id: formData.transId,
-            event_name: eventNameRef.current.value,
-            room_id: roomRef.current.value,
-            reserve_date: formData.reserveDate ? formData.reserveDate : "",
-            reserve_start: formData.reserveStart ? formData.reserveDate + " " + formData.reserveStart : "",
-            reserve_end: formData.reserveEnd ? formData.reserveDate + " " + formData.reserveEnd : "",
-            event_start: formData.eventStart ? formData.reserveDate + " " + formData.eventStart : "",
-            event_end: formData.eventEnd ? formData.reserveDate + " " + formData.eventEnd : "",
-            type_id: formData.typeId,
-            equipment_ids: formData.equipment_ids,
-            notes: notesRef.current.value,
-            eventhidden: hiddenRef.current.checked,
-            description: formDescriptionRef.current.value,
-            registration_form: formData.registrationForm ? formData.registrationForm : null,
-            display_start: formData.displayStart ? formData.displayStart : null,
-            display_end: formData.displayEnd ? formData.displayEnd : null,
-            regform_attendees: regFormAttendeesRef.current ? regFormAttendeesRef.current.value : null,
-            regform_waiting_list: regFormWaitingListRef.current ? regFormWaitingListRef.current.value : null,
-            tags: formData.tags?.length > 0 ? formData.tags : [],
-            showroom: showRoomRef.current.checked
-          }
-        })
+      await postCreateEvent(formData)
         .then((response)=>{
-          if (response.data === "OK") {
-            hiddenRef.current.checked = false;
-            eventNameRef.current.value = "";
-            notesRef.current.value = "";
+          if (response.success) {
             fetchEvents();
             setPageIsEditableForEvent(false);
           }
           else {
-            setFormErrorMsg(null)
-            setFormErrorMsg(response.data)
+            setFormErrorMsg("")
+            setFormErrorMsg(response.message)
           }
         })
-    } catch(error) {
-        console.log(error);
+    } 
+    catch(error) {
+      console.error(error);
     }
-  },[server,formData,closeModal,fetchEvents,setFormErrorMsg,setPageIsEditableForEvent])
+  }
 
   const [attendees,setAttendees] = useState(regForms.filter((regForm)=>regForm.id===formData.registrationForm)[0]?.attendees);
   const [waitingList,setWaitingList] = useState(regForms.filter((regForm)=>regForm.id===formData.registrationForm)[0]?.waitinglist);
   const [showAttendeesBox,setShowAttendeesBox] = useState(false);
-  const handleRegFormChange = (e) => {
+  const handleRegFormChange = (e: any) => {
     setFormData({...formData, registrationForm: e.target.value})
     if (e.target.value !== "") {
       setAttendees(regForms.filter((regForm)=>regForm.id.toString()===e.target.value)[0].attendees)
@@ -101,7 +93,7 @@ const EditEventPage = (props) => {
     }
   }
 
-  function handleDeleteEquipment(e) {
+  function handleDeleteEquipment(e: any) {
     e.preventDefault()
     const {id} = e.target.dataset
     setFormData({...formData, equipment_ids: formData.equipment_ids.filter((fid,i,self)=> i !== self.indexOf(id))})
@@ -110,7 +102,7 @@ const EditEventPage = (props) => {
   }
 
   const [displayDisplay, setDisplayDisplay] = useState(!formData.eventHidden);
-  function handleHiddenCheckbox(e) {
+  function handleHiddenCheckbox(e: any) {
     if (e.target.checked) {
       setDisplayDisplay(false)
     }
@@ -119,7 +111,7 @@ const EditEventPage = (props) => {
     }
   }
 
-  function handleDeleteTag(e) {
+  function handleDeleteTag(e: any) {
     const {tagname} = e.target.parentNode.dataset;
     setFormData({...formData, tags: formData.tags.filter((tag,i,self)=> tag !== tagname)})
   }
@@ -181,7 +173,7 @@ const EditEventPage = (props) => {
           rounded="md"
           boxShadow="lg"
         >
-          <Box>
+          <form action={createEvent}>
             <FormControl>
               <Box w="100%" mb={2}>
                 <FormLabel htmlFor="event-name" fontWeight="700">Event Name:</FormLabel>
@@ -189,7 +181,7 @@ const EditEventPage = (props) => {
                   id="event-name"
                   type="text" 
                   defaultValue={formData && formData.eventName ? formData.eventName : ""}
-                  ref={eventNameRef}
+                  name="eventName"
                   autoComplete="off"
                 />
               </Box>
@@ -198,12 +190,12 @@ const EditEventPage = (props) => {
                 <Select 
                   id="event-room-dropdown-menu" 
                   defaultValue={formData && formData.roomId ? formData.roomId : ""} 
-                  ref={roomRef}
+                  name="roomId"
                 >
                   <option value="">Select One</option>
-                  {eventRooms.length >= 1 && eventRooms.map((room,i)=>{
+                  {eventRooms.length >= 1 && eventRooms.map((room: EventRoomType)=>{
                     return (
-                      <option key={room['id']} value={room['id']}>{room['roomName']}</option>
+                      <option key={room.id} value={room.id}>{room.name}</option>
                     )
                   })}
                 </Select>
@@ -213,7 +205,7 @@ const EditEventPage = (props) => {
                   <input 
                     id="show-room" 
                     type="checkbox" 
-                    ref={showRoomRef}
+                    name="showRoom"
                     defaultChecked={formData && formData.showRoom === true ? true : false}
                   />
                   <FormLabel 
@@ -228,38 +220,73 @@ const EditEventPage = (props) => {
               <Flex flexDirection="column" mb={2}>
                 <Box w={["100%","100%","50%"]} mb={2}>
                   <FormLabel htmlFor="event-date" fontWeight="700">Reserve date:</FormLabel>
-                  <Input id="event-date" type="date" value={formData && formData.reserveDate ? formData.reserveDate : ""} onChange={e=>{setFormData({...formData, reserveDate: e.target.value})}}/>
+                  <Input 
+                    id="event-date" 
+                    type="date" 
+                    name="reserveDate"
+                    value={formData && formData.reserveDate ? formData.reserveDate : ""} 
+                    onChange={e=>{setFormData({...formData, reserveDate: e.target.value})}}
+                  />
                 </Box>
                 <Flex mb={2} alignItems="center" gap={2} justifyContent="space-between">
                   <Box w="50%">
                     <FormLabel htmlFor="reserve-start" fontWeight="700">Reserve start:</FormLabel>
-                    <Input id="reserve-start" type="time" value={formData && formData.reserveStart ? formData.reserveStart : ""} onChange={e=>{
-                      setFormData({...formData, reserveStart: e.target.value})
-                      }}/>
+                    <Input 
+                      id="reserve-start" 
+                      type="time" 
+                      value={formData && formData.reserveStart ? formData.reserveStart : ""} 
+                      name="reserveStart"
+                      onChange={e=>{
+                        setFormData({...formData, reserveStart: e.target.value})
+                      }}
+                    />
                   </Box>
                   <Box w="50%">
                     <FormLabel htmlFor="reserve-end" fontWeight="700">Reserve end:</FormLabel>
-                    <Input id="reserve-end" type="time" value={formData && formData.reserveEnd ? formData.reserveEnd : ""} onChange={e=>{setFormData({...formData, reserveEnd: e.target.value})}}/>
+                    <Input 
+                      id="reserve-end" 
+                      type="time" 
+                      value={formData && formData.reserveEnd ? formData.reserveEnd : ""} 
+                      name="reserveEnd"
+                      onChange={e=>{setFormData({...formData, reserveEnd: e.target.value})}}
+                    />
                   </Box>
                 </Flex>
                 <Flex mb={2} alignItems="center" gap={2} justifyContent="space-between">
                   <Box w="50%">
                     <FormLabel htmlFor="event-start" fontWeight="700">Event start:</FormLabel>
-                    <Input id="event-start" type="time" value={formData && formData.eventStart ? formData.eventStart : ""} onChange={e=>{setFormData({...formData, eventStart: e.target.value})}}/>
+                    <Input 
+                      id="event-start" 
+                      type="time" 
+                      value={formData && formData.eventStart ? formData.eventStart : ""} 
+                      name="eventStart"
+                      onChange={e=>{setFormData({...formData, eventStart: e.target.value})}}
+                    />
                   </Box>
                   <Box w="50%">
                     <FormLabel htmlFor="event-end" fontWeight="700">Event end:</FormLabel> 
-                    <Input id="event-end" type="time" value={formData && formData.eventEnd ? formData.eventEnd : ""} onChange={e=>{setFormData({...formData, eventEnd: e.target.value})}}/>
+                    <Input 
+                      id="event-end" 
+                      type="time" 
+                      value={formData && formData.eventEnd ? formData.eventEnd : ""}
+                      name="eventEnd" 
+                      onChange={e=>{setFormData({...formData, eventEnd: e.target.value})}}
+                    />
                   </Box>
                 </Flex>
               </Flex>
               <Box w="100%" mb={2}>
                 <FormLabel htmlFor="event-type-dropdown-menu" fontWeight="700">Event type: </FormLabel>
-                <Select id="event-type-dropdown-menu" defaultValue={formData && formData.typeId ? formData.typeId : ""} onChange={e=>{setFormData({...formData, typeId: e.target.value})}}>
+                <Select 
+                  id="event-type-dropdown-menu" 
+                  defaultValue={formData && formData.typeId ? formData.typeId : ""} 
+                  name="typeId"
+                  onChange={e=>{setFormData({...formData, typeId: Number(e.target.value)})}}
+                >
                   <option>None</option>
                   {eventTypes.length >= 1 && eventTypes.map((type,i)=>{
                     return (
-                      <option key={type.id} style={{color: type.color.rgb}} value={type.id}>{type.typeName}</option>
+                      <option key={type.id} style={{color: type.color.rgb}} value={type.id}>{type.name}</option>
                     )
                   })}
                 </Select>
@@ -274,10 +301,10 @@ const EditEventPage = (props) => {
                 }}
               >
                 <FormLabel htmlFor="event-description" fontWeight="700">Description</FormLabel> 
-                <JoditEditor
+                <Textarea as={JoditEditor}
                   id="event-description"
                   value={formData && formData.eventDescription ? formData.eventDescription : ""}
-                  ref={formDescriptionRef} 
+                  name="eventDescription"
                   config={config}
                 />
               </Box>
@@ -286,6 +313,7 @@ const EditEventPage = (props) => {
                 <Select 
                   id="registration-form-dropdown-menu" 
                   defaultValue={formData && formData.registrationForm ? formData.registrationForm : ""} 
+                  name="registrationForm"
                   onChange={e=>handleRegFormChange(e)}
                 >
                   <option value="">Select One</option>
@@ -306,7 +334,7 @@ const EditEventPage = (props) => {
                       defaultValue={attendees !== null ? attendees : 0} 
                       min="0"
                       type="number" 
-                      ref={regFormAttendeesRef}
+                      name="regFormAttendees"
                     />
                   </Box>
                   <Box w="100%" mb={2}>
@@ -316,7 +344,7 @@ const EditEventPage = (props) => {
                       defaultValue={waitingList !== null ? waitingList : 0} 
                       min="0"
                       type="number" 
-                      ref={regFormWaitingListRef}
+                      name="regFormWaitingList"
                     />
                   </Box>
                 </>
@@ -326,8 +354,8 @@ const EditEventPage = (props) => {
                 <Flex alignItems="center" gap={2}>
                   <input 
                     id="hidden-event" 
-                    type="checkbox" 
-                    ref={hiddenRef}
+                    type="checkbox"
+                    name="eventHidden"
                     defaultChecked={formData && formData.eventHidden === true ? true : false}
                     onChange={e=>handleHiddenCheckbox(e)}
                   />
@@ -351,13 +379,25 @@ const EditEventPage = (props) => {
               >
                 <Box w="50%">
                   <FormLabel htmlFor="display-start" fontWeight="700">Display start:</FormLabel>
-                  <Input id="display-start" type="datetime-local" value={formData && formData.displayStart ? formData.displayStart : ""} onChange={e=>{setFormData({...formData, displayStart: e.target.value})}}/>
+                  <Input 
+                    id="display-start" 
+                    type="datetime-local" 
+                    value={formData && formData.displayStart ? formData.displayStart : ""} 
+                    name="displayStart"
+                    onChange={e=>{setFormData({...formData, displayStart: e.target.value})}}
+                  />
                 </Box>
                 <Box w="50%">
                   <FormLabel htmlFor="display-end" fontWeight="700">Display end:</FormLabel>
-                  <Input id="display-end" type="datetime-local" value={formData && formData.displayEnd ? formData.displayEnd : ""} onChange={e=>{
+                  <Input 
+                  id="display-end" 
+                  type="datetime-local" 
+                  value={formData && formData.displayEnd ? formData.displayEnd : ""} 
+                  name="displayEnd"
+                  onChange={e=>{
                     setFormData({...formData, displayEnd: e.target.value})
-                    }}/>
+                    }}
+                  />
                 </Box>
               </Flex>
               <Box w="100%" mb={2}>
@@ -369,15 +409,16 @@ const EditEventPage = (props) => {
                         type="text" 
                         w="auto"
                         id="add-tag"
-                        ref={tagInputRef}
+                        ref={tagInputRef as any}
                       />
+                      <Input type="hidden" name="tags" value={formData.tags}/>
                       <Button 
                         colorScheme="black"
                         variant="outline"
                         w="auto"
                         onClick={e=>{
-                          setFormData({...formData, tags: [...formData.tags, tagInputRef.current.value]})
-                          tagInputRef.current.value = "";
+                          setFormData({...formData, tags: [...formData.tags, (tagInputRef.current as any).value]});
+                          (tagInputRef.current as any).value = "";
                         }
                       }
                       >
@@ -417,6 +458,7 @@ const EditEventPage = (props) => {
                       id="equipment-list-dropdown-menu" 
                       h="2.5rem"
                       defaultValue={formData && formData.equipment_ids ? formData.equipment_ids : []}
+                      name="equipmentIds"
                       onChange={e=>e.target.value !== "" && formData.equipment_ids ? (
                         setFormData(prev=>(
                           {...prev, equipment_ids: [...prev.equipment_ids, e.target.value]}
@@ -434,8 +476,8 @@ const EditEventPage = (props) => {
                       <option value="">None</option>
                       {eventEquipment.length >= 1 && eventEquipment.map((equipment,i)=>{
                         return (
-                          <option key={equipment['id']} data-name={equipment['equipmentName']} value={equipment['id']}>
-                            {equipment['equipmentName']}
+                          <option key={equipment['id']} data-name={equipment.name} value={equipment['id']}>
+                            {equipment.name}
                           </option>
                         )
                       })}
@@ -444,14 +486,14 @@ const EditEventPage = (props) => {
                   <Flex maxW={"100%"} gap={1} flexWrap="wrap" alignItems="center">
                     { formData && formData.equipment_ids?.length > 0 ? (formData.equipment_ids.map((eid,i)=> (
                       formData.equipment_ids.length > 1 && i !== 0 && 
-                      eventEquipment.find((eq)=>eq.id.toString() === eid)?.equipmentName !== undefined ? (
+                      eventEquipment.find((eq)=>eq.id.toString() === eid)?.name !== undefined ? (
                           <Badge 
                             key={i}
                             px={2}
                             py={1}
                             rounded="md"
                           >
-                          {eventEquipment.find((eq)=>eq.id.toString() === eid)?.equipmentName} 
+                          {eventEquipment.find((eq)=>eq.id.toString() === eid)?.name} 
                           <Text 
                             as="span" 
                             data-id={eid}
@@ -473,9 +515,8 @@ const EditEventPage = (props) => {
                 <FormLabel htmlFor="notes" fontWeight="700">Notes:</FormLabel>
                 <Textarea 
                   id="notes"
-                  type="text"
+                  name="notes"
                   defaultValue={formData && formData.notes ? formData.notes : ""}
-                  ref={notesRef}
                 />
               </Box>
             </FormControl>
@@ -484,18 +525,19 @@ const EditEventPage = (props) => {
                 {formErrorMsg ? formErrorMsg : ""}
               </Text>
               <Flex mt={3} w="100%">
+                <Input type="hidden" name="transId" value={formData.transId?.toString()}/>
                 <Button 
                   type="submit" 
                   colorScheme="green" 
                   w="100%"
                   data-transid={formData && formData.transId ? formData.transId : null}
-                  onClick={e=>{createEvent(e)}}
+                  onClick={e=>{createEvent(e as any)}}
                 >
                   Submit
                 </Button>
               </Flex>
             </Flex>
-          </Box>
+          </form>
         </Box>
       </Flex>
     </Flex>

@@ -80,46 +80,80 @@ export type ServerResponseType = {
       form_id: number;
       form_data: string | null;
     }[];
-    equipment_ids: string | never[];
-    tags: string | never[];
+    equipment_ids: string[] | [];
+    tags: string[] | [];
     showroom: boolean | null;
+  }
+
+  export type EventRoomType = {
+    id: number;
+    name: string;
+  }
+
+  export type EventFormType = {
+    id: number;
+    title: string | null;
+    form_schema: string | null;
+    date_created: Date | null;
+    attendees: number | null;
+    waitinglist: number | null;
+  }
+
+  export type EditEventPageFormDataType = {
+    eventName: string | null;
+    roomId: number | null;
+    typeId: number | null;
+    reserveDate: string | null;
+    reserveStart: string | null;
+    reserveEnd: string | null;
+    eventStart: string | null;
+    eventEnd: string | null;
+    notes: string | null;
+    eventDescription: string | null;
+    eventHidden: boolean | null;
+    transId: number | null;
+    registrationForm: number | null;
+    displayStart: string | null;
+    displayEnd: string | null;
+    equipment_ids: string[] | [];
+    tags: string[] | [];
+    showRoom: boolean | null;
+  }
+
+  export type EquipmentType = {
+    id: number;
+    name: string;
+  }
+
+  export type EventTypeType = {
+    id: number;
+    color: {
+      hex: string;
+      rgb: string;
+    };
+    name: string;
+  }
+
+  export type EventsTwoType = {
+    id: number;
+    title: string;
+    allDay: boolean;
+    start: string;
+    end: string;
   }
 
   export type GetEventsReturnType = {
     events: EventType[];
-    eventtypes: {
-      id: number;
-      color: string;
-      name: string;
-    }[];
-    eventrooms: {
-      id: number;
-      name: string;
-    }[];
-    equipment: {
-      id: number;
-      name: string;
-    }[];
-    eventforms: {
-      id: number;
-      title: string | null;
-      form_schema: string | null;
-      date_created: Date | null;
-      attendees: number | null;
-      waitinglist: number | null;
-    }[];
+    eventtypes: EventTypeType[];
+    eventrooms: EventRoomType[];
+    equipment: EquipmentType[];
+    eventforms: EventFormType[];
     eventformdata: {
       id: number;
       form_id: number;
       form_data: string | null;
     }[];
     subdomain: string | undefined;
-    eventsTwo: {
-      id: number;
-      title: string;
-      allDay: boolean;
-      start: string;
-      end: string;
-    }[];
+    eventsTwo: EventsTwoType[];
     eventscount: number;
   }
