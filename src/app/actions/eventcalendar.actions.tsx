@@ -507,6 +507,11 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
     if (!typeId) {
       typeId = undefined;
     }
+
+    reserveStart = `${reserveDate} ${reserveStart}`;
+    reserveEnd = `${reserveDate} ${reserveEnd}`;
+    eventStart = `${reserveDate} ${eventStart}`;
+    eventEnd = `${reserveDate} ${eventEnd}`;
     
     equipmentIds = JSON.stringify(equipmentIds);
 
@@ -600,7 +605,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
           eventtype: Number(typeId),
           eventhidden: eventHidden ? true : false,
           description: eventDescription,
-          form_id: Number(registrationForm),
+          form_id: registrationForm ? Number(registrationForm) : null,
           displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
           displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
           equipment: equipmentIds,
@@ -693,7 +698,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
             eventtype: Number(typeId),
             eventhidden: eventHidden ? true : false,
             description: eventDescription as string,
-            form_id: Number(registrationForm),
+            form_id: registrationForm ? Number(registrationForm) : null,
             displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
             displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
             equipment: equipmentIds as string,
