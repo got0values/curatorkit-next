@@ -98,7 +98,7 @@ const NameList = () => {
           position="relative"
         >
           <Box id="vr"></Box>
-          <Heading as="h1" size="lg">Name List</Heading>
+          <Heading as="h1" size="lg" ms={3}>Name List</Heading>
         </Box>
         <Container maxW="1080px">
           <Flex flexWrap="wrap" justifyContent="space-between" mt={5} mb={4}>

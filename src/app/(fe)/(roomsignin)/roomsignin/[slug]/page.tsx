@@ -274,12 +274,8 @@ const RoomSignIn = ({params}: {params: {slug: string}}) => {
               position="relative"
             >
               <Box id="vr"></Box>
-              <Heading as="h1" size="lg">Room Sign In</Heading>
-            </Box>
-            <Box
-              position="relative"
-            >
-              <Box position="absolute" top={0}>
+              <Flex width="100%" justify="space-between">
+                <Heading as="h1" size="lg" ms={3}>Room Sign In</Heading>
                 <Link 
                   href="/roomsigninlists"
                 >
@@ -290,12 +286,18 @@ const RoomSignIn = ({params}: {params: {slug: string}}) => {
                     bgColor="transparent"
                     p={0}
                     h="1.75rem"
+                    zIndex={10}
                     // onClick={e=>setPageIsEditableForEvent(false)}
+                    me={5}
                   >
                     <AiOutlineArrowLeft/> <Text as="span" ms={1}>Back to Rooms</Text>
                   </Button>
                 </Link>
-              </Box>
+              </Flex>
+            </Box>
+            <Box
+              position="relative"
+            >
               <Container 
                 maxW="1080px"
                 id='signin-container'
