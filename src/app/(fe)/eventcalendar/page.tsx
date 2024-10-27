@@ -398,7 +398,7 @@ const EventCalendar = () => {
         >
           <Box id="vr"></Box>
           <Flex w="100%" alignItems="center" justifyContent="space-between">
-            <Flex me={5} gap={2} alignItems="center">
+            <Flex gap={2} alignItems="center" ms={3}>
               <Heading as="h1" size="lg">Event Calendar</Heading>
               <Link 
                 href={`https://${subdomain}.curatorkit.com/cal`} 

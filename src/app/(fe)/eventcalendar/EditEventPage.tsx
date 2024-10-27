@@ -134,26 +134,23 @@ const EditEventPage = (props: EditEventPageProps) => {
         <Flex w="100%" color="grey" alignItems="center">
           <Box id="vr"></Box>
         </Flex>
-        <Flex w="100%" >
-          <Heading as="h1" size="lg">Add Event</Heading>
+        <Flex w="100%" justify="space-between">
+          <Heading as="h1" size="lg" ms={3}>Add Event</Heading>
+          <Button 
+            color="grey" 
+            me={5}
+            fontSize="md" 
+            bgColor="transparent"
+            p={0}
+            h="1.75rem"
+            mt={2}
+            onClick={e=>setPageIsEditableForEvent(false)}
+          >
+            <AiOutlineArrowLeft/> Event Calendar
+          </Button>
         </Flex>
       </Box>
       <Flex pt={3} w="100%" alignItems="center" justifyContent="center" position="relative">
-        <Button 
-          color="grey" 
-          ms={1}
-          fontSize="md" 
-          bgColor="transparent"
-          p={0}
-          h="1.75rem"
-          mt={2}
-          onClick={e=>setPageIsEditableForEvent(false)}
-          position="absolute"
-          top={0}
-          left={0}
-        >
-        <AiOutlineArrowLeft/> Event Calendar
-        </Button>
         <Box 
           w={["100%","100%","75%"]} 
           p={5} 
