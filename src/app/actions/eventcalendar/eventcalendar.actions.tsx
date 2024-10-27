@@ -337,7 +337,7 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
       },
     });
 
-    let roomName = room?.name;
+    // let roomName = room?.name;
 
     let eventType = await prisma.event_types.findUnique({
       where: {
@@ -379,7 +379,7 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
     let returnData = {
       transid: eventData.id,
       roomid: eventData.room,
-      room: roomName,
+      room: room,
       event: eventData.eventName,
       reservedate: eventData.reserveStart,
       reservestart: eventData.reserveStart,
@@ -396,7 +396,7 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
       displayend: eventData.displayEnd,
       formmeta: formMetaSchema,
       formdata: formData,
-      equipment_ids: eventData.equipment !== "" ? JSON.stringify(eventData.equipment) : [],
+      equipment_ids: eventData.equipment ? JSON.parse(eventData.equipment).map((e: any) => e.id) : [],
       tags: eventData.tags ? eventData.tags : [],
       showroom: eventData.showroom
     }
@@ -515,8 +515,6 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
     reserveEnd = `${reserveDate} ${reserveEnd}`;
     eventStart = `${reserveDate} ${eventStart}`;
     eventEnd = `${reserveDate} ${eventEnd}`;
-    
-    equipmentIds = JSON.stringify(equipmentIds);
 
     if (registrationForm && (regFormAttendees || regFormWaitingList)) {
       await prisma.event_forms.update({
@@ -611,8 +609,8 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
           form_id: registrationForm ? Number(registrationForm) : null,
           displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
           displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
-          equipment: equipmentIds,
-          tags: tags,
+          equipment: equipmentIds ? JSON.stringify((equipmentIds as string).split(",")) : null,
+          tags: tags ? JSON.stringify(tags) : null,
           showroom: showRoom ? true : false
         }
       })
@@ -704,8 +702,8 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
             form_id: registrationForm ? Number(registrationForm) : null,
             displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
             displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
-            equipment: equipmentIds as string,
-            tags: tags as string,
+            equipment: equipmentIds ? JSON.stringify((equipmentIds as string).split(",")) : null,
+            tags: tags ? JSON.stringify(tags) : null,
             showroom: showRoom ? true : false
           }
         })

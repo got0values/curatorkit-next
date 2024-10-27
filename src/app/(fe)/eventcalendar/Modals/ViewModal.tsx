@@ -16,9 +16,17 @@ import {
   Link
 } from "@chakra-ui/react";
 import moment from 'moment';
+import { EventType, EquipmentType } from "@/app/types/types";
 
+type ViewModalProps = {
+  modalData: EventType,
+  handleEditClick: ()=>void,
+  deleteEvent: (e:any)=>Promise<void>,
+  handleDuplicateEventClick: (e:any)=>void,
+  eventEquipment: EquipmentType[]
+}
 
-const ViewModal = (props) => {
+const ViewModal = (props: ViewModalProps) => {
   const {modalData, handleEditClick, deleteEvent, handleDuplicateEventClick, eventEquipment} = props;
 
   return (
@@ -38,7 +46,7 @@ const ViewModal = (props) => {
               </Tr>
               <Tr>
                 <Td><Text fontWeight="bold">Room:</Text> </Td>
-                <Td>{modalData.room}</Td>
+                <Td>{modalData.room?.name}</Td>
               </Tr>
               <Tr>
                 <Td><Text fontWeight="bold">Reserve start:</Text> </Td>
@@ -58,14 +66,14 @@ const ViewModal = (props) => {
               </Tr>
               <Tr>
                 <Td><Text fontWeight="bold">Event type:</Text> </Td>
-                <Td>{!modalData.typeid ? "None" : modalData.type}</Td>
+                <Td>{!modalData.typeid ? "None" : modalData.type?.name}</Td>
               </Tr>
               <Tr>
                 <Td><Text fontWeight="bold">Registration Form:</Text> </Td>
                 <Td>
                   <Text as="span" color="blue" textDecoration="underline">
                     {modalData.formmeta ? (
-                      <Link to={`/rcforms/${modalData.formmeta.id}`}>
+                      <Link href={`/rcforms/${modalData.formmeta.id}`}>
                         {modalData.formmeta.title}
                       </Link>
                       ) : ""}
@@ -97,16 +105,15 @@ const ViewModal = (props) => {
               <Tr>
                 <Td><Text fontWeight="bold">Equipment:</Text> </Td>
                 <Td>
-                  {modalData.equipment_ids
-                      .map((eid,i)=>(
-                        modalData.equipment_ids.length > 1 && 
-                        eventEquipment.find((eq)=>eq.id.toString() === eid)?.equipmentName) !== undefined ? (
-                        <Text as="span" key={i}>
-                          {eventEquipment.find((eq)=>eq.id.toString() === eid)?.equipmentName}
-                          {i !== modalData.equipment_ids.length - 1 && ","}
-                        </Text>
-                      ) : "")
-                    }
+                  {modalData.equipment_ids?.map((eid,i)=>(
+                      modalData.equipment_ids?.length > 1 && 
+                      eventEquipment.find((eq)=>eq.id.toString() === eid)?.name) !== undefined ? (
+                      <Text as="span" key={i}>
+                        {eventEquipment.find((eq)=>eq.id.toString() === eid)?.name}
+                        {i !== modalData.equipment_ids.length - 1 && ","}
+                      </Text>
+                    ) : "")
+                  }
                 </Td>
               </Tr>
               <Tr>
@@ -121,7 +128,7 @@ const ViewModal = (props) => {
             colorScheme="yellow"
             m={1}
             data-editeventdata={JSON.stringify(modalData)}
-            onClick={e=>handleEditClick(e)}
+            onClick={()=>handleEditClick()}
           >
             Edit
           </Button>

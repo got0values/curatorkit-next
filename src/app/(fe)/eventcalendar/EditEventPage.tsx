@@ -32,34 +32,23 @@ type EditEventPageProps = {
   eventEquipment: EquipmentType[],
   regForms: EventFormType[],
   formErrorMsg: string,
-  closeModal: ()=>void,
   fetchEvents: ()=>Promise<void>,
   setFormErrorMsg: React.Dispatch<React.SetStateAction<string>>,
   setPageIsEditableForEvent: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const EditEventPage = (props: EditEventPageProps) => {
-  const {formData,setFormData,eventRooms,eventTypes,eventEquipment,regForms,formErrorMsg,closeModal,fetchEvents,setFormErrorMsg,setPageIsEditableForEvent} = props;
-
+  const {formData,setFormData,eventRooms,eventTypes,eventEquipment,regForms,formErrorMsg,fetchEvents,setFormErrorMsg,setPageIsEditableForEvent} = props;
   const toast = useToast();
-
-  // const eventNameRef = useRef();
-  // const formDescriptionRef = useRef()
-  // const hiddenRef = useRef();
-  // const roomRef = useRef();
-  // const notesRef = useRef();
-  // const regFormAttendeesRef = useRef();
-  // const regFormWaitingListRef = useRef();
   const tagInputRef = useRef();
-  // const showRoomRef = useRef();
 
   useEffect(()=>{
     return setFormErrorMsg("")
   },[])
 
-  async function createEvent(formData: FormData) {
+  async function createEvent(eventPageFormData: FormData) {
     try {
-      await postCreateEvent(formData)
+      await postCreateEvent(eventPageFormData)
         .then(async (response)=>{
           if (response.success) {
             await fetchEvents();
@@ -454,17 +443,17 @@ const EditEventPage = (props: EditEventPageProps) => {
                 <Flex  flexWrap="wrap" alignItems="flex-end" gap={2} id="equipment">
                   <Flex flexDirection="column" alignItems="flex-start" minW="30%">
                     <FormLabel htmlFor="equipment-list-dropdown-menu" fontWeight="700">Equipment: </FormLabel>
+                    <Input type="hidden" name="equipmentIds" value={formData.equipment_ids} />
                     <Select 
                       id="equipment-list-dropdown-menu" 
                       h="2.5rem"
                       defaultValue={formData && formData.equipment_ids ? formData.equipment_ids : []}
-                      name="equipmentIds"
                       onChange={e=>e.target.value !== "" && formData.equipment_ids ? (
                         setFormData(prev=>(
                           {...prev, equipment_ids: [...prev.equipment_ids, e.target.value]}
                           ))
                         ) : null}
-                        multiple={false}
+                      multiple={false}
                       sx={{
                         '& option:hover': {
                           bg: "blue",
@@ -476,7 +465,7 @@ const EditEventPage = (props: EditEventPageProps) => {
                       <option value="">None</option>
                       {eventEquipment.length >= 1 && eventEquipment.map((equipment,i)=>{
                         return (
-                          <option key={equipment['id']} data-name={equipment.name} value={equipment['id']}>
+                          <option key={equipment.id} data-name={equipment.name} value={equipment.id}>
                             {equipment.name}
                           </option>
                         )

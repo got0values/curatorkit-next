@@ -503,7 +503,6 @@ const EventCalendar = () => {
           eventEquipment={eventEquipment}
           regForms={regForms} 
           formErrorMsg={formErrorMsg} 
-          closeModal={closeModal}
           fetchEvents={fetchEvents}
           setFormErrorMsg={setFormErrorMsg}
           setPageIsEditableForEvent={setPageIsEditableForEvent}
@@ -512,7 +511,7 @@ const EventCalendar = () => {
       )}
       <Modal isOpen={modalIsViewEvent} size="lg" onClose={closeModal} isCentered>
         <ViewModal 
-          modalData={modalData} 
+          modalData={modalData!} 
           // regFormDataNullOrIdCount={regFormDataNullOrIdCount} 
           handleEditClick={handleEditClick} 
           deleteEvent={removeEvent}
