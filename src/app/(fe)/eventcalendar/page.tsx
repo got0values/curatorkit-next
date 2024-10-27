@@ -366,7 +366,6 @@ const EventCalendar = () => {
           setRoomFormErrorMsg={setRoomFormErrorMsg}
           roomFormErrorMsg={roomFormErrorMsg}
           fetchEvents={fetchEvents}
-          closeModal={closeModal}
           eventTypes={eventTypes} 
           eventEquipment={eventEquipment} 
         />

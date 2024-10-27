@@ -114,3 +114,81 @@ export async function postTypeColor(typeId: string, typeColor: {hex: string, rgb
     return {success: false, message: "Failed to get add type color"}
   }
 }
+
+export async function deleteType(typeId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!typeId) {
+      return {success: false, message: "Please select an event type to delete"}
+    }
+    
+    await prisma.event_types.delete({
+      where: {
+        library: libraryId,
+        id: Number(typeId)
+      }
+    })
+
+    return {success: true, message: "Success"}
+  }
+  catch (res) {
+    console.error(res);
+    return {success: false, message: "Failed to remove event type"}
+  }
+}
+
+export async function postEquipment(equipmentName: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!equipmentName) {
+      return {success: false, message: "Please add an equipment name"}
+    }
+
+    await prisma.event_equipment.create({
+      data: {
+        library: libraryId,
+        name: equipmentName
+      }
+    })
+
+    return {success: true, message: "Success"}
+  }
+  catch (res) {
+    console.error(res);
+    return {success: false, message: "Failed to get add equipment"}
+  }
+}
+
+export async function deleteEquipment(equipmentId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!equipmentId) {
+      return {success: false, message: "Please select an equipment to delete"}
+    }
+    
+    await prisma.event_equipment.delete({
+      where: {
+        library: libraryId,
+        id: Number(equipmentId)
+      }
+    })
+
+    return {success: true, message: "Success"}
+  }
+  catch (res) {
+    console.error(res);
+    return {success: false, message: "Failed to remove equipment"}
+  }
+}

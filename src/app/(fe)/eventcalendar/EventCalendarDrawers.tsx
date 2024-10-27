@@ -16,7 +16,7 @@ import {
   useToast
 } from "@chakra-ui/react"
 import { hexToRgb } from '../../utils/hexToRgb';
-import { postRoom, deleteRoom, postType, postTypeColor } from '@/app/actions/eventcalendar/drawers.actions';
+import { postRoom, deleteRoom, postType, postTypeColor, deleteType, postEquipment, deleteEquipment } from '@/app/actions/eventcalendar/drawers.actions';
 import { EventType, EventRoomType, EventTypeType, EquipmentType, GetEventsReturnType } from '@/app/types/types';
 
 type EventCalendarDrawersProps = {
@@ -25,12 +25,11 @@ type EventCalendarDrawersProps = {
   setRoomFormErrorMsg: React.Dispatch<React.SetStateAction<string>>,
   roomFormErrorMsg: string,
   eventTypes: EventTypeType[],
-  eventEquipment: EquipmentType[],
-  closeModal: ()=>void
+  eventEquipment: EquipmentType[]
 }
 
 const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
-  const {fetchEvents,eventRooms,setRoomFormErrorMsg,roomFormErrorMsg,eventTypes,eventEquipment,closeModal} = props;
+  const {fetchEvents,eventRooms,setRoomFormErrorMsg,roomFormErrorMsg,eventTypes,eventEquipment} = props;
 
   const toast = useToast();
 
@@ -42,8 +41,13 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
       .then(async (response)=>{
         if (response.success) {
           setRoomName("");
-          closeModal();
           await fetchEvents();
+          toast({
+            description: "Successfully added room",
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          });
         }
         else {
           setRoomFormErrorMsg(response.message);
@@ -72,7 +76,6 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
       await deleteRoom(deleteRoomId)
         .then((response)=>{
           if (response.success) {
-            closeModal();
             fetchEvents();
           }
           else {
@@ -104,11 +107,16 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
     e.preventDefault();
     try {
       await postType(typeName, {hex: (eventTypeColorRef.current as any).value,rgb: hexToRgb((eventTypeColorRef.current as any).value)})
-        .then((response)=>{
+        .then(async (response)=>{
           if (response.success) {
             setTypeName("");
-            closeModal();
-            fetchEvents();
+            await fetchEvents();
+            toast({
+              description: "Successfully added event type",
+              status: 'success',
+              duration: 9000,
+              isClosable: true,
+            });
           }
           else {
             setTypeFormErrorMsg(response.data)
@@ -173,81 +181,101 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
     }
   }
 
-  async function deleteType(e: any) {
+  async function removeType(e: any) {
     e.preventDefault();
     if (window.confirm("Are you sure you want to delete this event type?")) {
-      try {
-        await axios
-        .delete(server + "/eventtypes", {
-            data: {
-              type_delete_id: typeSelectRef.current.options[typeSelectRef.current.selectedIndex].value
-            }
-        })
+      await deleteType(eventTypeId)
         .then((response)=>{
-          if (response.data === "OK") {
-            closeModal();
+          if (response.success) {
             fetchEvents();
           }
           else {
+            toast({
+              description: response.message,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            });
             setTypeFormErrorMsg(response.data)
           }
         })
-      } catch(error) {
-          console.log(error);
-      }
+      .catch((error)=>{
+        toast({
+          description: error.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
+        console.error(error)
+      })
     }
   }
 
-  const [equipmentName,setEquipmentName] = useState();
-  const [deleteEquipmentId,setDeleteEquipmentId] = useState();
-  const [equipmentFormErrorMsg,setEquipmentFormErrorMsg] = useState()
+  const [equipmentName,setEquipmentName] = useState("");
+  const [equipmentFormErrorMsg,setEquipmentFormErrorMsg] = useState("")
   async function addEquipment(e: any) {
     e.preventDefault();
-    try {
-      await axios
-      .put(server + "/eventequipment", {
-          equipmentform: {
-              equipment_name: equipmentName
-          }
-      })
-      .then((response)=>{
+    await postEquipment(equipmentName)
+      .then(async (response)=>{
         if (response.success) {
           setEquipmentName("");
-          closeModal();
-          fetchEvents();
-          setEventEquipment(events.equipment);
+          await fetchEvents();
+          toast({
+            description: "Successfully added equipment",
+            status: 'success',
+            duration: 9000,
+            isClosable: true,
+          });
         }
         else {
-          setEquipmentFormErrorMsg(response.data)
+          setEquipmentFormErrorMsg(response.data);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((error)=> {
+        toast({
+          description: error.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
+        console.error(error);
+      })
   }
 
-  async function deleteEquipment(e: any) {
+  const [deleteEquipmentId,setDeleteEquipmentId] = useState("");
+  async function removeEquipment(e: any) {
     e.preventDefault();
     if (window.confirm("Are you sure you want to delete this equipment?")) {
-      try {
-        await axios
-        .delete(server + "/eventequipment", {
-            data: {
-              equipment_delete_id: JSON.stringify(e.target.dataset.deleteequipmentid)
-            }
-        })
+      await deleteEquipment(deleteEquipmentId)
         .then((response)=>{
           if (response.success) {
-            closeModal();
             fetchEvents();
           }
           else {
-            setEquipmentFormErrorMsg(response.data)
+            setEquipmentFormErrorMsg(response.data);
+            toast({
+              description: response.message,
+              status: 'error',
+              duration: 9000,
+              isClosable: true,
+            });
           }
         })
-      } catch(error) {
-          console.log(error);
-      }
+        .catch((error)=>{
+          toast({
+            description: error.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
+          console.error(error);
+        })
     }
   }
 
@@ -377,6 +405,7 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
               borderColor="black" 
               placeholder="Event Type" 
               type="text" 
+              value={typeName}
               onChange={(e: any)=>setTypeName(e.target.value)}
               _dark={{
                 color: "white"
@@ -409,7 +438,6 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
               value={eventTypeId}
               onChange={(e: any)=>{
                 setEventTypeId(e.target.options[e.target.selectedIndex].value);
-                console.log(e.target.options[e.target.selectedIndex].dataset.color)
                 setEventTypeColorEdit(e.target.options[e.target.selectedIndex].dataset.color)
               }}
               _dark={{
@@ -433,7 +461,7 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
           </Flex>
           <Flex alignItems="center" gap={1} justifyContent="flex-end" w="100%">
             <Button colorScheme="yellow" size="sm" w="50%" onClick={e=>saveTypeColor(e)}>Save Color</Button>
-            <Button colorScheme="red" size="sm" w="50%" onClick={e=>deleteType(e)}>Delete</Button>
+            <Button colorScheme="red" size="sm" w="50%" onClick={e=>removeType(e)}>Delete</Button>
           </Flex>
           <Text color="red">
             {typeFormErrorMsg ? typeFormErrorMsg : ""}
@@ -497,14 +525,14 @@ const EventCalendarDrawers = (props: EventCalendarDrawersProps) => {
                 color: "white"
               }}
             >
-              <option value="Select One">Select One</option>
+              <option value="">Select One</option>
               {eventEquipment && eventEquipment.length >= 1 && eventEquipment.map((equipment,i)=>{
                 return (
                   <option key={equipment.id} value={equipment.id}>{equipment.name}</option>
                 )
               })}
             </Select>
-            <Button colorScheme="red" size="sm" data-deleteequipmentid={deleteEquipmentId} onClick={e=>deleteEquipment(e)}>Delete</Button>
+            <Button colorScheme="red" size="sm" onClick={e=>removeEquipment(e)}>Delete</Button>
           </Flex>
           <Text color="red">
             {equipmentFormErrorMsg ? equipmentFormErrorMsg : ""}

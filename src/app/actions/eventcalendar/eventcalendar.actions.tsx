@@ -187,6 +187,7 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
         color: true
       }
     })
+    eventTypes = eventTypes.map((et)=>({...et, color: JSON.parse(et.color)}))
 
     let eventRooms = await prisma.event_rooms.findMany({
       where: {
