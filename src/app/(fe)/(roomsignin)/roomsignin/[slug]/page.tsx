@@ -447,9 +447,8 @@ const RoomSignIn = ({params}: {params: {slug: string}}) => {
                   width="100%"
                   height={10}
                   onChange={e=>setNotesInput(e.target.value)}
-                >
-                  {modalText}
-                </Textarea>
+                  defaultValue={modalText}
+                />
                 )}
               </ModalBody>
               <ModalFooter>
