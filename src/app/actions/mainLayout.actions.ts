@@ -27,10 +27,12 @@ export async function getUser(): Promise<ServerResponseType> {
       }
     })
     const userWithLibrary = {...user, Library: library}
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: userWithLibrary}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get user"}
   }
 }

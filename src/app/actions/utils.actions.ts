@@ -20,10 +20,12 @@ export async function getLibraryAdminPw(): Promise<ServerResponseType> {
         admin_pw: true
       }
     })
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: library?.admin_pw}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get library admin pw"}
   }
 }

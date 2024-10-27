@@ -24,11 +24,12 @@ export async function postRoom(roomName: string): Promise<ServerResponseType> {
         name: roomName
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get add room"}
   }
 }
@@ -50,11 +51,12 @@ export async function deleteRoom(roomId: string): Promise<ServerResponseType> {
         id: Number(roomId)
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to remove room"}
   }
 }
@@ -77,11 +79,12 @@ export async function postType(typeName: string, typeColor: {hex: string, rgb: s
         color: JSON.stringify(typeColor)
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get add type"}
   }
 }
@@ -106,11 +109,12 @@ export async function postTypeColor(typeId: string, typeColor: {hex: string, rgb
         color: JSON.stringify(typeColor)
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get add type color"}
   }
 }
@@ -132,7 +136,7 @@ export async function deleteType(typeId: string): Promise<ServerResponseType> {
         id: Number(typeId)
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
@@ -158,11 +162,12 @@ export async function postEquipment(equipmentName: string): Promise<ServerRespon
         name: equipmentName
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get add equipment"}
   }
 }
@@ -184,7 +189,7 @@ export async function deleteEquipment(equipmentId: string): Promise<ServerRespon
         id: Number(equipmentId)
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {

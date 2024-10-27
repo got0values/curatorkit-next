@@ -22,11 +22,12 @@ export async function getRoomList(): Promise<ServerResponseType> {
         name: true
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: signInLists}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get library admin pw"}
   }
 }
@@ -44,11 +45,12 @@ export async function postAddRoomList(roomName: string): Promise<ServerResponseT
         name: roomName
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get library admin pw"}
   }
 }
@@ -66,11 +68,12 @@ export async function deleteRoom(roomId: string): Promise<ServerResponseType> {
         id: Number(roomId)
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to delete room"}
   }
 }

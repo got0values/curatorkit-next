@@ -38,6 +38,7 @@ export async function getRoomSignIns(roomId: string): Promise<ServerResponseType
     })
 
     if (!list || list?.library !== Number(libraryId)) {
+      await prisma.$disconnect();
       return {success: false, message: "Error", data: null}
     }
 
@@ -64,11 +65,12 @@ export async function getRoomSignIns(roomId: string): Promise<ServerResponseType
       },
     });
     const roomName = list.name;
-
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: {signIns,roomName}}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get room sign-in", data: null}
   }
 }
@@ -93,6 +95,7 @@ export async function postSignIn(roomId: string, cardNum: string): Promise<Serve
     const libraryDateTime = now.format('YYYY-MM-DDTHH:mm:ssZ');
 
     if (cardNum === "") {
+      await prisma.$disconnect();
       return {success: false, message: "No barcode"}
     }
 
@@ -121,8 +124,8 @@ export async function postSignIn(roomId: string, cardNum: string): Promise<Serve
         notes: ""
       }
     })
-    // return "OK"
 
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
@@ -144,10 +147,12 @@ export async function deleteSignIn(transId: string, listId: string): Promise<Ser
         listId: Number(listId)
       }
     })
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to delete sign-in"}
   }
 }
@@ -167,10 +172,12 @@ export async function postNotes(notesInput: string, transId: string): Promise<Se
         notes: notesInput
       }
     })
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to add notes"}
   }
 }
@@ -191,10 +198,12 @@ export async function deleteNote(transId: string, roomId: string): Promise<Serve
         notes: ""
       }
     })
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to add notes"}
   }
 }

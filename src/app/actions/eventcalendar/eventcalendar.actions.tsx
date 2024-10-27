@@ -273,10 +273,12 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
       eventscount: eventsTwo.length,
     }
 
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: returnData}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get events", data: null}
   }
 }
@@ -400,11 +402,12 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
       tags: eventData.tags ? eventData.tags : [],
       showroom: eventData.showroom
     }
-
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: returnData}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to get calendar data", data: null}
   }
 }
@@ -447,50 +450,62 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
     let notes = formData.get("notes")?.valueOf();
 
     if (!eventName) {
+      await prisma.$disconnect();
       return {success: false, message: "Please enter a name for your event"}
     }
 
     if (!roomId) {
+      await prisma.$disconnect();
       return {success: false, message: "Please select a room for the event"}
     }
 
     if (!reserveDate) {
+      await prisma.$disconnect();
       return {success: false, message: "Please select a reserve date"}
     }
 
     if (!reserveStart) {
+      await prisma.$disconnect();
       return {success: false, message: "Please select a reserve start time"}
     }
 
     if (!reserveEnd) {
+      await prisma.$disconnect();
       return {success: false, message: "Please select a reserve end time"}
     }
 
     if (!eventStart) {
+      await prisma.$disconnect();
       return {success: false, message: "Please select an event start time"}
     }
 
     if (!eventEnd) {
+      await prisma.$disconnect();
       return {success: false, message: "Please select an event end time"}
     }
 
     if (eventStart < reserveStart) {
+      await prisma.$disconnect();
       return {success: false, message: "Event start must be after reserve start"}
     }
 
     if (eventStart > reserveEnd) {
+      await prisma.$disconnect();
       return {success: false, message: "Event start must be before reserve end"}
     }
 
     if (eventEnd > reserveEnd) {
+      await prisma.$disconnect();
       return {success: false, message: "Event end must be before reserve end"}
     }
 
     if (!displayStart && !eventHidden) {
+      await prisma.$disconnect();
       return {success: false, message: "Please enter a display start"}
     }
 
     if (!displayEnd && !eventHidden) {
+      await prisma.$disconnect();
       return {success: false, message: "Please enter a display end"}
     }
 
@@ -504,6 +519,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
     }
 
     if (displayEnd && displayStart && displayEnd < displayStart) {
+      await prisma.$disconnect();
       return {success: false, message: "Please start must be before display end"}
     }
     
@@ -587,6 +603,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
               })
               return room?.name
             });
+          await prisma.$disconnect();
           return {success: false, message: `Overlapping reserves: ${conflictingRooms.join(", ")}`}
         }
       }
@@ -614,6 +631,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
           showroom: showRoom ? true : false
         }
       })
+      await prisma.$disconnect();
       return {success: true, message: "Success"}
     }
     else {
@@ -683,6 +701,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
                 })
                 return room?.name
               });
+            await prisma.$disconnect();
             return {success: false, message: `Overlapping reserves: ${conflictingRooms.join(", ")}`}
           }
         }
@@ -707,15 +726,18 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
             showroom: showRoom ? true : false
           }
         })
+        await prisma.$disconnect();
         return {success: true, message: "Success"}
       }
       else {
+        await prisma.$disconnect();
         return {success: false, message: "Number of event limit exceeded"}
       }
     }
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to create event"}
   }
 }
@@ -733,11 +755,12 @@ export async function deleteEvent(eventId: string): Promise<ServerResponseType> 
         transid: Number(eventId)
       }
     })
-
+    await prisma.$disconnect();
     return {success: false, message: "Success"}
   }
   catch (res) {
     console.error(res);
+    await prisma.$disconnect();
     return {success: false, message: "Failed to delete event"}
   }
 }

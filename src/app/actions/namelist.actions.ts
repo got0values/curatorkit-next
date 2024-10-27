@@ -23,7 +23,7 @@ export async function getNameList(): Promise<ServerResponseType> {
         name: true
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success", data: namelist}
   }
   catch (res) {
@@ -63,11 +63,12 @@ export async function postAddCard(card:string,name:string): Promise<ServerRespon
         name: name
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to input to namelist", data: null}
   }
 }
@@ -102,11 +103,12 @@ export async function postAddCards(csvData: any[]): Promise<ServerResponseType> 
         })
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to input to namelist", data: null}
   }
 }
@@ -134,11 +136,12 @@ export async function deleteCard(card:string): Promise<ServerResponseType> {
         ]
       }
     })
-
+    await prisma.$disconnect();
     return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res)
+    await prisma.$disconnect();
     return {success: false, message: "Failed to input to namelist", data: null}
   }
 }
