@@ -24,6 +24,7 @@ import {
   Text,
   Modal,
   Spinner,
+  IconButton,
   useToast
 } from "@chakra-ui/react";
 import {MdAdd} from 'react-icons/md';
@@ -370,7 +371,8 @@ const EventCalendar = () => {
           eventEquipment={eventEquipment} 
         />
       </Drawer>
-      <Button 
+      <IconButton 
+        aria-label="admin drawer"
         colorScheme="black"
         variant="outline"
         position="fixed"
@@ -382,9 +384,9 @@ const EventCalendar = () => {
         w={5}
         style={{display: `${showDrawer ? "none" : "block"}`}}
         onClick={e=>showAdminDrawer(setShowDrawer)}
-      >
-      <FaChevronLeft/>
-      </Button>
+        zIndex={10}
+        icon={<FaChevronLeft/>}
+      />
       {!pageIsEditableForEvent ? (
       <>
         <Box 

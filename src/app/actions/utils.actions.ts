@@ -17,10 +17,10 @@ export async function getLibraryAdminPw(): Promise<ServerResponseType> {
         id: Number(libraryId)
       },
       select: {
-        admin_password: true
+        admin_pw: true
       }
     })
-    return {success: true, message: "Success", data: library.admin_password}
+    return {success: true, message: "Success", data: library?.admin_pw}
   }
   catch (res) {
     console.error(res)
