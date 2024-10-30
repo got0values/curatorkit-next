@@ -484,6 +484,11 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
       return {success: false, message: "Please select an event end time"}
     }
 
+    if (reserveStart > reserveEnd) {
+      await prisma.$disconnect();
+      return {success: false, message: "Reserve start must be before reserve end"}
+    }
+
     if (eventStart < reserveStart) {
       await prisma.$disconnect();
       return {success: false, message: "Event start must be after reserve start"}
@@ -497,6 +502,11 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
     if (eventEnd > reserveEnd) {
       await prisma.$disconnect();
       return {success: false, message: "Event end must be before reserve end"}
+    }
+
+    if (reserveStart > reserveEnd) {
+      await prisma.$disconnect();
+      return {success: false, message: "Reserve start but be before reserve end"}
     }
 
     if (!displayStart && !eventHidden) {
