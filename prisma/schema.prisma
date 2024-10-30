@@ -96,14 +96,6 @@ model SignIns {
   @@index([library], map: "userId")
 }
 
-model all_auth_recipe_users {
-  user_id     String @id @db.Char(36)
-  recipe_id   String @db.VarChar(128)
-  time_joined BigInt @db.UnsignedBigInt
-
-  @@index([time_joined(sort: Desc), user_id(sort: Desc)], map: "all_auth_recipe_users_pagination_index")
-}
-
 model allowed_modules {
   id                                       Int     @id @default(autoincrement())
   library                                  Int
@@ -298,12 +290,6 @@ model jwt_signing_keys {
   key_string String  @db.Text
   algorithm  String  @db.VarChar(10)
   created_at BigInt? @db.UnsignedBigInt
-}
-
-model key_value {
-  name            String  @id @db.VarChar(128)
-  value           String? @db.Text
-  created_at_time BigInt? @db.UnsignedBigInt
 }
 
 model library {
