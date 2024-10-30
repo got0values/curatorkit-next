@@ -399,7 +399,7 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
       formmeta: formMetaSchema,
       formdata: formData,
       equipment_ids: eventData.equipment ? JSON.parse(eventData.equipment).map((e: any) => e.id) : [],
-      tags: eventData.tags ? eventData.tags : [],
+      tags: eventData.tags ? JSON.parse(eventData.tags) : [],
       showroom: eventData.showroom
     }
     await prisma.$disconnect();
@@ -637,7 +637,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
           displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
           displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
           equipment: equipmentIds ? JSON.stringify((equipmentIds as string).split(",")) : null,
-          tags: tags ? JSON.stringify(tags) : null,
+          tags: tags ? JSON.stringify((tags as string).split(",")) : null,
           showroom: showRoom ? true : false
         }
       })
