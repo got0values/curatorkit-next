@@ -766,7 +766,7 @@ export async function deleteEvent(eventId: string): Promise<ServerResponseType> 
       }
     })
     await prisma.$disconnect();
-    return {success: false, message: "Success"}
+    return {success: true, message: "Success"}
   }
   catch (res) {
     console.error(res);
