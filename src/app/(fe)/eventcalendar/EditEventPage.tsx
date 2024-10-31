@@ -516,7 +516,6 @@ const EditEventPage = (props: EditEventPageProps) => {
                   colorScheme="green" 
                   w="100%"
                   data-transid={formData && formData.transId ? formData.transId : null}
-                  onClick={e=>{createEvent(e as any)}}
                 >
                   Submit
                 </Button>
