@@ -444,7 +444,6 @@ const EditEventPage = (props: EditEventPageProps) => {
                     <Select 
                       id="equipment-list-dropdown-menu" 
                       h="2.5rem"
-                      defaultValue={formData && formData.equipment_ids ? formData.equipment_ids : []}
                       onChange={e=>e.target.value !== "" && formData.equipment_ids ? (
                         setFormData(prev=>(
                           {...prev, equipment_ids: [...prev.equipment_ids, e.target.value]}
@@ -470,8 +469,8 @@ const EditEventPage = (props: EditEventPageProps) => {
                     </Select>
                   </Flex>
                   <Flex maxW={"100%"} gap={1} flexWrap="wrap" alignItems="center">
-                    { formData && formData.equipment_ids?.length > 0 ? (formData.equipment_ids.map((eid,i)=> (
-                      formData.equipment_ids.length > 1 && i !== 0 && 
+                    {formData && formData.equipment_ids?.length > 0 ? (formData.equipment_ids.map((eid,i)=> (
+                      formData.equipment_ids.length > 0 && 
                       eventEquipment.find((eq)=>eq.id.toString() === eid)?.name !== undefined ? (
                           <Badge 
                             key={i}

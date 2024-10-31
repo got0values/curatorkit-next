@@ -169,7 +169,7 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
         displayend: result.displayend,
         formmeta: formMeta,
         formdata: eventFormData,
-        equipment_ids: result.equipment !== "" ? JSON.stringify(result.equipment) : [],
+        equipment_ids: result.equipment ? result.equipment : [],
         tags: result.tags ? result.tags : [],
         showroom: result.showroom
       }
@@ -398,7 +398,7 @@ export async function getBigCalData(eventId: string): Promise<ServerResponseType
       displayend: eventData.displayEnd,
       formmeta: formMetaSchema,
       formdata: formData,
-      equipment_ids: eventData.equipment ? JSON.parse(eventData.equipment).map((e: any) => e.id) : [],
+      equipment_ids: eventData.equipment ? JSON.parse(eventData.equipment) : [],
       tags: eventData.tags ? JSON.parse(eventData.tags) : [],
       showroom: eventData.showroom
     }
