@@ -44,13 +44,12 @@ import {
   Tabs, TabList, Tab
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
+import { getLibraryName } from '@/app/actions/libray.actions';
 
-export default function FrontEndCalendar(props){
-  const {server, userName} = props;
-
+export default function FrontEndCalendar() {
   const router = useRouter();
 
-  const {customSettings,primaryColor,secondaryColor} = useCustomTheme({server});
+  const {customSettings,primaryColor,secondaryColor} = useCustomTheme();
 
   const initialRef = useRef(null)
 
@@ -64,7 +63,7 @@ export default function FrontEndCalendar(props){
   const [isLoading,setIsLoading] = useState(false);
   const [eventTypes,setEventTypes] = useState([]);
   const [calTypesId,setCalTypesId] = useState("All");
-  const [userNameLocation,setUserNameLocation] = useState(null);
+  const [libraryName,setLibraryName] = useState<string | null>(null);
   const [libraryTimezone,setLibraryTimezone] = useState(null);
 
   const accessibilityOptions = {
@@ -100,8 +99,13 @@ export default function FrontEndCalendar(props){
   }
 
   useEffect(()=>{
-    setUserNameLocation(userName)
-    document.title = userName + " Event Calendar";
+    getLibraryName()
+      .then((res)=>{
+        if (res.success) {
+          setLibraryName(res.data)
+        }
+      })
+    document.title = libraryName + " Event Calendar";
 
     //remove aria-expanded from accordion buttons
     const accordionButtons = document.querySelectorAll("button[id*='accordion-button-']")
@@ -1026,7 +1030,7 @@ export default function FrontEndCalendar(props){
                                 >
                                   Email Reminder
                                 </Button>
-                                <a target="_blank" href={`https://calendar.google.com/calendar/render?action=TEMPLATE&ctz=${libraryTimezone}&location=${userNameLocation}&dates=${new Date(event.eventstart).toISOString().replace(/[\W_]+/g,"")}/${new Date(event.eventend).toISOString().replace(/[\W_]+/g,"")}&text=${event.eventname}&trp=false`}>
+                                <a target="_blank" href={`https://calendar.google.com/calendar/render?action=TEMPLATE&ctz=${libraryTimezone}&location=${libraryName}&dates=${new Date(event.eventstart).toISOString().replace(/[\W_]+/g,"")}/${new Date(event.eventend).toISOString().replace(/[\W_]+/g,"")}&text=${event.eventname}&trp=false`}>
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -1046,7 +1050,7 @@ export default function FrontEndCalendar(props){
                                     description: "",
                                     startTime: moment(new Date(event.eventstart)).toISOString(true),
                                     endTime: moment(new Date(event.eventend)).toISOString(true),
-                                    location: userNameLocation,
+                                    location: libraryName,
                                     attendees: []
                                   }}
                                 >
