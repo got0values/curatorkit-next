@@ -157,3 +157,37 @@ export type ServerResponseType = {
     eventsTwo: EventsTwoType[];
     eventscount: number;
   }
+
+  export type ColorType = {
+    hex: string;
+    rgb: string;
+  }
+
+  export type HeaderInfoType = {
+    address_one: string;
+    address_two: string;
+    phone: string;
+    monday: string;
+    tuesday: string;
+    wednesday: string;
+    thursday: string;
+    friday: string;
+    saturday: string;
+    sunday: string;
+  }
+
+  export type CustomSettingsType = {
+    id: number;
+    show_event_calendar: number;
+    show_request_study_room: number;
+    show_reading_club: number;
+    header_info: HeaderInfoType | null;
+    library: number;
+    big_calendar_view: boolean;
+    library_url: string;
+    allow_dark_mode: boolean;
+    primary_color: ColorType;
+    secondary_color: ColorType;
+    keep_accordions_open: number;
+    logo: string;
+  } | null

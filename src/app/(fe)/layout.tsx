@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const pathname = usePathname();
-  const showSidebar = pathname !== "/login" && pathname !== "/register" && pathname !== "/resetpassword" && pathname !== "/subscription-pricing";
+  const showSidebar = pathname !== "/login" && pathname !== "/register" && pathname !== "/cal";
 
   return (
     <html lang="en">

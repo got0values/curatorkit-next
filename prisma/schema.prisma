@@ -152,7 +152,6 @@ model emailpassword_users {
   admin_pw                    String                        @default("bananas") @db.VarChar(50)
   in_house_checkout           in_house_checkout[]
   in_house_checkout_items     in_house_checkout_items[]
-  logos                       logos[]
   posts                       posts[]
   reading_club_form_data      reading_club_form_data[]
   reading_club_forms          reading_club_forms[]
@@ -314,17 +313,18 @@ model library {
   event_forms_event_forms_libraryTolibrary                 event_forms[]         @relation("event_forms_libraryTolibrary")
   event_rooms_event_rooms_libraryTolibrary                 event_rooms[]         @relation("event_rooms_libraryTolibrary")
   event_types_event_types_libraryTolibrary                 event_types[]         @relation("event_types_libraryTolibrary")
+  logos_logos_libraryTolibrary                             logos[]               @relation("logos_libraryTolibrary")
   namelist_namelist_libraryTolibrary                       namelist[]            @relation("namelist_libraryTolibrary")
   user_user_libraryTolibrary                               user[]                @relation("user_libraryTolibrary")
 }
 
 model logos {
-  id                  Int                 @id @default(autoincrement())
-  user_id             String              @db.Char(36)
-  logo_blob           Bytes?
-  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "logos_ibfk_2")
+  id                             Int     @id @default(autoincrement())
+  library                        Int
+  logo_blob                      Bytes?
+  library_logos_libraryTolibrary library @relation("logos_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "logos_ibfk_1")
 
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
 }
 
 model namelist {

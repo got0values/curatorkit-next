@@ -14,7 +14,7 @@ import {
   Spinner
 } from '@chakra-ui/react'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { postLogin } from "../../../actions/login.actions";
+import { postLogin } from "../../actions/login.actions";
 import checkIfLoggedIn from "@/app/helpers/checkIfLoggedIn.server";
 import { useRouter } from "next/navigation";
 import FormAlert from '../FormAlert';

@@ -18,7 +18,7 @@ import {
 import { useState, useTransition } from 'react'
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImInfo } from 'react-icons/im';
-import { postRegister } from '../../../actions/register.actions';
+import { postRegister } from '../../actions/register.actions';
 import { useRouter } from 'next/navigation'
 import passwordValidator from "password-validator";
 import FormAlert from '../FormAlert';
