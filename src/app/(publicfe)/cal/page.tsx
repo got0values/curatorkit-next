@@ -13,7 +13,7 @@ import ICalendarLink from "react-icalendar-link";
 import {BsApple} from 'react-icons/bs';
 import {FcGoogle} from 'react-icons/fc';
 import {FaSearch} from 'react-icons/fa';
-import {Accessibility} from 'accessibility';
+import {Accessibility, IAccessibilityOptions} from 'accessibility';
 import {CgChevronUpO} from 'react-icons/cg';
 import { useCustomTheme } from '@/app/hooks/useCustomTheme';
 import { 
@@ -66,24 +66,23 @@ export default function FrontEndCalendar() {
   const [libraryName,setLibraryName] = useState<string | null>(null);
   const [libraryTimezone,setLibraryTimezone] = useState(null);
 
-  const accessibilityOptions = {
+  const accessibilityOptions: IAccessibilityOptions = {
     icon: {
-      circular: true,
       img: 'accessibility',
-      position: {
-        bottom: {
-          size: 15,
-          units: '%'
-        },
-        right: {
-          size: .75,
-          units: '%'
-        }
-      }
+      // position: {
+      //   bottom: {
+      //     size: 15,
+      //     units: '%'
+      //   },
+      //   right: {
+      //     size: .75,
+      //     units: '%'
+      //   }
+      // }
     },
-    hotkeys: {
-      enable: true
-    },
+    // hotkeys: {
+    //   enable: true
+    // },
     session: {
       persistent: false
     },
@@ -115,9 +114,9 @@ export default function FrontEndCalendar() {
       },100)
     })
     accordionButtons.forEach((accordionButton)=>{
-      accordionButton.onclick = function(){
+      (accordionButton as HTMLElement).onclick = function(){
         setTimeout(()=>{
-          this.removeAttribute("aria-expanded")
+          accordionButton.removeAttribute("aria-expanded")
         },100)
       }
     },[])
@@ -147,15 +146,15 @@ export default function FrontEndCalendar() {
     new Accessibility(accessibilityOptions);
 
     const newDiv = document.createElement("div")
-    const monthLabel = document.querySelector('.react-calendar__navigation__label');
+    const monthLabel: HTMLElement | null = document.querySelector('.react-calendar__navigation__label');
 
-    if (newDiv){
-      newDiv.innerText = monthLabel.innerText;
+    if (newDiv && monthLabel){
+      newDiv.innerText = monthLabel?.innerText;
       newDiv.style.display = "flex";
       newDiv.style.alignItems = "center";
-      monthLabel.parentNode.replaceChild(newDiv,monthLabel)
-      const navigationBar = document.querySelector('.react-calendar__navigation');
-      navigationBar.style.justifyContent = "space-between"
+      monthLabel!.parentNode!.replaceChild(newDiv,monthLabel)
+      const navigationBar: HTMLElement | null = document.querySelector('.react-calendar__navigation');
+      navigationBar!.style.justifyContent = "space-between"
     }
     
     //add tooltips to calendar navigation
