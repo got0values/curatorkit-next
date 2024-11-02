@@ -22,7 +22,7 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
     const now = momentTimezone().tz(libraryTimezone!);
     const currentDate = now.format('YYYY-MM-DD');
 
-    if (formId == "") {
+    if (!formId) {
       let events = [];
       if (calTypesId == "All") {
         events = await prisma.event_calendar.findMany({

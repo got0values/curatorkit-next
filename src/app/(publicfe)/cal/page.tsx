@@ -264,7 +264,7 @@ export default function FrontEndCalendar() {
       .then((response) => {
         let r = response.data;
         console.log(r)
-        let bCalendarEvents = r.bigcalendarevents
+        let bigCalendarEvents = r.bigCalendarEvents
         let eventsSorted = r.events.sort((a: any,b: any)=>{
           return (moment(new Date(a.eventstart)) as any) - (moment(new Date(b.eventstart)) as any)
         })
@@ -282,7 +282,7 @@ export default function FrontEndCalendar() {
         setEvents(eventsLocalized);
         setEventTypes(r["etypes"]);
         // window.location = `${window.location.toString().split("#")[0]}#${inputDate}`
-        const bigCalendarEventsLocalized = bCalendarEvents.map((e: any)=>{
+        const bigCalendarEventsLocalized = bigCalendarEvents.map((e: any)=>{
           return {
             ...e, 
             start: moment.utc(e.start).local().format('MM/DD/YY hh:mm:ss A'),

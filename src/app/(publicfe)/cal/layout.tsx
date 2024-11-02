@@ -53,7 +53,7 @@ export default function FrontEndLayout({children}:Readonly<{
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
-      <body>
+      <body id="fe-main">
         <ChakraProvider theme={theme}>
           <Box
             as="header"
