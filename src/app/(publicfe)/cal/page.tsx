@@ -41,10 +41,12 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
+  Spinner,
   Tabs, TabList, Tab
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
 import { getLibraryName } from '@/app/actions/libray.actions';
+import { getFeEvents } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -141,7 +143,7 @@ export default function FrontEndCalendar() {
     }
   })
 
-  const [monthYear,setMonthYear] = useState()
+  // const [monthYear,setMonthYear] = useState()
   useEffect(()=>{
     new Accessibility(accessibilityOptions);
 
@@ -158,169 +160,167 @@ export default function FrontEndCalendar() {
     }
     
     //add tooltips to calendar navigation
-    const calendarTooltip = document.getElementById("calendar-description")
-    const prev2 = document.querySelector('.react-calendar__navigation__prev2-button')
-    prev2.setAttribute("aria-describedby","calendar-description")
-    prev2.innerHTML += "<span class='visually-hidden'>Jump back one year</span>"
-    prev2.onmouseover = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump back one year"
-    }
-    prev2.onmouseleave = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    prev2.onfocus = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump back one year"
-    }
-    prev2.onblur = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    prev2.onclick = function(){
-      newDiv.innerText = moment(newDiv.innerText).subtract(1,"years").format('MMMM YYYY')
-    }
-
-    const prev = document.querySelector('.react-calendar__navigation__prev-button')
-    prev.setAttribute("aria-describedby","calendar-description")
-    prev.innerHTML += "<span class='visually-hidden'>Jump back one month</span>"
-    prev.onmouseover = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump back one month"
-    }
-    prev.onmouseleave = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    prev.onfocus = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump back one month"
-    }
-    prev.onblur = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    prev.onclick = function(){
-      newDiv.innerText = moment(newDiv.innerText).subtract(1,"months").format('MMMM YYYY')
-    }
-
-    const next = document.querySelector('.react-calendar__navigation__next-button')
-    next.setAttribute("aria-describedby","calendar-description")
-    next.innerHTML += "<span class='visually-hidden'>Jump forward one month</span>"
-    next.onmouseover = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump forward one month"
-    }
-    next.onmouseleave = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    next.onfocus = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump forward one month"
-    }
-    next.onblur = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    next.onclick = function(){
-      newDiv.innerText = moment(newDiv.innerText).add(1,"month").format('MMMM YYYY')
-    }
-
-    const next2 = document.querySelector('.react-calendar__navigation__next2-button')
-    next2.setAttribute("aria-describedby","calendar-description")
-    next2.innerHTML += "<span class='visually-hidden'>Jump forward one year</span>"
-    next2.onmouseover = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump forward one year"
-    }
-    next2.onmouseleave = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    next2.onfocus = function(){
-      calendarTooltip.style.display = "block"
-      calendarTooltip.innerText = "Jump forward one year"
-    }
-    next2.onblur = function(){
-      calendarTooltip.style.display = "none"
-      calendarTooltip.innerText = null
-    }
-    next2.onclick = function(){
-      newDiv.innerText = moment(newDiv.innerText).add(1,"years").format('MMMM YYYY')
+    const prev: HTMLElement | null = document.querySelector('.react-calendar__navigation__prev-button');
+    const calendarTooltip: HTMLElement | null = document.getElementById("calendar-description");
+    const prev2: HTMLElement | null = document.querySelector('.react-calendar__navigation__prev2-button');
+    const next: HTMLElement | null = document.querySelector('.react-calendar__navigation__next-button');
+    const next2: HTMLElement | null = document.querySelector('.react-calendar__navigation__next2-button');
+    if (prev && prev2 && calendarTooltip && next && next2) {
+      prev2.setAttribute("aria-describedby","calendar-description")
+      prev2.innerHTML += "<span class='visually-hidden'>Jump back one year</span>"
+      prev2.onmouseover = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump back one year"
+      }
+      prev2.onmouseleave = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      prev2.onfocus = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump back one year"
+      }
+      prev2.onblur = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      prev2.onclick = function(){
+        newDiv.innerText = moment(newDiv.innerText).subtract(1,"years").format('MMMM YYYY')
+      }
+      prev.setAttribute("aria-describedby","calendar-description")
+      prev.innerHTML += "<span class='visually-hidden'>Jump back one month</span>"
+      prev.onmouseover = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump back one month"
+      }
+      prev.onmouseleave = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      prev.onfocus = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump back one month"
+      }
+      prev.onblur = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      prev.onclick = function(){
+        newDiv.innerText = moment(newDiv.innerText).subtract(1,"months").format('MMMM YYYY')
+      }
+      next.setAttribute("aria-describedby","calendar-description")
+      next.innerHTML += "<span class='visually-hidden'>Jump forward one month</span>"
+      next.onmouseover = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump forward one month"
+      }
+      next.onmouseleave = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      next.onfocus = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump forward one month"
+      }
+      next.onblur = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      next.onclick = function(){
+        newDiv.innerText = moment(newDiv.innerText).add(1,"month").format('MMMM YYYY')
+      }
+      next2.setAttribute("aria-describedby","calendar-description")
+      next2.innerHTML += "<span class='visually-hidden'>Jump forward one year</span>"
+      next2.onmouseover = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump forward one year"
+      }
+      next2.onmouseleave = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      next2.onfocus = function(){
+        calendarTooltip.style.display = "block"
+        calendarTooltip.innerText = "Jump forward one year"
+      }
+      next2.onblur = function(){
+        calendarTooltip.style.display = "none"
+        calendarTooltip.innerText = ""
+      }
+      next2.onclick = function(){
+        newDiv.innerText = moment(newDiv.innerText).add(1,"years").format('MMMM YYYY')
+      }
     }
   },[])
   
-  function handleDate(e) {
+  function handleDate(e: any) {
     setInputDate(e.toISOString().split("T")[0]);
   }
   
-  const fetchEvents = useCallback(async (e) => {
+  const fetchEvents = useCallback(async () => {
     const subdomain = window.location.host.split(".")[0];
     setIsLoading(true);
-    try {
-        await axios
-        .get(server + `/fecalendar?subdomain=${subdomain}&inputdate=${inputDate}&caltypesid=${calTypesId}`)
-        .then((response) => {
-          let r = response.data;
-          console.log(r)
-          let bCalendarEvents = r.bigcalendarevents
-          let eventsSorted = r.events.sort((a,b)=>{
-            return moment(new Date(a.eventstart)) - moment(new Date(b.eventstart))
-          })
-          let eventsLocalized = eventsSorted.map((e)=>{
-            return {
-              ...e, 
-              displaystart: moment.utc(e.displaystart, "MM-DD-YYYY").local().format('MM/DD/YY hh:mm:ss A'),
-              displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
-            }
-          }).filter((e)=>moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local() >= moment(inputDate))
-          setEvents(eventsLocalized);
-          setEventTypes(r["etypes"]);
-          // window.location = `${window.location.toString().split("#")[0]}#${inputDate}`
-          const bigCalendarEventsLocalized = bCalendarEvents.map((e)=>{
-            return {
-              ...e, 
-              start: moment.utc(e.start).local().format('MM/DD/YY hh:mm:ss A'),
-              end: moment.utc(e.end).local().format('MM/DD/YY hh:mm:ss A')
-            }
-          })
-          setBigCalendarEvents(bigCalendarEventsLocalized)
-          setLibraryTimezone(r.timezone)
-          setIsLoading(false)
-          dateFunction();
-
-          //add role="row" to react calendar table
-          const reactCalendarMonthViewDays = document.querySelector(".react-calendar__month-view__days")
-          if (reactCalendarMonthViewDays) {
-            reactCalendarMonthViewDays.setAttribute("role","row");
-          }
-          // //add role="gridcell" to react calendar table cells
-          // const reactCalendarTiles = document.querySelectorAll(".react-calendar__tile");
-          // reactCalendarTiles.forEach((tile)=>{
-          //   tile.setAttribute("role","gridcell");
-          // })
-          //add aria-selected to selected date
-          const dateSelected = document.querySelector(".react-calendar__tile--active");
-          if (dateSelected && reactCalendarMonthViewDays) {
-            dateSelected.ariaSelected = true ;
-          }
-
-          //remove role region from accordion panels
-          const regionRoles = document.querySelectorAll("[role='region']");
-          regionRoles.forEach((regionRole)=>{
-          regionRole.removeAttribute("role")
-          })
+    await getFeEvents(subdomain,inputDate,calTypesId,"")
+      .then((response) => {
+        let r = response.data;
+        console.log(r)
+        let bCalendarEvents = r.bigcalendarevents
+        let eventsSorted = r.events.sort((a: any,b: any)=>{
+          return (moment(new Date(a.eventstart)) as any) - (moment(new Date(b.eventstart)) as any)
         })
-    } catch(error) {
-        console.log(error);
-    }
-  },[server,inputDate,calTypesId])
+        let eventsLocalized = eventsSorted.map((e: any)=>{
+          return {
+            ...e, 
+            displaystart: moment.utc(e.displaystart, "MM-DD-YYYY").local().format('MM/DD/YY hh:mm:ss A'),
+            displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+            reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+            reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+            eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+            eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
+          }
+        }).filter((e: any)=>moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local() >= moment(inputDate))
+        setEvents(eventsLocalized);
+        setEventTypes(r["etypes"]);
+        // window.location = `${window.location.toString().split("#")[0]}#${inputDate}`
+        const bigCalendarEventsLocalized = bCalendarEvents.map((e: any)=>{
+          return {
+            ...e, 
+            start: moment.utc(e.start).local().format('MM/DD/YY hh:mm:ss A'),
+            end: moment.utc(e.end).local().format('MM/DD/YY hh:mm:ss A')
+          }
+        })
+        setBigCalendarEvents(bigCalendarEventsLocalized)
+        setLibraryTimezone(r.timezone)
+        setIsLoading(false)
+        dateFunction();
+
+        //add role="row" to react calendar table
+        const reactCalendarMonthViewDays = document.querySelector(".react-calendar__month-view__days")
+        if (reactCalendarMonthViewDays) {
+          reactCalendarMonthViewDays.setAttribute("role","row");
+        }
+        // //add role="gridcell" to react calendar table cells
+        // const reactCalendarTiles = document.querySelectorAll(".react-calendar__tile");
+        // reactCalendarTiles.forEach((tile)=>{
+        //   tile.setAttribute("role","gridcell");
+        // })
+        //add aria-selected to selected date
+        const dateSelected: HTMLElement | null = document.querySelector(".react-calendar__tile--active");
+        if (dateSelected && reactCalendarMonthViewDays) {
+          dateSelected.ariaSelected = "true" ;
+        }
+
+        //remove role region from accordion panels
+        const regionRoles = document.querySelectorAll("[role='region']");
+        regionRoles.forEach((regionRole)=>{
+        regionRole.removeAttribute("role")
+        })
+      })
+      .catch((res)=>{
+        console.error(res);
+        setIsLoading(false)
+      })
+  },[inputDate,calTypesId])
   useEffect(()=>{
     fetchEvents()
   },[fetchEvents])
@@ -433,7 +433,7 @@ export default function FrontEndCalendar() {
     } catch(error) {
         console.log(error);
     }
-  },[server])
+  },[])
 
   const closeFormModal = () => {
     setOpenFormModal(false)
@@ -477,7 +477,7 @@ export default function FrontEndCalendar() {
     } catch(error) {
         console.log(error);
     }
-  },[server,fetchEvents])
+  },[fetchEvents])
 
   async function goToBigCalendarEvent(e) {
     const programId = e.id;
@@ -582,7 +582,7 @@ export default function FrontEndCalendar() {
         pb={20}
         as="main"
       >
-        <a id="skip-nav" tabIndex="-1" className="visually-hidden">Main content</a>
+        <a id="skip-nav" tabIndex={-1} className="visually-hidden">Main content</a>
         {customSettings?.bigCalendarView === true ? (
         <Tabs
           variant="enclosed"
@@ -653,7 +653,7 @@ export default function FrontEndCalendar() {
                 bg: "whiteAlpha.200"
               }}
             > 
-              <Box id="date-picker" tabIndex="-1"></Box>
+              <Box id="date-picker" tabIndex={-1}></Box>
               <Box
                 as={Calendar} 
                 bg="white"
@@ -688,7 +688,7 @@ export default function FrontEndCalendar() {
                   }
                 }}
                 width="auto"
-                calendarType='US' 
+                // calendarType='US' 
                 prevAriaLabel="just back one month"
                 prev2AriaLabel="jump back one year"
                 nextAriaLabel="jump forward one month"
@@ -717,7 +717,7 @@ export default function FrontEndCalendar() {
                   size="md"
                   width="100%"
                   bg="white"
-                  ref={searchTermRef}
+                  ref={searchTermRef as any}
                   onKeyDown={e=>e.key==='Enter' ? handleSearch(e) : null}
                   aria-label="enter search term"
                   borderColor="black"
@@ -803,7 +803,7 @@ export default function FrontEndCalendar() {
                 bg: "whiteAlpha.200"
               }}
             >
-              <div id="top-date" tabIndex="-1" className="visually-hidden">Top date</div>
+              <div id="top-date" tabIndex={-1} className="visually-hidden">Top date</div>
               {isLoading !== true ? events.map((event,i)=>{
                 return (
                   <Box key={i}>
@@ -996,7 +996,7 @@ export default function FrontEndCalendar() {
                                   borderColor="inherit"
                                   dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(event.description)}}
                                   aria-label="event description"
-                                  tabIndex="0"
+                                  tabIndex={0}
                                   sx={{
                                     a: {
                                       color: "blue",
@@ -1132,10 +1132,10 @@ export default function FrontEndCalendar() {
                               bgColor: "lightgrey"
                             }
                           }}
-                          tabIndex="0"
+                          tabIndex={0}
                           aria-label="back to top"
-                          onClick={e=>topFunction(e)}
-                          onKeyDown={e=>e.key==='Enter' ? topFunction(e) : null}
+                          onClick={e=>topFunction()}
+                          onKeyDown={e=>e.key==='Enter' ? topFunction() : null}
                         >
                           Back to top?
                         </Button>
@@ -1148,7 +1148,7 @@ export default function FrontEndCalendar() {
               <Flex 
                 justifyContent="center"
               >
-                <Loading/>
+                <Spinner size="xl" />
               </Flex>
               )}
             </Flex>
@@ -1168,15 +1168,15 @@ export default function FrontEndCalendar() {
               width="3.25rem"
               bgColor="white"
               fontSize="3.25rem"
-              tabIndex="0"
+              tabIndex={0}
               borderRadius="full"
               aria-label="back to top"
               aria-describedby="scroll-to-top-button"
               _hover={{
                 color: "black"
               }}
-              onClick={e=>{topFunction(e)}}
-              onKeyDown={e=>e.key==='Enter' ? topFunction(e) : null}
+              onClick={()=>{topFunction()}}
+              onKeyDown={e=>e.key==='Enter' ? topFunction() : null}
             >
               <CgChevronUpO/>
               <Text as="span" className="visually-hidden">Scroll to top</Text>
@@ -1413,7 +1413,7 @@ export default function FrontEndCalendar() {
                   _dark={{
                     borderColor: "white"
                   }}
-                  ref={emailRef}
+                  ref={emailRef as any}
                 />
               </Box>
             </ModalBody>
