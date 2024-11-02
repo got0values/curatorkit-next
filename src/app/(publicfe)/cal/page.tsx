@@ -325,7 +325,7 @@ export default function FrontEndCalendar() {
     fetchEvents()
   },[fetchEvents])
 
-  async function handleMonth(e) {
+  async function handleMonth(e: any) {
     const inputMonth = moment(e).format("YYYY-MM")
     const subdomain = window.location.host.split(".")[0];
     setIsLoading(true)
@@ -333,8 +333,8 @@ export default function FrontEndCalendar() {
         await axios
         .get(server + `/fecalendarmonths?subdomain=${subdomain}&inputmonth=${inputMonth}&caltypesid=${calTypesId}`)
         .then((response) => {
-          let eventsSorted = response.data.sort((a,b)=>{
-            return moment(a["eventstart"]) - moment(b["eventstart"])
+          let eventsSorted = response.data.sort((a: any,b: any)=>{
+            return moment(a.eventstart) - moment(b.eventstart)
           })
           let eventsLocalized = eventsSorted.map((e)=>{
             return {

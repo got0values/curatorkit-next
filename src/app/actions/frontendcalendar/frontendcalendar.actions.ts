@@ -21,7 +21,6 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
     const libraryTimezone = library?.timezone;
     const now = momentTimezone().tz(libraryTimezone!);
     const currentDate = now.format('YYYY-MM-DD');
-
     if (!formId) {
       let events = [];
       if (calTypesId == "All") {
@@ -29,13 +28,13 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
           where: {
             library: libraryId,
             eventstart: {
-              gte: new Date(inputDate.replace(/"/g, '')), // Assumes `inputDate` is in ISO format for conversion
+              gte: new Date(inputDate),
             },
             displaystart: {
-              lt: currentDate,
+              lt: new Date(currentDate),
             },
             displayend: {
-              gt: currentDate,
+              gt: new Date(currentDate),
             },
             eventhidden: false,
           }
@@ -58,10 +57,10 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
               gte: new Date(inputDate.replace(/"/g, '')),
             },
             displaystart: {
-              lt: currentDate,
+              lt: new Date(currentDate),
             },
             displayend: {
-              gt: currentDate,
+              gt: new Date(currentDate),
             },
             eventhidden: false,
             eventtype: Number(calTypesId)
@@ -149,10 +148,10 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
         where: {
           library: libraryId,
           displaystart: {
-            lt: currentDate,
+            lt: new Date(currentDate),
           },
           displayend: {
-            gt: currentDate,
+            gt: new Date(currentDate),
           },
           eventhidden: false
         }
