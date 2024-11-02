@@ -187,8 +187,8 @@ model event_calendar {
   showroom                                Boolean?          @default(true)
   email_reminders                         email_reminders[]
   event_forms                             event_forms?      @relation(fields: [form_id], references: [id], map: "event_calendar_ibfk_1")
-  event_rooms                             event_rooms?      @relation(fields: [room], references: [id], map: "event_calendar_ibfk_2")
   library_event_calendar_libraryTolibrary library           @relation("event_calendar_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "event_calendar_ibfk_3")
+  event_rooms                             event_rooms?      @relation(fields: [room], references: [id], onUpdate: Restrict, map: "event_calendar_ibfk_2")
   event_types                             event_types?      @relation(fields: [eventtype], references: [id], map: "fk_foreign_room_calendar_typeid")
 
   @@index([room], map: "fk_foreign_room_calendar_roomid")

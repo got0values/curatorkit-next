@@ -223,3 +223,148 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
     return {success: false, message: "Failed to get events", data: null}
   }
 }
+
+export async function getFeCalendarMonths(subdomain: string, inputMonth: string, calTypesId: string): Promise<ServerResponseType> {
+  try {
+    const library = await prisma.library.findFirst({
+      where: {
+        subdomain: subdomain
+      }
+    })
+    const libraryId = library?.id;
+    if (!libraryId) {
+      return {success: false, message: "Failed to get library"}
+    }
+    
+    const libraryTimezone = library?.timezone;
+    const now = momentTimezone().tz(libraryTimezone!);
+    const currentDate = now.format('YYYY-MM-DD');
+
+    let monthEvents = [];
+    if (calTypesId === "All") {
+      monthEvents = await prisma.event_calendar.findMany({
+        where: {
+          library: libraryId,
+          eventhidden: false,
+          eventstart: {
+            gte: new Date(`${inputMonth}-01T00:00:00Z`),
+            lt: new Date(`${inputMonth}-31T23:59:59Z`),
+          },
+          displaystart: {
+            lt: new Date(currentDate),
+          },
+          displayend: {
+            gt: new Date(currentDate),
+          },
+        }
+      })
+      monthEvents = monthEvents?.map(result => ({
+        ...result,
+        reservestart: momentTimezone.tz(result.reservestart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventstart: momentTimezone.tz(result.eventstart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventend: momentTimezone.tz(result.eventend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+      }));
+    }
+    else {
+      monthEvents = await prisma.event_calendar.findMany({
+        where: {
+          library: libraryId,
+          eventhidden: false,
+          eventtype: Number(calTypesId),
+          eventstart: {
+            gte: new Date(`${inputMonth}-01T00:00:00Z`),
+            lt: new Date(`${inputMonth}-31T23:59:59Z`),
+          },
+          displaystart: {
+            lt: new Date(currentDate),
+          },
+          displayend: {
+            gt: new Date(currentDate),
+          },
+        }
+      })
+      monthEvents = monthEvents?.map(result => ({
+        ...result,
+        reservestart: momentTimezone.tz(result.reservestart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventstart: momentTimezone.tz(result.eventstart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventend: momentTimezone.tz(result.eventend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+      }));
+    }
+
+    let monthEventData = [];
+    for (let monthEvent of monthEvents) {
+      let roomName = await prisma.event_rooms.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(monthEvent.room)
+        }
+      })
+
+      let monthEventType = await prisma.event_types.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(monthEvent.eventtype)
+        },
+        select: {
+          name: true,
+          color: true
+        }
+      })
+      let monthEventTypeName = monthEventType ? monthEventType.name : "";
+      var monthEventTypeColor = monthEventType ? monthEventType.color : "";
+
+      let formId = monthEvent.form_id;
+      let regInfo = await prisma.event_forms.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(formId)
+        }
+      })
+
+      let eventFormData = await prisma.event_form_data.findMany({
+        where: {
+          library: libraryId,
+          id: Number(formId)
+        }
+      })
+      let numberRegistered = eventFormData.length;
+
+      let registrationType = "Register";
+      let attendees = regInfo ? regInfo.attendees! : 0;
+      let waitingList = regInfo ?regInfo?.waitinglist! : 0;
+      if (attendees - numberRegistered <= 0) {
+        registrationType = "Waiting List";
+      }
+      if (numberRegistered >= attendees + waitingList) {
+        registrationType = "Registration Closed";
+        formId = null;
+      }
+
+      monthEventData.push({
+        ...monthEvent,
+        roomName,
+        monthEventTypeName,
+        monthEventTypeColor,
+        formId,
+        numberRegistered,
+        attendees,
+        waitingList,
+        registrationType
+      })
+    }
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: monthEventData}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to get calendar months", data: null}
+  }
+}

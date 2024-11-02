@@ -46,7 +46,7 @@ import {
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
 import { getLibraryName } from '@/app/actions/libray.actions';
-import { getFeEvents } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
+import { getFeEvents, getFeCalendarMonths } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -330,13 +330,12 @@ export default function FrontEndCalendar() {
     const subdomain = window.location.host.split(".")[0];
     setIsLoading(true)
     try {
-        await axios
-        .get(server + `/fecalendarmonths?subdomain=${subdomain}&inputmonth=${inputMonth}&caltypesid=${calTypesId}`)
+      await getFeCalendarMonths(subdomain,inputMonth,calTypesId)
         .then((response) => {
           let eventsSorted = response.data.sort((a: any,b: any)=>{
-            return moment(a.eventstart) - moment(b.eventstart)
+            return (moment(new Date(a.eventstart)) as any) - (moment(new Date(b.eventstart)) as any)
           })
-          let eventsLocalized = eventsSorted.map((e)=>{
+          let eventsLocalized = eventsSorted.map((e: any)=>{
             return {
               ...e, 
               displaystart: moment.utc(e.displaystart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
@@ -349,7 +348,7 @@ export default function FrontEndCalendar() {
           })
           setEvents(eventsLocalized);
           setIsLoading(false)
-        })
+      })
     } catch(error) {
         console.log(error);
     }
