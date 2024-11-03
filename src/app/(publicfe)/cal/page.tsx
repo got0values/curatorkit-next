@@ -46,7 +46,7 @@ import {
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
 import { getLibraryName } from '@/app/actions/libray.actions';
-import { getFeEvents, getFeCalendarMonths } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
+import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -355,46 +355,41 @@ export default function FrontEndCalendar() {
   }
 
   const searchTermRef = useRef();
-  async function handleSearch(e) {
+  async function handleSearch(e: any) {
     e.preventDefault()
-    const searchTerm = searchTermRef.current.value
+    const searchTerm = (searchTermRef.current as any).value
     const subdomain = window.location.host.split(".")[0];
     if (searchTerm) {
       setIsLoading(true)
-      try {
-        await axios
-        .get(server + `/fecalendarsearch?subdomain=${subdomain}&searchterm=${searchTerm}&caltypesid=${calTypesId}`)
+      await getFeCalendarSearch(subdomain,searchTerm,calTypesId)
         .then((response) => {
-          let searchResults = []
-          const allEvents = response.data;
-          for (let event of allEvents) {
-            if (event.tags !== null && (
-                event.tags.map((event)=>event.toLowerCase()).includes(searchTerm.toLowerCase()) || event.eventname.toLowerCase().includes(searchTerm.toLowerCase())
-              )) {
-              searchResults.push(event)
-            }
+          if (response.success) {
+            const searchResults = response.data;
+            let eventsSorted = searchResults.sort((a: any,b: any)=>{
+              return (moment(new Date(a.eventstart)) as any) - (moment(new Date(b.eventstart)) as any)
+            })
+            let eventsLocalized = eventsSorted.map((e: any)=>{
+              return {
+                ...e, 
+                displaystart: moment.utc(e.displaystart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+                displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+                reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+                reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+                eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
+                eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
+              }
+            })
+            setEvents(eventsLocalized);
+            (searchTermRef.current as any).value = "";
           }
-          let eventsSorted = searchResults.sort((a,b)=>{
-            return moment(a["eventstart"]) - moment(b["eventstart"])
-          })
-          let eventsLocalized = eventsSorted.map((e)=>{
-            return {
-              ...e, 
-              displaystart: moment.utc(e.displaystart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
-            }
-          })
-          setEvents(eventsLocalized);
-          searchTermRef.current.value = ""
-          setIsLoading(false)
-        })
-      } catch(error) {
-          console.log(error);
-      }
+          else {
+            console.error(response);
+          }
+      })
+      .catch((res)=>{
+        console.error(res)
+      })
+      setIsLoading(false)
     }
     else {
       return null

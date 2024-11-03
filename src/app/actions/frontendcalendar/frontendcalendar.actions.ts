@@ -47,6 +47,8 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
           reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
           displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
           displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+          tags: result.tags ? JSON.parse(result.tags) : [],
+          equipment: result.equipment ? JSON.parse(result.equipment) : []
         }));
       }
       else {
@@ -74,6 +76,8 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
           reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
           displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
           displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+          tags: result.tags ? JSON.parse(result.tags) : [],
+          equipment: result.equipment ? JSON.parse(result.equipment) : []
         }));
       }
       let eventData = [];
@@ -164,6 +168,8 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
         reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
         displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
         displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        tags: result.tags ? JSON.parse(result.tags) : [],
+        equipment: result.equipment ? JSON.parse(result.equipment) : []
       }));
 
       let bigCalendarEvents = [];
@@ -266,6 +272,8 @@ export async function getFeCalendarMonths(subdomain: string, inputMonth: string,
         reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
         displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
         displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        tags: result.tags ? JSON.parse(result.tags) : [],
+        equipment: result.equipment ? JSON.parse(result.equipment) : []
       }));
     }
     else {
@@ -294,6 +302,8 @@ export async function getFeCalendarMonths(subdomain: string, inputMonth: string,
         reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
         displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
         displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        tags: result.tags ? JSON.parse(result.tags) : [],
+        equipment: result.equipment ? JSON.parse(result.equipment) : []
       }));
     }
 
@@ -366,5 +376,157 @@ export async function getFeCalendarMonths(subdomain: string, inputMonth: string,
     console.error(res)
     await prisma.$disconnect();
     return {success: false, message: "Failed to get calendar months", data: null}
+  }
+}
+
+export async function getFeCalendarSearch(subdomain: string, searchTerm: string, calTypesId: string): Promise<ServerResponseType> {
+  try {
+    const library = await prisma.library.findFirst({
+      where: {
+        subdomain: subdomain
+      }
+    })
+    const libraryId = library?.id;
+    if (!libraryId) {
+      return {success: false, message: "Failed to get library"}
+    }
+    
+    const libraryTimezone = library?.timezone;
+    const now = momentTimezone().tz(libraryTimezone!);
+    const currentDate = now.format('YYYY-MM-DD');
+
+    let searchEvents = [];
+    if (calTypesId === "All") {
+      searchEvents = await prisma.event_calendar.findMany({
+        where: {
+          library: libraryId,
+          eventhidden: false,
+          displaystart: {
+            lt: new Date(currentDate),
+          },
+          displayend: {
+            gt: new Date(currentDate),
+          },
+        }
+      })
+      searchEvents = searchEvents?.map(result => ({
+        ...result,
+        reservestart: momentTimezone.tz(result.reservestart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventstart: momentTimezone.tz(result.eventstart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventend: momentTimezone.tz(result.eventend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        tags: result.tags ? JSON.parse(result.tags) : [],
+        equipment: result.equipment ? JSON.parse(result.equipment) : []
+      }));
+    }
+    else {
+      searchEvents = await prisma.event_calendar.findMany({
+        where: {
+          library: libraryId,
+          eventhidden: false,
+          eventtype: Number(calTypesId),
+          displaystart: {
+            lt: new Date(currentDate),
+          },
+          displayend: {
+            gt: new Date(currentDate),
+          },
+        }
+      })
+      searchEvents = searchEvents?.map(result => ({
+        ...result,
+        reservestart: momentTimezone.tz(result.reservestart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventstart: momentTimezone.tz(result.eventstart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        eventend: momentTimezone.tz(result.eventend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        reserveend: momentTimezone.tz(result.reserveend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'),
+        displaystart: result.displaystart ? momentTimezone.tz(result.displaystart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        displayend: result.displayend ? momentTimezone.tz(result.displayend, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : null,
+        tags: result.tags ? JSON.parse(result.tags) : [],
+        equipment: result.equipment ? JSON.parse(result.equipment) : []
+      }));
+    }
+
+    let searchEventData = [];
+    for (let searchEvent of searchEvents) {
+      let roomName = await prisma.event_rooms.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(searchEvent.room)
+        }
+      })
+
+      let searchEventType = await prisma.event_types.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(searchEvent.eventtype)
+        },
+        select: {
+          name: true,
+          color: true
+        }
+      })
+      let searchEventTypeName = searchEventType ? searchEventType.name : "";
+      var searchEventTypeColor = searchEventType ? searchEventType.color : "";
+
+      let formId = searchEvent.form_id;
+      let regInfo = await prisma.event_forms.findUnique({
+        where: {
+          library: libraryId,
+          id: Number(formId)
+        }
+      })
+
+      let eventFormData = await prisma.event_form_data.findMany({
+        where: {
+          library: libraryId,
+          id: Number(formId)
+        }
+      })
+      let numberRegistered = eventFormData.length;
+
+      let registrationType = "Register";
+      let attendees = regInfo ? regInfo.attendees! : 0;
+      let waitingList = regInfo ?regInfo?.waitinglist! : 0;
+      if (attendees - numberRegistered <= 0) {
+        registrationType = "Waiting List";
+      }
+      if (numberRegistered >= attendees + waitingList) {
+        registrationType = "Registration Closed";
+        formId = null;
+      }
+
+      searchEventData.push({
+        ...searchEvent,
+        roomName,
+        searchEventTypeName,
+        searchEventTypeColor,
+        formId,
+        numberRegistered,
+        attendees,
+        waitingList,
+        registrationType
+      })
+    }
+
+    let searchResults = [];
+    for (let event of searchEventData) {
+      if ((event.tags && (
+          event.tags.map((tag: string)=>tag.toLowerCase()).includes(searchTerm.toLowerCase())) || 
+          event.eventname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          event.description?.toLowerCase().includes(searchTerm.toLowerCase())
+        )) {
+        searchResults.push(event)
+      }
+    }
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: searchResults}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to get calendar search results", data: null}
   }
 }

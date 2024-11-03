@@ -732,7 +732,7 @@ export async function postCreateEvent(formData: FormData): Promise<ServerRespons
             displaystart: momentTimezone.tz(displayStart, libraryTimezone).utc().toDate(),
             displayend: momentTimezone.tz(displayEnd, libraryTimezone).utc().toDate(),
             equipment: equipmentIds ? JSON.stringify((equipmentIds as string).split(",")) : null,
-            tags: tags ? JSON.stringify(tags) : null,
+            tags: tags ? JSON.stringify((tags as string).split(",")) : null,
             showroom: showRoom ? true : false
           }
         })

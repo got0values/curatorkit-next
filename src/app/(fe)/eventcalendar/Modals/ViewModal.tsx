@@ -100,7 +100,7 @@ const ViewModal = (props: ViewModalProps) => {
               </Tr>
               <Tr>
                 <Td><Text fontWeight="bold">tags:</Text> </Td>
-                <Td>{modalData.tags}</Td>
+                <Td>{modalData.tags?.join(", ")}</Td>
               </Tr>
               <Tr>
                 <Td><Text fontWeight="bold">Equipment:</Text> </Td>
