@@ -46,7 +46,8 @@ import {
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
 import { getLibraryName } from '@/app/actions/libray.actions';
-import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
+import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch, getFeForm, postRegForm } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
+import { BigCalendarEventsType } from '@/app/types/types';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function FrontEndCalendar() {
   const [inputDate, setInputDate] = useState(moment.utc(new Date().toISOString()).local().format('YYYY-MM-DD'));
 
   const [bigCalendarView,setBigCalendarView] = useState(false)
-  const [bigCalendarEvents,setBigCalendarEvents] = useState()
+  const [bigCalendarEvents,setBigCalendarEvents] = useState<BigCalendarEventsType[] | []>([])
   const localizer = momentLocalizer(moment)
 
   const [isLoading,setIsLoading] = useState(false);
@@ -260,7 +261,7 @@ export default function FrontEndCalendar() {
   const fetchEvents = useCallback(async () => {
     const subdomain = window.location.host.split(".")[0];
     setIsLoading(true);
-    await getFeEvents(subdomain,inputDate,calTypesId,"")
+    await getFeEvents(subdomain,inputDate,calTypesId)
       .then((response) => {
         let r = response.data;
         let bigCalendarEvents = r.bigCalendarEvents
@@ -395,18 +396,26 @@ export default function FrontEndCalendar() {
     }
   }
 
-  const [form,setForm] = useState(null);
+  type SetFormType = {
+    formid: string; 
+    formschema: string;
+    formuischema: string | null;
+    formeventtypename: string; 
+    formeventtypeid: string;
+  }
+
+  const [form,setForm] = useState<SetFormType | null>(null);
   const [openFormModal,setOpenFormModal] = useState(false)
-  const openRegForm = useCallback(async (e) => {
+  const openRegForm = useCallback(async (e: any) => {
     const formId = e.target.dataset.formid
     const subdomain = window.location.host.split(".")[0];
     try {
-      await getFeEvents(subdomain,inputDate,calTypesId,formId)
+      await getFeForm(subdomain,formId)
         .then((response) => {
           setForm({
             formid: formId, 
-            formschema: response.data.formschema, 
-            formuischema: response.data.formuischema ? response.data.formuischema : null,
+            formschema: response.data.form_schema, 
+            formuischema: response.data.formuischema ? response.data.form_ui_schema : null,
             formeventtypename: e.target.dataset.eventtypename, 
             formeventtypeid: e.target.dataset.eventtypeid
           });
@@ -438,18 +447,7 @@ export default function FrontEndCalendar() {
   const regFormTypeIdRef = useRef();
   const submitRegForm = useCallback(async (e: any) => {
     const subdomain = window.location.host.split(".")[0];
-    try {
-      await axios
-      .post(server + "/fecalendar", {
-          headers : {
-              'Content-Type':'application/json'
-          },
-          regformdata: e,
-          regformid: regFormIdRef.current.value,
-          regformtypename: regFormTypeNameRef.current.value,
-          regformtypeid: regFormTypeIdRef.current.value,
-          subdomain: subdomain
-      })
+    await postRegForm(subdomain, e,(regFormIdRef.current as any).value, (regFormTypeNameRef.current as any).value, (regFormTypeIdRef.current as any).value)
       .then((response)=>{
         if (response.data === "Register") {
           window.alert("Registered!")
@@ -465,9 +463,9 @@ export default function FrontEndCalendar() {
           setRegFormErrorMsg(response.data)
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res)
+      })
   },[fetchEvents])
 
   async function goToBigCalendarEvent(e: HTMLElement) {
@@ -483,11 +481,11 @@ export default function FrontEndCalendar() {
     setOpenEmailModal(true)
   }
 
-  const [emailReminderError, setEmailReminderError] = useState(null);
+  const [emailReminderError, setEmailReminderError] = useState("");
   const emailRef = useRef();
   async function setEmailReminder(e: any) {
     e.preventDefault();
-    const emailAddress = emailRef.current.value;
+    const emailAddress = (emailRef.current as any).value;
     if (emailAddress !== "") {
       try {
         await axios
@@ -514,7 +512,7 @@ export default function FrontEndCalendar() {
     }
     else {
       setEmailReminderError("Please enter an email address")
-      document.getElementById("email").focus()
+      document.getElementById("email")!.focus()
     }
   }
   function closeEmailModal() {
@@ -525,16 +523,16 @@ export default function FrontEndCalendar() {
 
   function setBigCalEventBackgrounds() {
     setTimeout(()=>{
-      let eventRows = document.querySelectorAll(".rbc-event")
-      for (let eventRow of eventRows){
-        let event = eventRow.querySelector(".rbc-event-content")
+      let eventRows: NodeListOf<HTMLElement> = document.querySelectorAll(".rbc-event")
+      eventRows.forEach((eventRow)=>{
+        let event: HTMLElement | null = eventRow.querySelector(".rbc-event-content")
         for (let bigCalEvent of bigCalendarEvents) {
-          if (bigCalEvent.title === event.innerText) {
-            let eventTypeColors = JSON.parse(bigCalEvent.typeColor)
-            eventRow.style.backgroundColor = eventTypeColors?.rgb
+          if (bigCalEvent.title === event!.innerText) {
+            let eventTypeColors = JSON.parse(bigCalEvent.typeColor);
+            eventRow.style.backgroundColor = eventTypeColors?.rgb;
           }
         }
-      }
+      })
     },250)
   }
 

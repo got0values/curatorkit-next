@@ -191,3 +191,17 @@ export type ServerResponseType = {
     keep_accordions_open: number;
     logo: string;
   } | null
+
+  export type BigCalendarEventsType = {
+    typeColor: string;
+    reservestart: string;
+    eventstart: string;
+    eventend: string;
+    reserveend: string;
+    displaystart: string | null;
+    displayend: string | null;
+    tags: any;
+    equipment: any;
+    title: string;
+    form_id: number | null;
+  }
