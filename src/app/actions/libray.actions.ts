@@ -1,24 +1,15 @@
 'use server'
 
-import {tokenCookieToLibraryId} from '../helpers/tokenCookieToUserId';
 import { PrismaClient } from '@prisma/client';
 import { ServerResponseType } from '../types/types';
 
 const prisma = new PrismaClient()
 
-export async function getLibraryName(): Promise<ServerResponseType> {
+export async function getLibraryNameFromSubdomain(subdomain: string): Promise<ServerResponseType> {
   try {
-    const libraryId = await tokenCookieToLibraryId();
-    if (!libraryId) {
-      return {success: false, message: "unauthorized"}
-    }
-
-    var library = await prisma.library.findUnique({
+    const library = await prisma.library.findFirst({
       where: {
-        id: libraryId
-      },
-      select: {
-        name: true
+        subdomain: subdomain
       }
     })
 

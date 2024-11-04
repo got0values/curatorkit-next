@@ -45,9 +45,9 @@ import {
   Tabs, TabList, Tab
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
-import { getLibraryName } from '@/app/actions/libray.actions';
+import { getLibraryNameFromSubdomain } from '@/app/actions/libray.actions';
 import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch, getFeForm, postRegForm, postEmailReminder } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
-import { BigCalendarEventsType, EventTypeType } from '@/app/types/types';
+import { BigCalendarEventsType, EventDataType, EventTypeType } from '@/app/types/types';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function FrontEndCalendar() {
 
   const initialRef = useRef(null)
 
-  const [events, setEvents] = useState([]);
+  const [events, setEvents] = useState<EventDataType[] | []>([]);
   const [inputDate, setInputDate] = useState(moment.utc(new Date().toISOString()).local().format('YYYY-MM-DD'));
 
   const [bigCalendarView,setBigCalendarView] = useState(false)
@@ -66,7 +66,7 @@ export default function FrontEndCalendar() {
   const [isLoading,setIsLoading] = useState(false);
   const [eventTypes,setEventTypes] = useState<EventTypeType[] | []>([]);
   const [calTypesId,setCalTypesId] = useState("All");
-  const [libraryName,setLibraryName] = useState<string | null>(null);
+  const [libraryName,setLibraryName] = useState("");
   const [libraryTimezone,setLibraryTimezone] = useState(null);
 
   const accessibilityOptions: IAccessibilityOptions = {
@@ -101,13 +101,15 @@ export default function FrontEndCalendar() {
   }
 
   useEffect(()=>{
-    getLibraryName()
+    const subdomain = window.location.host.split(".")[0];
+    getLibraryNameFromSubdomain(subdomain)
       .then((res)=>{
         if (res.success) {
+          console.log(res.data)
           setLibraryName(res.data)
+          document.title = res.data + " Event Calendar";
         }
       })
-    document.title = libraryName + " Event Calendar";
 
     //remove aria-expanded from accordion buttons
     const accordionButtons = document.querySelectorAll("button[id*='accordion-button-']")
@@ -797,13 +799,13 @@ export default function FrontEndCalendar() {
                   <Box key={i}>
 
                     {i !== 0 && (
-                      moment(events[i]["eventstart"], "MM-DD-YYYY hh:mm:ss A").format('MMM D, YYYY') !== moment(events[i - 1]["eventstart"], "MM-DD-YYYY hh:mm:ss A").format('MMM D, YYYY') ? (
+                      moment(event.eventstart, "MM-DD-YYYY hh:mm:ss A").format('MMM D, YYYY') !== moment(events[i - 1].eventstart, "MM-DD-YYYY hh:mm:ss A").format('MMM D, YYYY') ? (
                         <Divider mt={5}/>
                       ) : null)}
 
                     <Box 
                       key={i} 
-                      id={moment(event["eventstart"], "MM-DD-YYYY hh:mm:ss A").format('YYYY-MM-DD')}
+                      id={moment(event.eventstart, "MM-DD-YYYY hh:mm:ss A").format('YYYY-MM-DD')}
                     >
                       {i === 0 && (
                         <Heading 
@@ -852,7 +854,7 @@ export default function FrontEndCalendar() {
                           borderRightWidth="1px"
                           borderRightColor="inherit"
                           borderLeft="5px solid"
-                          borderLeftColor={(event.typecolor?.rgb ? event.typecolor.rgb : "gray")}
+                          borderLeftColor={(JSON.parse(event.eventTypeColor)?.rgb ? JSON.parse(event.eventTypeColor).rgb : "gray")}
                           backgroundColor="white"
                           _dark={{
                             backgroundColor: "transparent",
@@ -860,7 +862,7 @@ export default function FrontEndCalendar() {
                           }}
                           sx={{
                             '.chakra-accordion__icon': {
-                              display: customSettings?.keep_accordions_open ? 'none' : null
+                              display: customSettings?.keep_accordions_open ? 'none' : "box"
                             }
                           }}
                         >
@@ -889,11 +891,11 @@ export default function FrontEndCalendar() {
                                   // mb={2}
                                 >
                                   <Flex>
-                                  {event["typeid"] !== null ? (
+                                  {event.eventTypeName ? (
                                     <Text 
                                       color="#727272"
                                     >
-                                      {event.type}
+                                      {event.eventTypeName}
                                     </Text>
                                   ) : null}
                                   </Flex>
@@ -919,8 +921,8 @@ export default function FrontEndCalendar() {
                                     </Flex>
 
                                     <Flex alignItems="center" gap={[0,0,1]}>
-                                    {event.room && 
-                                      event.room !== "None" &&
+                                    {event.roomName && 
+                                      event.roomName !== "None" &&
                                       event.showroom ? (
                                       <>
                                         <Icon as={GoLocation} color="#727272" maxH="15px" mb={0}/>
@@ -929,7 +931,7 @@ export default function FrontEndCalendar() {
                                             color="#727272" 
                                             lineHeight={[1,1,1.5]}
                                           >
-                                            {event.room}
+                                            {event.roomName}
                                           </Text>
                                         </Flex>
                                       </>
@@ -947,13 +949,13 @@ export default function FrontEndCalendar() {
                                 justifyContent="flex-start"
                                 gap={2}
                               >
-                                <Link href={`/cal/${event.transid}`} onClick={e=>goToEvent(e, event.transid)}>
+                                <Link href={`/cal/${event.transid}`} onClick={e=>goToEvent(e, event.transid.toString())}>
                                   <Heading 
                                     as="h3"
                                     size="md" 
                                     fontWeight="bold"
                                   >
-                                    {event["eventname"]}
+                                    {event.eventname}
                                   </Heading>
                                 </Link>
                               </Flex>
@@ -1025,13 +1027,12 @@ export default function FrontEndCalendar() {
                                     alignItems="center"
                                     gap={1}
                                     aria-label="add to google calendar"
-                                    tabIndex="-1"
-                                    type=""
+                                    tabIndex={-1}
                                   >
                                     <Icon as={FcGoogle}/> GCal
                                   </Button>
                                 </a>
-                                <ICalendarLink
+                                <Box as={ICalendarLink}
                                   event={{
                                     title: event.eventname,
                                     description: "",
@@ -1048,12 +1049,11 @@ export default function FrontEndCalendar() {
                                     alignItems="center"
                                     gap={1}
                                     aria-label="add to icalendar"
-                                    tabIndex="-1"
-                                    type=""
+                                    tabIndex={-1}
                                   >
                                     <Icon as={BsApple} mb={1}/>ICal
                                   </Button>
-                                </ICalendarLink>
+                                </Box>
                               </Flex>
                               <Flex 
                                 flex="0 0 auto"
@@ -1064,31 +1064,31 @@ export default function FrontEndCalendar() {
                                 m="2"
                               >
                                 <Text>
-                                  {event["attendees"] - event["numberregistered"] > 1 ? (
-                                  event["attendees"] - event["numberregistered"] + " spots left"
-                                  ) : event["attendees"] - event["numberregistered"] === 1 ? (
+                                  {event.attendees - event.numberRegistered > 1 ? (
+                                  event.attendees - event.numberRegistered + " spots left"
+                                  ) : event.attendees - event.numberRegistered === 1 ? (
                                     "1 spot left"
                                   ) : ""}
                                 </Text>
                                 <Flex flexWrap="wrap">
-                                  {event["formid"] !== null ? (
+                                  {event.form_id !== null ? (
                                   <Button 
                                     backgroundColor={primaryColor}
                                     color="white"
                                     size="sm"
-                                    data-formid={event["formid"]}
-                                    data-eventtypename={event["type"]}
-                                    data-eventtypeid={event["typeid"]}
+                                    data-formid={event.form_id}
+                                    data-eventtypename={event.eventTypeName}
+                                    data-eventtypeid={event.eventtype}
                                     onClick={openRegForm}
                                     aria-label="register for event"
                                     _hover={{
                                       backgroundColor: secondaryColor
                                     }}
                                   >
-                                    {event["registrationtype"]}
+                                    {event.registrationType}
                                   </Button>
                                   ) : (
-                                  event.numberregistered < 1 ? (
+                                  event.numberRegistered < 1 ? (
                                     null
                                   ):(
                                     <Text 
@@ -1096,7 +1096,7 @@ export default function FrontEndCalendar() {
                                       aria-label="event registration"
                                       me={1}
                                     >
-                                      {event.registrationtype}
+                                      {event.registrationType}
                                     </Text>
                                   )
                                   )}
@@ -1188,9 +1188,9 @@ export default function FrontEndCalendar() {
             primary={primaryColor}
             localizer={localizer}
             events={bigCalendarEvents}
-            startAccessor="start"
-            endAccessor="end"
-            onSelectEvent={e=>goToBigCalendarEvent(e)}
+            startAccessor={()=>new Date()}
+            endAccessor={()=>new Date()}
+            onSelectEvent={(e: any)=>goToBigCalendarEvent(e)}
             sx={{
               height:"80vh",
               width:"95vw",
@@ -1267,12 +1267,12 @@ export default function FrontEndCalendar() {
               </Box>
             </Box>
             <ModalHeader>
-              <Heading as="h4" size="md">{form.formschema.title ? form.formschema.title : "Registration Form"}</Heading>              
+              <Heading as="h4" size="md">{JSON.parse(form.formschema).title ? JSON.parse(form.formschema).title : "Registration Form"}</Heading>              
             </ModalHeader>
             <ModalBody>
-              <Input type="hidden" value={form.formid} ref={regFormIdRef}/>
-              <Input type="hidden" value={form.formeventtypename} ref={regFormTypeNameRef}/>
-              <Input type="hidden" value={form.formeventtypeid} ref={regFormTypeIdRef}/>
+              <Input type="hidden" value={form.formid} ref={regFormIdRef as any}/>
+              <Input type="hidden" value={form.formeventtypename} ref={regFormTypeNameRef as any}/>
+              <Input type="hidden" value={form.formeventtypeid} ref={regFormTypeIdRef as any}/>
               <Text
                 mb={3}
               >
@@ -1307,7 +1307,8 @@ export default function FrontEndCalendar() {
                 }}
               >
                 <JSONSchemaForm 
-                  uiSchema={form?.formuischema ? form.formuischema : {"ui:title": " "}}
+                  uiSchema={form?.formuischema ? JSON.parse(form.formuischema) : {"ui:title": " "}}
+                  // validator={false}
                   schema={form ? form.formschema : {}} 
                   onSubmit={e=>submitRegForm(e)}
                   autoComplete="on"
