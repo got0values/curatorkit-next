@@ -263,7 +263,6 @@ export default function FrontEndCalendar() {
     await getFeEvents(subdomain,inputDate,calTypesId,"")
       .then((response) => {
         let r = response.data;
-        console.log(r)
         let bigCalendarEvents = r.bigCalendarEvents
         let eventsSorted = r.events.sort((a: any,b: any)=>{
           return (moment(new Date(a.eventstart)) as any) - (moment(new Date(b.eventstart)) as any)
@@ -402,28 +401,26 @@ export default function FrontEndCalendar() {
     const formId = e.target.dataset.formid
     const subdomain = window.location.host.split(".")[0];
     try {
-      await axios
-      .get(server + `/fecalendar?subdomain=${subdomain}&formid=${formId}`, {
-          headers : {
-              'Content-Type':'application/json'
+      await getFeEvents(subdomain,inputDate,calTypesId,formId)
+        .then((response) => {
+          setForm({
+            formid: formId, 
+            formschema: response.data.formschema, 
+            formuischema: response.data.formuischema ? response.data.formuischema : null,
+            formeventtypename: e.target.dataset.eventtypename, 
+            formeventtypeid: e.target.dataset.eventtypeid
+          });
+          setOpenFormModal(true);
+
+          const submitFormButton: HTMLElement | null = document.querySelector('button[type="submit"].btn-info');
+          if (submitFormButton) {
+            submitFormButton.setAttribute("aria-label","submit");
+            if (submitFormButton.parentNode) {
+              (submitFormButton.parentNode as HTMLElement).style.display = "flex";
+              (submitFormButton.parentNode as HTMLElement).style.justifyContent = "flex-end";
+            }
           }
-      })
-      .then((response) => {
-        setForm({
-          formid: formId, 
-          formschema: response.data.formschema, 
-          formuischema: response.data.formuischema ? response.data.formuischema : null,
-          formeventtypename: e.target.dataset.eventtypename, 
-          formeventtypeid: e.target.dataset.eventtypeid
-        });
-        setOpenFormModal(true);
-
-        const submitFormButton = document.querySelector('button[type="submit"].btn-info');
-        submitFormButton.setAttribute("aria-label","submit")
-
-        submitFormButton.parentNode.style.display = "flex";
-        submitFormButton.parentNode.style.justifyContent = "flex-end";
-      })
+        })
     } catch(error) {
         console.log(error);
     }
@@ -431,15 +428,15 @@ export default function FrontEndCalendar() {
 
   const closeFormModal = () => {
     setOpenFormModal(false)
-    setRegFormErrorMsg(null)
+    setRegFormErrorMsg("")
     setForm(null)
   }
 
-  const [regFormErrorMsg,setRegFormErrorMsg] = useState();
+  const [regFormErrorMsg,setRegFormErrorMsg] = useState("");
   const regFormIdRef = useRef();
   const regFormTypeNameRef = useRef();
   const regFormTypeIdRef = useRef();
-  const submitRegForm = useCallback(async (e) => {
+  const submitRegForm = useCallback(async (e: any) => {
     const subdomain = window.location.host.split(".")[0];
     try {
       await axios
@@ -473,14 +470,14 @@ export default function FrontEndCalendar() {
     }
   },[fetchEvents])
 
-  async function goToBigCalendarEvent(e) {
+  async function goToBigCalendarEvent(e: HTMLElement) {
     const programId = e.id;
-    window.location = `${window.location}/${programId}`;
+    router.push(`${window.location}/${programId}`);
   }
 
   const [openEmailModal,setOpenEmailModal] = useState(false);
   const [emailReminderEventId,setEmailReminderEventId] = useState(null);
-  function emailModalOpen(e) {
+  function emailModalOpen(e: any) {
     e.preventDefault()
     setEmailReminderEventId(e.target.dataset.eventid)
     setOpenEmailModal(true)
@@ -488,7 +485,7 @@ export default function FrontEndCalendar() {
 
   const [emailReminderError, setEmailReminderError] = useState(null);
   const emailRef = useRef();
-  async function setEmailReminder(e) {
+  async function setEmailReminder(e: any) {
     e.preventDefault();
     const emailAddress = emailRef.current.value;
     if (emailAddress !== "") {
@@ -552,7 +549,7 @@ export default function FrontEndCalendar() {
     document.documentElement.scrollTop = 0;
   }
 
-  function goToEvent(e,transid){
+  function goToEvent(e: any, transid: string){
     e.preventDefault();
     router.push(`/cal/${transid}`)
   }
@@ -688,10 +685,10 @@ export default function FrontEndCalendar() {
                 nextAriaLabel="jump forward one month"
                 next2AriaLabel="jump forward one year"
                 navigationAriaLabel="month and year"
-                onClickDay={(v, e) => handleDate(v)}
-                onClickMonth={(v, e) => handleMonth(v)}
-                onActiveStartDateChange={(action)=>{
-                  document.getElementById("calendar-alert").innerText = `New view is ${moment(action.activeStartDate).format('MMMM YYYY')}`
+                onClickDay={(v: any, e: any) => handleDate(v)}
+                onClickMonth={(v: any, e: any) => handleMonth(v)}
+                onActiveStartDateChange={(action: any)=>{
+                  document.getElementById("calendar-alert")!.innerText = `New view is ${moment(action.activeStartDate).format('MMMM YYYY')}`
                 }}
               />
               <Text 
@@ -1222,7 +1219,7 @@ export default function FrontEndCalendar() {
                 backgroundColor: `${primaryColor}`
               }
             }}
-            onRangeChange={e=>setBigCalEventBackgrounds()}
+            onRangeChange={()=>setBigCalEventBackgrounds()}
           />
         </Flex>
         )}
