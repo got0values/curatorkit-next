@@ -46,8 +46,8 @@ import {
 } from "@chakra-ui/react"
 import DOMPurify from 'dompurify';
 import { getLibraryName } from '@/app/actions/libray.actions';
-import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch, getFeForm, postRegForm } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
-import { BigCalendarEventsType } from '@/app/types/types';
+import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch, getFeForm, postRegForm, postEmailReminder } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
+import { BigCalendarEventsType, EventTypeType } from '@/app/types/types';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -64,7 +64,7 @@ export default function FrontEndCalendar() {
   const localizer = momentLocalizer(moment)
 
   const [isLoading,setIsLoading] = useState(false);
-  const [eventTypes,setEventTypes] = useState([]);
+  const [eventTypes,setEventTypes] = useState<EventTypeType[] | []>([]);
   const [calTypesId,setCalTypesId] = useState("All");
   const [libraryName,setLibraryName] = useState<string | null>(null);
   const [libraryTimezone,setLibraryTimezone] = useState(null);
@@ -280,7 +280,7 @@ export default function FrontEndCalendar() {
           }
         }).filter((e: any)=>moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local() >= moment(inputDate))
         setEvents(eventsLocalized);
-        setEventTypes(r["etypes"]);
+        setEventTypes(r.eventTypes);
         // window.location = `${window.location.toString().split("#")[0]}#${inputDate}`
         const bigCalendarEventsLocalized = bigCalendarEvents.map((e: any)=>{
           return {
@@ -449,18 +449,23 @@ export default function FrontEndCalendar() {
     const subdomain = window.location.host.split(".")[0];
     await postRegForm(subdomain, e,(regFormIdRef.current as any).value, (regFormTypeNameRef.current as any).value, (regFormTypeIdRef.current as any).value)
       .then((response)=>{
-        if (response.data === "Register") {
-          window.alert("Registered!")
-          closeFormModal();
-          fetchEvents();
-        }
-        if (response.data === "Waiting List") {
-          window.alert("Added to waiting list")
-          closeFormModal();
-          fetchEvents();
+        if (response.success) {
+          if (response.data === "Register") {
+            window.alert("Registered!")
+            closeFormModal();
+            fetchEvents();
+          }
+          if (response.data === "Waiting List") {
+            window.alert("Added to waiting list")
+            closeFormModal();
+            fetchEvents();
+          }
+          else {
+            setRegFormErrorMsg(response.data)
+          }
         }
         else {
-          setRegFormErrorMsg(response.data)
+          console.error(response);
         }
       })
       .catch((res)=>{
@@ -487,28 +492,22 @@ export default function FrontEndCalendar() {
     e.preventDefault();
     const emailAddress = (emailRef.current as any).value;
     if (emailAddress !== "") {
-      try {
-        await axios
-        .post(server + "/emailreminder", {
-            headers : {
-                'Content-Type':'application/json'
-            },
-            email_address: emailAddress,
-            event_id: e.target.dataset.eventid
-        })
+      await postEmailReminder(emailAddress,e.target.dataset.eventid)
         .then((response)=>{
-          if (response.data !== "OK") {
-            setEmailReminderError(response.data)
-          }
-          else if (response.data === "OK") {
+          if (response.success) {
             window.alert("Email Reminder set")
             closeEmailModal();
             fetchEvents();
           }
+          else {
+            setEmailReminderError(response.message);
+            console.error(response)
+          }
         })
-      } catch(error) {
-          console.log(error);
-      }
+        .catch((res)=>{
+          setEmailReminderError(res.message)
+          console.error(res)
+        })
     }
     else {
       setEmailReminderError("Please enter an email address")
@@ -517,7 +516,7 @@ export default function FrontEndCalendar() {
   }
   function closeEmailModal() {
     setEmailReminderEventId(null)
-    setEmailReminderError(null)
+    setEmailReminderError("")
     setOpenEmailModal(false);
   }
 
@@ -536,7 +535,7 @@ export default function FrontEndCalendar() {
     },250)
   }
 
-  function bigCalView(e) {
+  function bigCalView() {
     setBigCalendarView(true)
     setBigCalEventBackgrounds()
   }
@@ -572,7 +571,7 @@ export default function FrontEndCalendar() {
         as="main"
       >
         <a id="skip-nav" tabIndex={-1} className="visually-hidden">Main content</a>
-        {customSettings?.bigCalendarView === true ? (
+        {customSettings?.big_calendar_view === true ? (
         <Tabs
           variant="enclosed"
         >
@@ -592,7 +591,7 @@ export default function FrontEndCalendar() {
               Regular View
             </Tab>
             <Tab
-              onClick={e=>bigCalView(e)}
+              onClick={()=>bigCalView()}
               aria-label="Large view"
               sx={{
                 '&:focus': {
@@ -772,9 +771,9 @@ export default function FrontEndCalendar() {
                       key={i} 
                       style={{color: type.color?.rgb}} 
                       value={type['id']}
-                      aria-label={type.typeName}
+                      aria-label={type.name}
                     >
-                      {type.typeName}
+                      {type.name}
                     </option>
                   )
                 })}

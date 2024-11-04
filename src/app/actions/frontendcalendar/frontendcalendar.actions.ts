@@ -606,3 +606,74 @@ export async function postRegForm(subdomain: string, regFormData: any, regFormId
     return {success: false, message: "Failed to post registration form.", data: null}
   }
 }
+
+export async function postEmailReminder(emailAddress: string, eventId: string): Promise<ServerResponseType> {
+  try {
+    const emailPattern = /^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(emailAddress)) {
+      return {success: false, message: "Invalid email address"}
+    }
+
+    let event = await prisma.event_calendar.findFirst({
+      where: {
+        transid: Number(eventId)
+      }
+    })
+    let libraryId = event?.library;
+    let library = await prisma.library.findUnique({
+      where: {
+        id: libraryId
+      }
+    })
+
+    const libraryTimezone = library!.timezone;
+    const now = momentTimezone().tz(libraryTimezone!);
+    const currentDate = now.format('YYYY-MM-DD');
+
+    let eventDate = new Date(momentTimezone.tz(event!.eventstart, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A'));
+
+    let responseMessage = "Error!";
+    if (eventDate.getDate() == new Date(currentDate).getDate()) {
+      responseMessage = "Event is already within 24 hours. No reminder email will be sent";
+      return {success: false, message: responseMessage}
+    }
+    if (eventDate.getDate() < new Date(currentDate).getDate()) {
+      responseMessage = "Event has already passed";
+      return {success: false, message: responseMessage}
+    }
+
+    let dateToSend = eventDate.setDate(eventDate.getDate() - 1);
+
+    let reminderExists = await prisma.email_reminders.findFirst({
+      where: {
+        email: emailAddress,
+        event_id: Number(eventId)
+      }
+    })
+
+    if (reminderExists) {
+      responseMessage = "Email reminder already exists";
+      return {success: false, message: responseMessage}
+    }
+
+    await prisma.email_reminders.create({
+      data: {
+        email: emailAddress,
+        event_id: Number(eventId),
+        date_to_send: new Date(dateToSend),
+        sent: 0
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch(res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to set email reminder.", data: null}
+  }
+}
