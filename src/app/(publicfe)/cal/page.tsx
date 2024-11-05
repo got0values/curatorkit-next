@@ -48,6 +48,7 @@ import DOMPurify from 'dompurify';
 import { getLibraryNameFromSubdomain } from '@/app/actions/libray.actions';
 import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch, getFeForm, postRegForm, postEmailReminder } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
 import { BigCalendarEventsType, EventDataType, EventTypeType } from '@/app/types/types';
+import validator from '@rjsf/validator-ajv8';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -105,7 +106,6 @@ export default function FrontEndCalendar() {
     getLibraryNameFromSubdomain(subdomain)
       .then((res)=>{
         if (res.success) {
-          console.log(res.data)
           setLibraryName(res.data)
           document.title = res.data + " Event Calendar";
         }
@@ -187,9 +187,9 @@ export default function FrontEndCalendar() {
         calendarTooltip.style.display = "none"
         calendarTooltip.innerText = ""
       }
-      prev2.onclick = function(){
+      prev2.addEventListener("click",()=>{
         newDiv.innerText = moment(newDiv.innerText).subtract(1,"years").format('MMMM YYYY')
-      }
+      })
       prev.setAttribute("aria-describedby","calendar-description")
       prev.innerHTML += "<span class='visually-hidden'>Jump back one month</span>"
       prev.onmouseover = function(){
@@ -208,9 +208,9 @@ export default function FrontEndCalendar() {
         calendarTooltip.style.display = "none"
         calendarTooltip.innerText = ""
       }
-      prev.onclick = function(){
+      prev.addEventListener("click",()=>{
         newDiv.innerText = moment(newDiv.innerText).subtract(1,"months").format('MMMM YYYY')
-      }
+      })
       next.setAttribute("aria-describedby","calendar-description")
       next.innerHTML += "<span class='visually-hidden'>Jump forward one month</span>"
       next.onmouseover = function(){
@@ -229,9 +229,9 @@ export default function FrontEndCalendar() {
         calendarTooltip.style.display = "none"
         calendarTooltip.innerText = ""
       }
-      next.onclick = function(){
+      next.addEventListener("click",()=>{
         newDiv.innerText = moment(newDiv.innerText).add(1,"month").format('MMMM YYYY')
-      }
+      })
       next2.setAttribute("aria-describedby","calendar-description")
       next2.innerHTML += "<span class='visually-hidden'>Jump forward one year</span>"
       next2.onmouseover = function(){
@@ -250,9 +250,9 @@ export default function FrontEndCalendar() {
         calendarTooltip.style.display = "none"
         calendarTooltip.innerText = ""
       }
-      next2.onclick = function(){
+      next2.addEventListener("click",()=>{
         newDiv.innerText = moment(newDiv.innerText).add(1,"years").format('MMMM YYYY')
-      }
+      })
     }
   },[])
   
@@ -559,11 +559,11 @@ export default function FrontEndCalendar() {
     document.documentElement.scrollTop = 0;
   }
 
-  DOMPurify.addHook('afterSanitizeAttributes', function(node) {
-    node.setAttribute('target','_blank');
-    node.setAttribute('rel','noopener');
-    // node.setAttribute('rel','noreferrer');
-  })
+  // DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+  //   node.setAttribute('target','_blank');
+  //   node.setAttribute('rel','noopener');
+  //   // node.setAttribute('rel','noreferrer');
+  // })
 
   return (
     <>
@@ -678,8 +678,8 @@ export default function FrontEndCalendar() {
                   }
                 }}
                 width="auto"
-                // calendarType='US' 
-                prevAriaLabel="just back one month"
+                calendarType="gregory"
+                prevAriaLabel="jump back one month"
                 prev2AriaLabel="jump back one year"
                 nextAriaLabel="jump forward one month"
                 next2AriaLabel="jump forward one year"
@@ -854,7 +854,7 @@ export default function FrontEndCalendar() {
                           borderRightWidth="1px"
                           borderRightColor="inherit"
                           borderLeft="5px solid"
-                          borderLeftColor={(JSON.parse(event.eventTypeColor)?.rgb ? JSON.parse(event.eventTypeColor).rgb : "gray")}
+                          borderLeftColor={(event.eventTypeColor ? JSON.parse(event.eventTypeColor).rgb : "gray")}
                           backgroundColor="white"
                           _dark={{
                             backgroundColor: "transparent",
@@ -1185,7 +1185,7 @@ export default function FrontEndCalendar() {
         >
           <Box
             as={BigCalendar}
-            primary={primaryColor}
+            backgroundColor={primaryColor}
             localizer={localizer}
             events={bigCalendarEvents}
             startAccessor={()=>new Date()}
@@ -1308,7 +1308,7 @@ export default function FrontEndCalendar() {
               >
                 <JSONSchemaForm 
                   uiSchema={form?.formuischema ? JSON.parse(form.formuischema) : {"ui:title": " "}}
-                  // validator={false}
+                  validator={validator}
                   schema={form ? form.formschema : {}} 
                   onSubmit={e=>submitRegForm(e)}
                   autoComplete="on"
