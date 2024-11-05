@@ -119,12 +119,12 @@ model customize_front_end {
   primary_color                                String? @db.Text
   secondary_color                              String? @db.Text
   library_url                                  String? @db.VarChar(100)
-  allow_dark_mode                              Int     @default(0) @db.TinyInt
+  allow_dark_mode                              Boolean @default(false)
   header_info                                  String? @db.Text
-  keep_accordions_open                         Int     @default(0) @db.TinyInt
-  show_event_calendar                          Int     @default(0) @db.TinyInt
-  show_request_study_room                      Int     @default(0) @db.TinyInt
-  show_reading_club                            Int     @default(0) @db.TinyInt
+  keep_accordions_open                         Boolean @default(false)
+  show_event_calendar                          Boolean @default(false)
+  show_request_study_room                      Boolean @default(false)
+  show_reading_club                            Boolean @default(false)
   library_customize_front_end_libraryTolibrary library @relation("customize_front_end_libraryTolibrary", fields: [library], references: [id], onUpdate: Restrict, map: "customize_front_end_ibfk_1")
 
   @@index([library], map: "user_id")

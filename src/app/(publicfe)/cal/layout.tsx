@@ -18,7 +18,8 @@ import {
   Container,
   SimpleGrid,
   Text,
-  useColorMode
+  useColorMode,
+  ColorModeScript
 } from "@chakra-ui/react";
 import { useCustomTheme, theme } from '@/app/hooks/useCustomTheme';
 import {ChakraProvider} from '@chakra-ui/react';
@@ -54,6 +55,7 @@ export default function FrontEndLayout({children}:Readonly<{
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <body id="fe-main">
+        <ColorModeScript initialColorMode={theme.config.initialColorMode}/>
         <ChakraProvider theme={theme}>
           <Box
             as="header"

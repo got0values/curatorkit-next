@@ -1,6 +1,6 @@
 'use client'
 
-import { ChakraProvider } from '@chakra-ui/react'
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react'
 import {
   Box,
   Drawer,
@@ -29,6 +29,7 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
       <body>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode}/>
         <ChakraProvider theme={theme}>
           <AllContextProvider>
             <Box minH="100vh">
