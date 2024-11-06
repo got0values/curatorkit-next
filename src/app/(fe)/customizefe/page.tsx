@@ -142,7 +142,9 @@ export default function CustomizeFrontEnd() {
     reader.readAsDataURL(logoFile)
   }
 
+  const [saveIsLoading,setSaveIsLoading] = useState(false);
   async function saveChanges(formData: FormData) {
+    setSaveIsLoading(true);
     if (showPrimaryColor) {
       formData.set("primaryColor", JSON.stringify({
         hex: formData.get("primaryColor")?.valueOf(),
@@ -204,6 +206,8 @@ export default function CustomizeFrontEnd() {
       .catch((res)=>{
         console.error(res)
       })
+      
+    setSaveIsLoading(false);
   }
 
   return (
@@ -556,7 +560,7 @@ export default function CustomizeFrontEnd() {
                 <Checkbox
                   name="requestStudyRoomShow"
                   isChecked={formValues.requestStudyRoomShow}
-                  onChange={(e)=>setFormValues(prev=>({...prev,requestSutdyRoomShow: e.target.checked ? true : false}))}
+                  onChange={(e)=>setFormValues(prev=>({...prev,requestStudyRoomShow: e.target.checked ? true : false}))}
                   m="5px"
                 >
                   Show Request a Study Room?
@@ -614,6 +618,7 @@ export default function CustomizeFrontEnd() {
                 colorScheme="blue"
                 type="submit"
                 w="100%"
+                isLoading={saveIsLoading}
               >
                 Save
               </Button>
