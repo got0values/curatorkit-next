@@ -3,7 +3,6 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import { useRouter } from 'next/navigation';
 import moment from 'moment';
-import JSONSchemaForm from "@rjsf/core";
 import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -47,8 +46,8 @@ import {
 import DOMPurify from 'dompurify';
 import { getLibraryNameFromSubdomain } from '@/app/actions/libray.actions';
 import { getFeEvents, getFeCalendarMonths, getFeCalendarSearch, getFeForm, postRegForm, postEmailReminder } from '@/app/actions/frontendcalendar/frontendcalendar.actions';
-import { BigCalendarEventsType, EventDataType, EventTypeType } from '@/app/types/types';
-import validator from '@rjsf/validator-ajv8';
+import { BigCalendarEventsType, EventDataType, EventTypeType, SetFormType } from '@/app/types/types';
+import FormModal from './FormModal';
 
 export default function FrontEndCalendar() {
   const router = useRouter();
@@ -396,14 +395,6 @@ export default function FrontEndCalendar() {
     else {
       return null
     }
-  }
-
-  type SetFormType = {
-    formid: string; 
-    formschema: string;
-    formuischema: string | null;
-    formeventtypename: string; 
-    formeventtypeid: string;
   }
 
   const [form,setForm] = useState<SetFormType | null>(null);
@@ -1221,115 +1212,15 @@ export default function FrontEndCalendar() {
         </Flex>
         )}
         {form?.formschema ? (
-        <Modal 
-          isOpen={openFormModal} 
-          onClose={closeFormModal} 
-          initialFocusRef={initialRef}
-          isCentered
-        >
-          <ModalOverlay/>
-          <ModalContent
-            ref={initialRef}
-            sx={{
-              '.element-and-tooltip': {
-                marginTop: 'auto',
-                marginBottom: 'auto'
-              },
-              'div[role="tooltip"]': {
-                display: 'none',
-                position: 'absolute',
-                right: '0',
-                top: "40px",
-                backgroundColor: 'rgba(0,0,0,.8)',
-                color: 'white',
-                borderRadius: '10px',
-                padding: '.5rem',
-                zIndex: "100"
-      
-              },
-              'button:hover + [role="tooltip"], button:focus + [role="tooltip"]' : {
-                display: 'block'
-              }
-            }}
-          >
-            <Box 
-              m="2"
-              className="element-and-tooltip"
+          <FormModal
+            openFormModal={openFormModal}
+            closeFormModal={closeFormModal}
+            initialRef={initialRef}
+            form={form}
+            primaryColor={primaryColor}
+            fetchEvents={fetchEvents}
 
-            >
-              <ModalCloseButton
-                aria-describedby="register-modal-close-desc"
-                aria-label="close modal"
-                role="close modal"
-              />
-              <Box role="tooltip" id="register-modal-close-desc">
-                Close
-              </Box>
-            </Box>
-            <ModalHeader>
-              <Heading as="h4" size="md">{JSON.parse(form.formschema).title ? JSON.parse(form.formschema).title : "Registration Form"}</Heading>              
-            </ModalHeader>
-            <ModalBody>
-              <Input type="hidden" value={form.formid} ref={regFormIdRef as any}/>
-              <Input type="hidden" value={form.formeventtypename} ref={regFormTypeNameRef as any}/>
-              <Input type="hidden" value={form.formeventtypeid} ref={regFormTypeIdRef as any}/>
-              <Text
-                mb={3}
-              >
-                * = required
-              </Text>
-              <Box
-                sx={{
-                  '#root__description': {
-                    marginBottom: '1.75rem'
-                  },
-                  'label span': {
-                    marginLeft: '1rem'
-                  },
-                  'input': {
-                    marginBottom: '1rem'
-                  },
-                  'label': {
-                    fontWeight: '900'
-                  },
-                  '& button': {
-                    backgroundColor: primaryColor,
-                    borderColor: primaryColor,
-                    color: 'white',
-                    marginTop: '0.75rem'
-
-                  },
-                  '& button:hover': {
-                    backgroundColor: primaryColor,
-                    borderColor: primaryColor,
-                    color: 'white'
-                  }
-                }}
-              >
-                <JSONSchemaForm 
-                  uiSchema={form?.formuischema ? JSON.parse(form.formuischema) : {"ui:title": " "}}
-                  validator={validator}
-                  schema={form ? form.formschema : {}} 
-                  onSubmit={e=>submitRegForm(e)}
-                  autoComplete="on"
-                />
-              </Box>
-            </ModalBody>
-            <ModalFooter>
-              <Flex 
-                justifyContent="center"
-                width="100%"
-              >
-                <Text
-                  color="#ee0000"
-                  fontWeight="bold"
-                >
-                {regFormErrorMsg ? regFormErrorMsg : ""}
-                </Text>
-              </Flex>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
+          />
         ) : ""}
         <Modal 
           size="lg"

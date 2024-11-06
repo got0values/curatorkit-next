@@ -94,6 +94,7 @@ export type EventFormType = {
   id: number;
   title: string | null;
   form_schema: string | null;
+  form_ui_schema: string | null;
   date_created: Date | null;
   attendees: number | null;
   waitinglist: number | null;
@@ -230,4 +231,12 @@ export type EventDataType = {
   attendees: number;
   waitingList: number;
   registrationType: string;
+}
+
+export type SetFormType = {
+  formid: string; 
+  formschema: string;
+  formuischema: string | null;
+  formeventtypename: string; 
+  formeventtypeid: string;
 }

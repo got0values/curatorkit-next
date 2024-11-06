@@ -235,8 +235,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2} textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2} textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link 
                       href="/customizefe" 
@@ -273,8 +273,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2} textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2} textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link 
                       href="/eventcalendar" 
@@ -311,8 +311,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2} textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2} textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/studyrooms" onClick={onClose}>Study Rooms</Link>
                   </ListItem>
@@ -339,8 +339,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2}  textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2}  textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/roomsigninlists" onClick={onClose}>Room Sign-in</Link>
                   </ListItem>
@@ -367,8 +367,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2}  textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2}  textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/compsignin" onClick={onClose}>Computer Sign-in</Link>
                   </ListItem>
@@ -395,8 +395,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2}  textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2}  textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/inhousecheckout" onClick={onClose}>In-house Checkout</Link>
                   </ListItem>
@@ -423,8 +423,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2}  textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2}  textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/refcount" onClick={onClose}>
                       Reference Count
@@ -455,8 +455,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2} textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2} textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">                    
                     <Link href="/itemlookup" onClick={onClose}>
                       Item Lookup
@@ -487,8 +487,8 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                   <AccordionIcon/>
                 </AccordionButton>
               </h2>
-              <AccordionPanel color="gray" mt={-1}>
-                <List spacing={2} textAlign="left">
+              <AccordionPanel color="gray" mt={-1} pb={0}>
+                <List spacing={2} textAlign="left" pl={0} mb={0}>
                   <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/docs/eventcalendar" onClick={onClose}>
                       Event Calendar
