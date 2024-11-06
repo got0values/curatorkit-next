@@ -15,20 +15,10 @@ export const useCustomTheme = () => {
         .then((response) => {
           if (response.success) {
             let cSettings: CustomSettingsType = response.data;
-            let pColors = cSettings && cSettings.primary_color.rgb ? JSON.parse(cSettings.primary_color.rgb) : (
-              {
-                hex: "#fefefe",
-                rgb: 'rgb(100,100,100)'
-              }
-            );
-            let sColors = cSettings && cSettings.secondary_color.rgb ? JSON.parse(cSettings.secondary_color.rgb) : (
-              {
-                hex: "#fefefe",
-                rgb: 'rgb(100,100,100)'
-              }
-            );
-            setPrimaryColor(pColors.rgb)
-            setSecondaryColor(sColors.rgb)
+            let pColors = cSettings?.primary_color?.rgb ? cSettings.primary_color.rgb : 'rgb(100,100,100)';
+            let sColors = cSettings && cSettings.secondary_color.rgb ? cSettings.secondary_color.rgb : 'rgb(100,100,100)';
+            setPrimaryColor(pColors)
+            setSecondaryColor(sColors)
             setCustomSettings(cSettings)
           }
         })

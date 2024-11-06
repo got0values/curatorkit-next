@@ -22,6 +22,12 @@ export async function getCustomTheme(subdomain: string): Promise<ServerResponseT
         library: libraryId
       }
     })
+    if (customizeFe?.primary_color) {
+      customizeFe.primary_color = JSON.parse(customizeFe.primary_color)
+    }
+    if (customizeFe?.secondary_color) {
+      customizeFe.secondary_color = JSON.parse(customizeFe.secondary_color)
+    }
     if (customizeFe?.header_info) {
       customizeFe.header_info = JSON.parse(customizeFe.header_info);
     }
