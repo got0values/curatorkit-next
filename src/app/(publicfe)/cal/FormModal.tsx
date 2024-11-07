@@ -13,7 +13,8 @@ import {
   Box,
   Flex,
   Input,
-  Heading
+  Heading,
+  useToast
 } from "@chakra-ui/react"
 import JSONSchemaForm from "@rjsf/core";
 import validator from '@rjsf/validator-ajv8';
@@ -31,6 +32,7 @@ type FormModalProps = {
 }
 
 export default function FormModal(props: FormModalProps) {
+  const toast = useToast();
   const {openFormModal, closeFormModal, initialRef, form, primaryColor, fetchEvents} = props;
 
   const [regFormErrorMsg,setRegFormErrorMsg] = useState("");
@@ -58,10 +60,22 @@ export default function FormModal(props: FormModalProps) {
         }
         else {
           console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
         }
       })
       .catch((res)=>{
         console.error(res)
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
       })
   },[fetchEvents])
 

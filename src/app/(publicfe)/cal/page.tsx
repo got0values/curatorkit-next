@@ -438,33 +438,6 @@ export default function FrontEndCalendar() {
   const regFormIdRef = useRef();
   const regFormTypeNameRef = useRef();
   const regFormTypeIdRef = useRef();
-  const submitRegForm = useCallback(async (e: any) => {
-    const subdomain = window.location.host.split(".")[0];
-    await postRegForm(subdomain, e,(regFormIdRef.current as any).value, (regFormTypeNameRef.current as any).value, (regFormTypeIdRef.current as any).value)
-      .then((response)=>{
-        if (response.success) {
-          if (response.data === "Register") {
-            window.alert("Registered!")
-            closeFormModal();
-            fetchEvents();
-          }
-          if (response.data === "Waiting List") {
-            window.alert("Added to waiting list")
-            closeFormModal();
-            fetchEvents();
-          }
-          else {
-            setRegFormErrorMsg(response.data)
-          }
-        }
-        else {
-          console.error(response);
-        }
-      })
-      .catch((res)=>{
-        console.error(res)
-      })
-  },[fetchEvents])
 
   async function goToBigCalendarEvent(e: HTMLElement) {
     const programId = e.id;
