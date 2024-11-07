@@ -4,6 +4,7 @@ import React, {useState, useEffect, useRef, useCallback} from 'react';
 import { useRouter } from 'next/navigation';
 import moment from 'moment';
 import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import {GoLocation} from 'react-icons/go';
@@ -1149,36 +1150,36 @@ export default function FrontEndCalendar() {
         >
           <Box
             as={BigCalendar}
-            backgroundColor={primaryColor}
+            // backgroundColor={primaryColor}
             localizer={localizer}
             events={bigCalendarEvents}
-            startAccessor={()=>new Date()}
-            endAccessor={()=>new Date()}
+            // startAccessor={()=>new Date()}
+            // endAccessor={()=>new Date()}
             onSelectEvent={(e: any)=>goToBigCalendarEvent(e)}
             sx={{
               height:"80vh",
               width:"95vw",
-              '& .rbc-toolbar-label': {
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                mb: '.75rem'
-              },
-              '& .rbc-event': {
-                border: 'none',
-                boxSizing: 'border-box',
-                boxShadow: 'none',
-                margin: '0',
-                padding: '2px 5px',
-                backgroundColor: `${primaryColor?.replace(')', ', 0.80)').replace('rgb', 'rgba')}`,
-                borderRadius: '5px',
-                color: 'white',
-                cursor: 'pointer',
-                width: '100%',
-                textAlign: 'left',
-              },
-              '& .rbc-event:hover': {
-                backgroundColor: `${primaryColor}`
-              }
+              // '& .rbc-toolbar-label': {
+              //   fontSize: '1.5rem',
+              //   fontWeight: 'bold',
+              //   mb: '.75rem'
+              // },
+              // '& .rbc-event': {
+              //   border: 'none',
+              //   boxSizing: 'border-box',
+              //   boxShadow: 'none',
+              //   margin: '0',
+              //   padding: '2px 5px',
+              //   backgroundColor: `${primaryColor?.replace(')', ', 0.80)').replace('rgb', 'rgba')}`,
+              //   borderRadius: '5px',
+              //   color: 'white',
+              //   cursor: 'pointer',
+              //   width: '100%',
+              //   textAlign: 'left',
+              // },
+              // '& .rbc-event:hover': {
+              //   backgroundColor: `${primaryColor}`
+              // }
             }}
             onRangeChange={()=>setBigCalEventBackgrounds()}
           />
