@@ -24,6 +24,9 @@ export async function getEventForms(): Promise<ServerResponseType> {
       if (formResult.date_created) {
         formResult.date_created = moment(formResult.date_created).format("MM/DD/YYYY, HH:mm:ss") as unknown as Date;
       }
+      if (!formResult.title && formResult.form_schema) {
+        formResult.title = JSON.parse(formResult.form_schema).title;
+      }
     }
     
     await prisma.$disconnect();
@@ -50,10 +53,12 @@ export async function postSaveForms(eventForm: EventFormType): Promise<ServerRes
     await prisma.event_forms.create({
       data: {
         library: libraryId,
+        title: eventForm.title,
         form_schema: eventForm.form_schema,
         form_ui_schema: eventForm.form_ui_schema,
         attendees: eventForm?.attendees ? Number(eventForm.attendees) : 0,
-        waitinglist: eventForm?.waitinglist ? Number(eventForm.waitinglist) : 0
+        waitinglist: eventForm?.waitinglist ? Number(eventForm.waitinglist) : 0,
+        date_created: new Date()
       }
     })
     

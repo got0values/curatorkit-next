@@ -56,6 +56,7 @@ export default function CalendarFormBuilder () {
   async function saveForm() {
     try {
       let eventForm = {
+        title: calSchema && JSON.parse(calSchema).title ? JSON.parse(calSchema).title : "Event Form",
         form_schema: calSchema,
         form_ui_schema: calUiSchema,
         attendees: (attendeesRef.current as any).value,
@@ -139,7 +140,7 @@ export default function CalendarFormBuilder () {
                       data-id={formid} 
                       value={formSchema as string}
                     >
-                      {formtitle} {formDate}
+                      {formtitle ? formtitle : "New Form"} {formDate}
                     </option>
                   )
                 })}
