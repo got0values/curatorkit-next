@@ -37,18 +37,20 @@ export default function CalendarFormBuilder () {
     setIsLoading(true);
     fetchForms()
     setIsLoading(false);
-    const previewBox: HTMLElement | null = document.getElementById("preview-box");
-    var sticky = previewBox?.offsetTop;
-    if (sticky && previewBox){
-      window.addEventListener("scroll",function() {
-        if (window.scrollY > sticky!) {
-          previewBox?.classList.add("sticky");
-        }
-        else {
-          previewBox.classList.remove("sticky");
-        }
-      })
-    }
+    setTimeout(()=>{
+      const previewBox: HTMLElement | null = document.getElementById("preview-box");
+      var sticky = previewBox?.offsetTop;
+      if (sticky && previewBox){
+        window.addEventListener("scroll",function() {
+          if (window.scrollY > sticky!) {
+            previewBox?.classList.add("sticky");
+          }
+          else {
+            previewBox.classList.remove("sticky");
+          }
+        })
+      }
+    },1000)
   },[fetchForms])
 
   const attendeesRef = useRef();
@@ -100,7 +102,7 @@ export default function CalendarFormBuilder () {
   return (
     <Box id="main" >
       {isLoading ? (
-        <Flex align="center" justify="center">
+        <Flex align="center" justify="center" height="100vh">
           <Spinner size="xl"/>
         </Flex>
       ): (
@@ -262,6 +264,7 @@ export default function CalendarFormBuilder () {
                   justifyContent="center" 
                   bg="white" 
                   rounded="md" 
+                  right={0}
                   boxShadow="md" p={4}
                 >
                   <Box className="json-schema-form">
