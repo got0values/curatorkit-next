@@ -69,7 +69,7 @@ export default function FrontEndLayout({children}:Readonly<{
             maxW="450px"
             my={3}
           >
-            {JSON.stringify(customSettings) !== "{}" && customSettings?.logo !== null ? (
+            {customSettings?.logo ? (
             <Link href={customSettings?.library_url}>
               <Image 
                 src={customSettings?.logo} 

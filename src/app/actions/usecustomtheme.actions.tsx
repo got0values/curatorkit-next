@@ -40,7 +40,7 @@ export async function getCustomTheme(subdomain: string): Promise<ServerResponseT
         logo_blob: true
       }
     })
-    const logoBlob = logo ? logo.logo_blob : logo;
+    let logoBlob = logo?.logo_blob ? logo.logo_blob : null;
     
     await prisma.$disconnect();
     return {

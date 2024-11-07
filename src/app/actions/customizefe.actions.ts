@@ -42,7 +42,7 @@ export async function getCustomizeFe(): Promise<ServerResponseType> {
         library: libraryId
       }
     })
-    let logoBlob = logo?.logo_blob;
+    let logoBlob = logo?.logo_blob ? logo.logo_blob : null;
 
     await prisma.$disconnect();
     return {
@@ -93,7 +93,6 @@ export async function postSaveCustomizeFe(formData: FormData): Promise<ServerRes
         }
       })
     }
-    
     await prisma.customize_front_end.create({
       data: {
         library: libraryId,
@@ -109,6 +108,27 @@ export async function postSaveCustomizeFe(formData: FormData): Promise<ServerRes
         show_reading_club: readingClubShow
       }
     })
+
+    let logoExists = await prisma.logos.findFirst({
+      where: {
+        library: libraryId
+      }
+    })
+    if (logoExists || !logoData) {
+      await prisma.logos.deleteMany({
+        where: {
+          library: libraryId
+        }
+      })
+    }
+    if (logoData) {
+      await prisma.logos.create({
+        data: {
+          library: libraryId,
+          logo_blob: new Buffer(logoData)
+        }
+      })
+    }
 
     await prisma.$disconnect();
     return {

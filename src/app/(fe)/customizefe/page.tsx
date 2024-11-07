@@ -19,11 +19,13 @@ import {
   Checkbox,
   Input,
   Text,
-  Spinner
+  Spinner,
+  useToast
 } from "@chakra-ui/react";
 import { getCustomizeFe, postSaveCustomizeFe } from '@/app/actions/customizefe.actions';
 
 export default function CustomizeFrontEnd() {
+  const toast = useToast();
   const [isLoading,setIsLoading] = useState(false);
   
   const [formValues,setFormValues] = useState({
@@ -81,8 +83,8 @@ export default function CustomizeFrontEnd() {
             }
             if (r.logo_blob !== null) {
               setShowLogo(true)
-              setLogoBlob(r.logo_blob)
-              setBlob(r.logo_blob)
+              setLogoBlob(r.logoBlob)
+              setBlob(r.logoBlob)
             }
             if (r.library_url !== null) {
               setFormValues(prev=>({...prev,url: r.library_url}))
@@ -112,6 +114,12 @@ export default function CustomizeFrontEnd() {
     )
     .catch((res)=>{
       console.error(res)
+      toast({
+        description: res.message,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
     })
   },[])
   useEffect(()=>{
@@ -201,10 +209,22 @@ export default function CustomizeFrontEnd() {
         }
         else {
           console.error(response)
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          });
         }
       })
       .catch((res)=>{
         console.error(res)
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        });
       })
       
     setSaveIsLoading(false);

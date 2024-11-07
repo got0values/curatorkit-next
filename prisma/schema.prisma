@@ -321,7 +321,7 @@ model library {
 model logos {
   id                             Int     @id @default(autoincrement())
   library                        Int
-  logo_blob                      Bytes?
+  logo_blob                      String? @db.LongText
   library_logos_libraryTolibrary library @relation("logos_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "logos_ibfk_1")
 
   @@index([library], map: "user_id")
