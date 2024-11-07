@@ -1,0 +1,76 @@
+.rjsf {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.field-description {
+  font-style: italic;
+  font-size: .9rem;
+}
+
+.collapse:not(.show) {
+  display: none;
+}
+
+.btn, .form-control {
+  padding: .5rem;
+  border-radius: 5px;
+}
+
+.form-control {
+  border: 1px solid lightgray;
+}
+
+.form-control[type="number"] {
+  max-width: 80px;
+}
+
+.form-builder .form-control {
+  max-width: 120px;
+}
+
+.btn-primary {
+  background-color: blue;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: lightgray;
+  color: black;
+}
+
+.popover-header, .popover-body {
+  background-color: white;
+}
+
+
+
+.json-schema-form .checkbox label, .radio label > span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.json-schema-form .checkbox > label > input {
+  margin-bottom: 0;
+}
+
+.json-schema-form #root__description {
+  margin-bottom: 1.75rem;
+}
+
+.json-schema-form label {
+  font-weight: 700;
+}

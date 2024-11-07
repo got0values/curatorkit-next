@@ -19,7 +19,7 @@ import JSONSchemaForm from "@rjsf/core";
 import validator from '@rjsf/validator-ajv8';
 import { postRegForm } from "@/app/actions/frontendcalendar/frontendcalendar.actions";
 import { SetFormType } from '@/app/types/types';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../css/form-bs.css';
 
 type FormModalProps = {
   openFormModal: boolean;
@@ -125,18 +125,6 @@ export default function FormModal(props: FormModalProps) {
           </Text>
           <Box
             sx={{
-              '#root__description': {
-                marginBottom: '1.75rem'
-              },
-              'label span': {
-                marginLeft: '1rem'
-              },
-              'input': {
-                marginBottom: '1rem'
-              },
-              'label': {
-                fontWeight: '900'
-              },
               '& button': {
                 backgroundColor: primaryColor,
                 borderColor: primaryColor,
@@ -151,13 +139,15 @@ export default function FormModal(props: FormModalProps) {
               }
             }}
           >
-            <JSONSchemaForm 
-              uiSchema={form?.formuischema ? JSON.parse(form.formuischema) : {"ui:title": " "}}
-              validator={validator}
-              schema={form ? JSON.parse(form.formschema) : {}} 
-              onSubmit={e=>submitRegForm(e)}
-              autoComplete="on"
-            />
+            <Box className="json-schema-form">
+              <JSONSchemaForm 
+                uiSchema={form?.formuischema ? JSON.parse(form.formuischema) : {"ui:title": " "}}
+                validator={validator}
+                schema={form ? JSON.parse(form.formschema) : {}} 
+                onSubmit={e=>submitRegForm(e)}
+                autoComplete="on"
+              />
+            </Box>
           </Box>
         </ModalBody>
         <ModalFooter>

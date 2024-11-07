@@ -16,7 +16,7 @@ import JSONSchemaForm from "@rjsf/core";
 import { getEventForms, postSaveForms, deleteEventForm } from '@/app/actions/formbuilder.actions';
 import { EventFormType } from '@/app/types/types';
 import validator from '@rjsf/validator-ajv8';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../css/form-bs.css';
 
 export default function CalendarFormBuilder () {
   const [isLoading,setIsLoading] = useState(true);
@@ -97,7 +97,7 @@ export default function CalendarFormBuilder () {
   }
 
   return (
-    <Box id="main" className="bootstrap-page">
+    <Box id="main" >
       {isLoading ? (
         <Flex align="center" justify="center">
           <Spinner size="xl"/>
@@ -155,7 +155,7 @@ export default function CalendarFormBuilder () {
           </Flex>
           <Flex h="100%" mt={2} mb={5}>
             <Flex h="100%" maxH="100vh" w="100%" flexDirection="column" pt={4} borderEnd="1px" borderColor="inherit">
-              <Flex w="100%" flexWrap="wrap">
+              <Flex w="100%" flexWrap="wrap" justify="space-between">
                 <Flex 
                   w="80%" 
                   maxW="100%" 
@@ -167,32 +167,37 @@ export default function CalendarFormBuilder () {
                     },
                     '& [class*="formHead-"]': {
                       padding: '0',
+                      width: "100%",
+                      marginLeft: "1rem",
+                      marginRight: "1rem",
                       border: '1px solid lightgray',
                       'div': {
                         width: '40%'
                       }
                     },
                     '& [class*="formBody-"]': {
+                      width: "100%",
+                      marginLeft: "1rem",
+                      marginRight: "1rem",
                       '.card-container': {
                         border: '1px solid #dbdbdb',
                         '.d-flex': {
                           borderBottom: "none"
                         }
                       }
-                    },
-                    '& .form-control': {
-                      border: '1px solid lightgray'
                     }
                   }}
                 >
-                  <FormBuilder
-                    schema={calSchema}
-                    uischema={calUiSchema}
-                    onChange={(newCalSchema,newCalUiSchema) => {
-                      setCalSchema(newCalSchema)
-                      setCalUiSchema(newCalUiSchema)
-                    }}
-                  />
+                  <Box className="form-builder">
+                    <FormBuilder
+                      schema={calSchema}
+                      uischema={calUiSchema}
+                      onChange={(newCalSchema,newCalUiSchema) => {
+                        setCalSchema(newCalSchema)
+                        setCalUiSchema(newCalUiSchema)
+                      }}
+                    />
+                  </Box>
                 </Flex>
                 <Flex w="15%" h="auto" maxW="100%">
                   <Box 
@@ -258,11 +263,13 @@ export default function CalendarFormBuilder () {
                   rounded="md" 
                   boxShadow="md" p={4}
                 >
-                  <JSONSchemaForm 
-                    uiSchema={calUiSchema ? JSON.parse(calUiSchema) : {}} 
-                    schema={calSchema ? JSON.parse(calSchema) : {}} 
-                    validator={validator}
-                  />
+                  <Box className="json-schema-form">
+                    <JSONSchemaForm 
+                      uiSchema={calUiSchema ? JSON.parse(calUiSchema) : {}} 
+                      schema={calSchema ? JSON.parse(calSchema) : {}} 
+                      validator={validator}
+                    />
+                  </Box>
                 </Flex>
               </Box>
             </Box>
