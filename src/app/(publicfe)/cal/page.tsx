@@ -287,8 +287,9 @@ export default function FrontEndCalendar() {
         const bigCalendarEventsLocalized = bigCalendarEvents.map((e: any)=>{
           return {
             ...e, 
-            start: moment.utc(e.start).local().format('MM/DD/YY hh:mm:ss A'),
-            end: moment.utc(e.end).local().format('MM/DD/YY hh:mm:ss A')
+            title: e.eventname,
+            start: moment.utc(e.eventstart).local().format('MM/DD/YY hh:mm:ss A'),
+            end: moment.utc(e.eventend).local().format('MM/DD/YY hh:mm:ss A')
           }
         })
         setBigCalendarEvents(bigCalendarEventsLocalized)
@@ -493,7 +494,7 @@ export default function FrontEndCalendar() {
       eventRows.forEach((eventRow)=>{
         let event: HTMLElement | null = eventRow.querySelector(".rbc-event-content")
         for (let bigCalEvent of bigCalendarEvents) {
-          if (bigCalEvent.title === event!.innerText) {
+          if (bigCalEvent.title === event!.innerText && bigCalEvent.typeColor) {
             let eventTypeColors = JSON.parse(bigCalEvent.typeColor);
             eventRow.style.backgroundColor = eventTypeColors?.rgb;
           }
