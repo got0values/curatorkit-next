@@ -136,6 +136,9 @@ export async function getEvents(inputDate: string, calRoomId: string): Promise<S
           waitinglist: true
         }
       }) : null
+      if (formMeta) {
+        formMeta.title = formMeta.title ? formMeta.title : formMeta.form_schema ? JSON.parse(formMeta.form_schema).title : "Form"
+      }
 
       let eventFormData = result.form_id ? await prisma.event_form_data.findMany({
         where: {

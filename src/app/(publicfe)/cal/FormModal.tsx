@@ -20,6 +20,7 @@ import JSONSchemaForm from "@rjsf/core";
 import validator from '@rjsf/validator-ajv8';
 import { postRegForm } from "@/app/actions/frontendcalendar/frontendcalendar.actions";
 import { SetFormType } from '@/app/types/types';
+import {stringify} from 'flatted';
 import '../../css/form-bs.css';
 
 type FormModalProps = {
@@ -41,7 +42,7 @@ export default function FormModal(props: FormModalProps) {
   const regFormTypeIdRef = useRef();
   const submitRegForm = useCallback(async (e: any) => {
     const subdomain = window.location.host.split(".")[0];
-    await postRegForm(subdomain, e,(regFormIdRef.current as any).value, (regFormTypeNameRef.current as any).value, (regFormTypeIdRef.current as any).value)
+    await postRegForm(subdomain, stringify(e),(regFormIdRef.current as any).value, (regFormTypeNameRef.current as any).value, (regFormTypeIdRef.current as any).value)
       .then((response)=>{
         if (response.success) {
           if (response.data === "Register") {

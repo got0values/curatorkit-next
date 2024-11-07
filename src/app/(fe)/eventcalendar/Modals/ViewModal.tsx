@@ -74,7 +74,7 @@ const ViewModal = (props: ViewModalProps) => {
                   <Text as="span" color="blue" textDecoration="underline">
                     {modalData.formmeta ? (
                       <Link href={`/rcforms/${modalData.formmeta.id}`}>
-                        {modalData.formmeta.title}
+                        {modalData.formmeta.title ? modalData.formmeta.title : modalData.formmeta.form_schema ? JSON.parse(modalData.formmeta.form_schema).title : "Form"}
                       </Link>
                       ) : ""}
                   </Text>

@@ -586,7 +586,7 @@ export async function postRegForm(subdomain: string, regFormData: any, regFormId
       data: {
         form_id: Number(regFormId),
         form_data: regFormData,
-        datetime: new Date().toUTCString(),
+        datetime: new Date(),
         eventtypename: regFormTypeName,
         eventtypeid: Number(regFormTypeId),
         library: libraryId
