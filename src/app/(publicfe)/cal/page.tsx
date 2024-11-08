@@ -441,9 +441,9 @@ export default function FrontEndCalendar() {
   const regFormTypeNameRef = useRef();
   const regFormTypeIdRef = useRef();
 
-  async function goToBigCalendarEvent(e: HTMLElement) {
-    const programId = e.id;
-    router.push(`${window.location}/${programId}`);
+  async function goToBigCalendarEvent(e: any) {
+    const transId = e.transid;
+    router.push(`${window.location}/${transId}`);
   }
 
   const [openEmailModal,setOpenEmailModal] = useState(false);

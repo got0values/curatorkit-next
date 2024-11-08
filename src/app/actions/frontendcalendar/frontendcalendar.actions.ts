@@ -677,3 +677,101 @@ export async function postEmailReminder(emailAddress: string, eventId: string): 
     return {success: false, message: "Failed to set email reminder.", data: null}
   }
 }
+
+export async function getFeBigCalData(subdomain: string, eventId: string): Promise<ServerResponseType> {
+  try {
+    const library = await prisma.library.findFirst({
+      where: {
+        subdomain: subdomain
+      }
+    })
+    const libraryId = library?.id;
+    if (!libraryId) {
+      return {success: false, message: "Failed to get library"}
+    }
+
+    const libraryTimezone = library?.timezone;
+    const now = momentTimezone().tz(libraryTimezone!);
+    const currentDate = now.format('YYYY-MM-DD');
+
+    let eventData = await prisma.event_calendar.findUnique({
+      where: {
+        library: libraryId,
+        transid: Number(eventId)
+      }
+    })
+
+    if (!eventData) {
+      return {success: false, message: "Could not get event data"}
+    }
+
+    let roomName = "";
+    if (eventData.room) {
+      let room = await prisma.event_rooms.findUnique({
+        where: {
+          id: eventData.room
+        }
+      })
+      roomName = room ? room.name : "";
+    }
+
+    let eventType = await prisma.event_types.findFirst({
+      where: {
+        library: libraryId,
+        id: Number(eventData.eventtype)
+      }
+    })
+    let eventTypeName = eventType ? eventType.name : "";
+    let eventTypeColor = eventType ? eventType.color : "";
+
+    let regInfo = await prisma.event_forms.findUnique({
+      where: {
+        library: libraryId,
+        id: Number(eventData.form_id)
+      }
+    })
+  
+    let eventFormData = await prisma.event_form_data.findMany({
+      where: {
+        library: libraryId,
+        id: Number(eventData.form_id)
+      }
+    })
+    let numberRegistered = eventFormData.length;
+
+    let registrationType = "Register";
+    let attendees = regInfo?.attendees ? regInfo.attendees : 0;
+    let waitingList = regInfo?.waitinglist ? regInfo.waitinglist : 0;
+    if (attendees - numberRegistered <= 0) {
+      registrationType = "Waiting List";
+    }
+    if (numberRegistered >= (attendees + waitingList)) {
+      registrationType = "Registration closed"
+    }
+
+    const modalEventData = {
+      ...eventData,
+      formId: eventData.form_id,
+      roomName: roomName,
+      numberRegistered: numberRegistered,
+      attendees: attendees,
+      waitingList: waitingList,
+      registrationType: registrationType,
+      libraryTimezone: libraryTimezone,
+      eventTypeName: eventTypeName,
+      eventTypeColor: eventTypeColor
+    }
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success",
+      data: modalEventData
+    }
+  }
+  catch(res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to get data.", data: null}
+  }
+}
