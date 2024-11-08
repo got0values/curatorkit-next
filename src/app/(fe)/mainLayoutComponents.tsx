@@ -451,38 +451,6 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
             >
               <h2>
                 <AccordionButton display="flex" justifyContent="space-between" gap={1}>
-                  <Flex alignItems="center" gap={5}><Icon as={VscTools} fontSize="2xl"/>Extra Tools</Flex>
-                  <AccordionIcon/>
-                </AccordionButton>
-              </h2>
-              <AccordionPanel color="gray" mt={-1} pb={0}>
-                <List spacing={2} textAlign="left" pl={0} mb={0}>
-                  <ListItem ps="2.8rem" fontSize="sm">                    
-                    <Link href="/itemlookup" onClick={onClose}>
-                      Item Lookup
-                    </Link>
-                  </ListItem>
-                  <ListItem ps="2.8rem" fontSize="sm">
-                    <Link href="/textcount" onClick={onClose}>
-                      Text Count
-                    </Link>
-                  </ListItem>
-                </List>
-              </AccordionPanel>
-            </AccordionItem>
-            <AccordionItem 
-              border={0}
-              rounded="md"
-              m={2}
-              py={.75}
-              _hover={{
-                '.chakra-accordion__icon': {
-                  visibility: "visible"
-                }
-              }}
-            >
-              <h2>
-                <AccordionButton display="flex" justifyContent="space-between" gap={1}>
                   <Flex alignItems="center" gap={5}><Icon as={CgFileDocument} fontSize="2xl"/> Docs/Support</Flex>
                   <AccordionIcon/>
                 </AccordionButton>
