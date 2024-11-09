@@ -33,6 +33,7 @@ export type SignInType = {
   card: string;
   datetime: Date;
   notes: string | null;
+  listIdName?: string;
 }
 
 export type NameListType = {
