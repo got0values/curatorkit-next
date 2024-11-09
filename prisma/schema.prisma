@@ -162,8 +162,6 @@ model emailpassword_users {
   reference_count_types       reference_count_types[]
   reserve_forms               reserve_forms[]
   schools                     schools[]
-  study_room_form_data        study_room_form_data[]
-  study_rooms                 study_rooms[]
 }
 
 model event_calendar {
@@ -292,30 +290,32 @@ model jwt_signing_keys {
 }
 
 model library {
-  id                                                       Int                   @id @default(autoincrement())
-  name                                                     String                @db.Text
-  subdomain                                                String                @db.Text
-  timezone                                                 String                @default("US/Eastern") @db.VarChar(50)
-  admin_pw                                                 String                @default("bananas") @db.Text
-  created_on                                               DateTime              @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
-  CompMasterPW_CompMasterPW_libraryTolibrary               CompMasterPW[]        @relation("CompMasterPW_libraryTolibrary")
-  CompSignIns_CompSignIns_libraryTolibrary                 CompSignIns[]         @relation("CompSignIns_libraryTolibrary")
-  Computers_Computers_libraryTolibrary                     Computers[]           @relation("Computers_libraryTolibrary")
-  ComputersPW_ComputersPW_libraryTolibrary                 ComputersPW[]         @relation("ComputersPW_libraryTolibrary")
-  History_History_libraryTolibrary                         History[]             @relation("History_libraryTolibrary")
-  SignInLists_SignInLists_libraryTolibrary                 SignInLists[]         @relation("SignInLists_libraryTolibrary")
-  SignIns_SignIns_libraryTolibrary                         SignIns[]             @relation("SignIns_libraryTolibrary")
-  allowed_modules_allowed_modules_libraryTolibrary         allowed_modules[]     @relation("allowed_modules_libraryTolibrary")
-  customize_front_end_customize_front_end_libraryTolibrary customize_front_end[] @relation("customize_front_end_libraryTolibrary")
-  event_calendar_event_calendar_libraryTolibrary           event_calendar[]      @relation("event_calendar_libraryTolibrary")
-  event_equipment_event_equipment_libraryTolibrary         event_equipment[]     @relation("event_equipment_libraryTolibrary")
-  event_form_data_event_form_data_libraryTolibrary         event_form_data[]     @relation("event_form_data_libraryTolibrary")
-  event_forms_event_forms_libraryTolibrary                 event_forms[]         @relation("event_forms_libraryTolibrary")
-  event_rooms_event_rooms_libraryTolibrary                 event_rooms[]         @relation("event_rooms_libraryTolibrary")
-  event_types_event_types_libraryTolibrary                 event_types[]         @relation("event_types_libraryTolibrary")
-  logos_logos_libraryTolibrary                             logos[]               @relation("logos_libraryTolibrary")
-  namelist_namelist_libraryTolibrary                       namelist[]            @relation("namelist_libraryTolibrary")
-  user_user_libraryTolibrary                               user[]                @relation("user_libraryTolibrary")
+  id                                                         Int                    @id @default(autoincrement())
+  name                                                       String                 @db.Text
+  subdomain                                                  String                 @db.Text
+  timezone                                                   String                 @default("US/Eastern") @db.VarChar(50)
+  admin_pw                                                   String                 @default("bananas") @db.Text
+  created_on                                                 DateTime               @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  CompMasterPW_CompMasterPW_libraryTolibrary                 CompMasterPW[]         @relation("CompMasterPW_libraryTolibrary")
+  CompSignIns_CompSignIns_libraryTolibrary                   CompSignIns[]          @relation("CompSignIns_libraryTolibrary")
+  Computers_Computers_libraryTolibrary                       Computers[]            @relation("Computers_libraryTolibrary")
+  ComputersPW_ComputersPW_libraryTolibrary                   ComputersPW[]          @relation("ComputersPW_libraryTolibrary")
+  History_History_libraryTolibrary                           History[]              @relation("History_libraryTolibrary")
+  SignInLists_SignInLists_libraryTolibrary                   SignInLists[]          @relation("SignInLists_libraryTolibrary")
+  SignIns_SignIns_libraryTolibrary                           SignIns[]              @relation("SignIns_libraryTolibrary")
+  allowed_modules_allowed_modules_libraryTolibrary           allowed_modules[]      @relation("allowed_modules_libraryTolibrary")
+  customize_front_end_customize_front_end_libraryTolibrary   customize_front_end[]  @relation("customize_front_end_libraryTolibrary")
+  event_calendar_event_calendar_libraryTolibrary             event_calendar[]       @relation("event_calendar_libraryTolibrary")
+  event_equipment_event_equipment_libraryTolibrary           event_equipment[]      @relation("event_equipment_libraryTolibrary")
+  event_form_data_event_form_data_libraryTolibrary           event_form_data[]      @relation("event_form_data_libraryTolibrary")
+  event_forms_event_forms_libraryTolibrary                   event_forms[]          @relation("event_forms_libraryTolibrary")
+  event_rooms_event_rooms_libraryTolibrary                   event_rooms[]          @relation("event_rooms_libraryTolibrary")
+  event_types_event_types_libraryTolibrary                   event_types[]          @relation("event_types_libraryTolibrary")
+  logos_logos_libraryTolibrary                               logos[]                @relation("logos_libraryTolibrary")
+  namelist_namelist_libraryTolibrary                         namelist[]             @relation("namelist_libraryTolibrary")
+  study_room_form_data_study_room_form_data_libraryTolibrary study_room_form_data[] @relation("study_room_form_data_libraryTolibrary")
+  study_rooms_study_rooms_libraryTolibrary                   study_rooms[]          @relation("study_rooms_libraryTolibrary")
+  user_user_libraryTolibrary                                 user[]                 @relation("user_libraryTolibrary")
 }
 
 model logos {
@@ -487,39 +487,39 @@ model session_info {
 }
 
 model study_room_form_data {
-  id                    Int                 @id @default(autoincrement())
-  user_id               String              @db.Char(36)
-  form_id               Int
-  form_data             String?             @db.Text
-  study_room_name       String?             @db.Text
-  study_room_id         Int
-  request_datetime_from DateTime            @db.DateTime(6)
-  request_datetime_to   DateTime            @db.DateTime(6)
-  datetime_submitted    DateTime            @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
-  confirmed             Int?                @default(0) @db.TinyInt
-  emailpassword_users   emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "study_room_form_data_ibfk_4")
-  study_rooms           study_rooms         @relation(fields: [study_room_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_5")
-  reserve_forms         reserve_forms       @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_6")
+  id                                            Int           @id @default(autoincrement())
+  library                                       Int
+  form_id                                       Int
+  form_data                                     String?       @db.Text
+  study_room_name                               String?       @db.Text
+  study_room_id                                 Int
+  request_datetime_from                         DateTime      @db.DateTime(6)
+  request_datetime_to                           DateTime      @db.DateTime(6)
+  datetime_submitted                            DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  confirmed                                     Int?          @default(0) @db.TinyInt
+  study_rooms                                   study_rooms   @relation(fields: [study_room_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_5")
+  reserve_forms                                 reserve_forms @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_6")
+  library_study_room_form_data_libraryTolibrary library       @relation("study_room_form_data_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "study_room_form_data_ibfk_7")
 
   @@index([form_id], map: "form_id")
   @@index([study_room_id], map: "study_room_id")
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
 }
 
 model study_rooms {
-  id                   Int                    @id @default(autoincrement())
-  user_id              String                 @db.Char(36)
-  name                 String                 @db.VarChar(100)
-  description          String?                @db.VarChar(700)
-  form                 Int?
-  minimum_capacity     Int?
-  maximum_capacity     Int?
-  study_room_form_data study_room_form_data[]
-  emailpassword_users  emailpassword_users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "study_rooms_ibfk_2")
-  reserve_forms        reserve_forms?         @relation(fields: [form], references: [id], onDelete: NoAction, map: "study_rooms_ibfk_5")
+  id                                   Int                    @id @default(autoincrement())
+  library                              Int
+  name                                 String                 @db.VarChar(100)
+  description                          String?                @db.VarChar(700)
+  form                                 Int?
+  minimum_capacity                     Int?
+  maximum_capacity                     Int?
+  study_room_form_data                 study_room_form_data[]
+  reserve_forms                        reserve_forms?         @relation(fields: [form], references: [id], onDelete: NoAction, map: "study_rooms_ibfk_5")
+  library_study_rooms_libraryTolibrary library                @relation("study_rooms_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "study_rooms_ibfk_6")
 
   @@index([form], map: "form")
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
 }
 
 model user {
