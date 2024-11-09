@@ -33,16 +33,12 @@ import {
 } from "@chakra-ui/react"
 import {FaChevronLeft} from 'react-icons/fa';
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
-import { getStudyRooms, getStudyRoomData } from '@/app/actions/studyrooms.actions';
-
-type StudyRoomType = {
-  id: string;
-  name: string;
-}
+import { getStudyRooms, getStudyRoomData, postSaveStudyRoom, deleteStudyRoom, getEditStudyRoom } from '@/app/actions/studyrooms.actions';
+import { StudyRoomFormDataType, StudyRoomType, ReserveFormType } from '@/app/types/types';
 
 export default function StudyRooms() {
   const localizer = momentLocalizer(moment)
-  const [showDrawer,setShowDrawer] = useState();
+  const [showDrawer,setShowDrawer] = useState(false);
 
   const toast = useToast();
 
@@ -61,16 +57,35 @@ export default function StudyRooms() {
       })
   }
 
-  const [requests,setRequests] = useState();
-  const [originalRequests,setOriginalRequests] = useState();
+  const [requests,setRequests] = useState<StudyRoomFormDataType[] | []>([]);
+  const [originalRequests,setOriginalRequests] = useState<StudyRoomFormDataType[] | []>([]);
   async function fetchStudyRoomData() {
     await getStudyRoomData()
       .then((response) => {
-        setRequests(response.data);
-        setOriginalRequests(response.data);
+        if (response.success) {
+          setRequests(response.data);
+          setOriginalRequests(response.data);
+        }
+        else {
+          console.error(response)
+          toast({
+            title: 'Error!',
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
       .catch((res)=>{
         console.error(res)
+        toast({
+          title: 'Error!',
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
       })
   }
 
@@ -79,46 +94,70 @@ export default function StudyRooms() {
       fetchStudyRoomData();
   },[])
 
-  const roomNameInputTextRef = useRef();
-  const addRoomFunction = async (e) => {
-      e.preventDefault();
-      try {
-          await axios
-          .post(server + "/studyrooms", {
-              headers : {
-                  'Content-Type':'application/json'
-              },
-              roomname: JSON.stringify(roomNameInputTextRef.current.value)
+  const roomNameInputTextRef = useRef<any>();
+  const addRoomFunction = async () => {
+    await postSaveStudyRoom(roomNameInputTextRef.current.value)
+      .then((res)=>{
+        if (res.success) {
+          roomNameInputTextRef.current.value = "";
+          fetchStudyRooms();
+        }
+        else {
+          console.error(res.message)
+          toast({
+            title: 'Error!',
+            description: res.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
           })
-      } catch(error) {
-          console.log(error);
-      }
-      roomNameInputTextRef.current.value = "";
-      fetchStudyRooms();
+        }
+      })
+      .catch((res)=>{
+        console.error(res)
+        toast({
+          title: 'Error!',
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
   const roomToDeleteRef = useRef()
-  const deleteRoom = async (e) => {
-    e.preventDefault();
+  const deleteRoom = async () => {
     if(window.confirm("Are you sure you want to delete this room? Doing so will delete all room history.")) {
-      try {
-          await axios
-          .delete(server + "/studyrooms", {
-              headers : {
-                  'Content-Type':'application/json'
-              },
-              data: {
-                roomid: JSON.stringify(roomToDeleteRef.current.value)
-              }
-          })
-      } catch(error) {
-          console.log(error);
-      }
-      fetchStudyRooms();
+      await deleteStudyRoom((roomToDeleteRef.current as any).value.toString())
+        .then((res)=>{
+          if (res.success) {
+            fetchStudyRooms()
+          }
+          else {
+            console.error(res.message);
+            toast({
+              title: 'Error!',
+              description: res.message,
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+            })
+          }
+        })
+      .catch((error)=>{
+        console.error(error)
+        toast({
+          title: 'Error!',
+          description: error.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
     }
   }
 
-  const filterRoom = async (e) => {
+  const filterRoom = async (e: any) => {
     e.preventDefault();
     let isChecked = e.target.checked;
     let checked_room_id = e.target.value;
@@ -129,56 +168,72 @@ export default function StudyRooms() {
       setRequests(minusRoom)
     }
     if (requests && isChecked) {
-      let plusRoomData = originalRequests.filter((oRequests)=>(
+      let plusRoomData = originalRequests?.filter((oRequests)=>(
         oRequests?.study_room_id?.toString() === checked_room_id
       ))
-      setRequests(requests=>[...requests,plusRoomData[0]])
+      setRequests(requests=> [...requests,plusRoomData[0]])
     }
   }
 
-  const [openModal, setOpenModal] = useState();
-  const [modalData, setModalData] = useState({});
-  const openEditRoom = async (e) => {
-    e.preventDefault();
+  type ModalDataType = {
+    studyRoom: StudyRoomType,
+    forms: ReserveFormType[]
+  }
+
+  const [openModal, setOpenModal] = useState(false);
+  const [modalData, setModalData] = useState<ModalDataType | null>(null);
+  const openEditRoom = async (e: any) => {
     const roomid = e.target.dataset.roomid;
-    try {
-      await axios
-      .get(server + `/editstudyroom?roomid=${roomid}`,{
-        headers : {
-            'Content-Type':'application/json'
+    await getEditStudyRoom(roomid)
+      .then((response) => {
+        if (response.success) {
+          setModalData(response.data)
+          setOpenModal(true);
+        }
+        else {
+          console.error(response)
+          toast({
+            title: 'Error!',
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
         }
       })
-      .then((response) => {
-        setModalData(response.data)
-        setOpenModal(true);
+      .catch((res)=>{
+        console.error(res)
+        toast({
+          title: 'Error!',
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
       })
-    } catch(error) {
-        console.log(error);
-    }
   }
 
-  const [requestModalData,setRequestModalData] = useState();
-  const [openRequestModal,setOpenRequestModal] = useState();
-  function modalOpenForRequest(e) {
+  const [requestModalData,setRequestModalData] = useState(null);
+  const [openRequestModal,setOpenRequestModal] = useState(false);
+  function modalOpenForRequest(e: any) {
     setRequestModalData(e);
     setOpenRequestModal(true);
   }
 
-  function closeRequestModal(e) {
+  function closeRequestModal() {
     setRequestModalData(null)
   }
 
-  const formFromRef = useRef();
-  const formToRef = useRef();
-  const confirmedRef = useRef();
-  async function updateReserve(e) {
+  const formFromRef = useRef<any>();
+  const formToRef = useRef<any>();
+  const confirmedRef = useRef<any>();
+  async function updateReserve(e: any) {
     e.preventDefault();
     const formFrom = formFromRef.current.value;
     const formTo = formToRef.current.value;
     const confirmed = confirmedRef.current.checked;
     const formDataId = e.target.dataset.formdataid
-    try {
-      await axios
+    await axios
       .put(server + "/editstudyroomformdata", {
           headers : {
               'Content-Type':'application/json'
@@ -189,55 +244,91 @@ export default function StudyRooms() {
           form_data_id: formDataId
       })
       .then((response)=>{
-        if (response.data == "OK") {
-          window.alert("Updated")
+        if (response.success) {
+          toast({
+            description: "Updated!",
+            status: 'sucess',
+            duration: 5000,
+            isClosable: true,
+          })
           fetchStudyRoomData();
           closeRequestModal();
         }
         else {
-          window.alert("Unexpected error! Please try again.")
+          toast({
+            title: 'Error!',
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res)
+        toast({
+          title: 'Error!',
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
   async function deleteReserve(e) {
     e.preventDefault();
     const formDataId = e.target.dataset.formdataid;
-    try {
-        await axios
-        .delete(server + "/studyroomformdata", {
-            headers : {
-                'Content-Type':'application/json'
-            },
-            data: {
-              form_id: formDataId
-            }
-        })
-        .then((response)=>{
-          if (response.data == "OK") {
-            window.alert("Deleted")
-            fetchStudyRoomData();
-            closeRequestModal();
+    await axios
+      .delete(server + "/studyroomformdata", {
+          headers : {
+              'Content-Type':'application/json'
+          },
+          data: {
+            form_id: formDataId
           }
-          else {
-            window.alert("Unexpected error! Please try again.")
-          }
+      })
+      .then((response)=>{
+        if (response.success) {
+          toast({
+            description: "Deleted",
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          })
+          fetchStudyRoomData();
+          closeRequestModal();
+        }
+        else {
+          console.error(response);
+          toast({
+            title: 'Error!',
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
+      })
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          title: 'Error!',
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
         })
-    } catch(error) {
-        console.log(error);
-    }
+      })
   }
 
-  const [errorMsg,setErrorMsg] = useState();
-  const studyRoomNameRef = useRef();
-  const studyRoomFormRef = useRef();
-  const studyRoomDescriptionRef = useRef();
-  const studyRoomMinCapRef = useRef();
-  const studyRoomMaxCapRef = useRef();
-  async function updateStudyRoom(e) {
+  const [errorMsg,setErrorMsg] = useState("");
+  const studyRoomNameRef = useRef<any>();
+  const studyRoomFormRef = useRef<any>();
+  const studyRoomDescriptionRef = useRef<any>();
+  const studyRoomMinCapRef = useRef<any>();
+  const studyRoomMaxCapRef = useRef<any>();
+  async function updateStudyRoom(e: any) {
     e.preventDefault();
     const roomName = studyRoomNameRef.current.value;
     const roomForm = studyRoomFormRef.current.value;
@@ -246,42 +337,41 @@ export default function StudyRooms() {
     const roomMax = studyRoomMaxCapRef.current.value;
     const roomId = e.target.value;
     if (roomName !== "") {
-      try {
-        await axios
-        .put(server + "/editstudyroom", {
-            studyroomname: roomName,
-            studyroomformid: roomForm,
-            studyroomid: roomId,
-            studyroomdesc: roomDesc,
-            studyroommin: roomMin,
-            studyroommax: roomMax
-            
-        })
-        .then((response)=>{
-          if (response.data === "OK") {
-            closeModal();
-            toast({
-              title: 'Saved',
-              description: "Study room details have been updated.",
-              status: 'success',
-              duration: 5000,
-              isClosable: true,
-            })
-          }
-          else {
-            setErrorMsg(response.data)
-          }
-        })
-      } catch(error) {
-          console.log(error);
+    await axios
+      .put(server + "/editstudyroom", {
+          studyroomname: roomName,
+          studyroomformid: roomForm,
+          studyroomid: roomId,
+          studyroomdesc: roomDesc,
+          studyroommin: roomMin,
+          studyroommax: roomMax
+          
+      })
+      .then((response)=>{
+        if (response.success) {
+          closeModal();
           toast({
-            title: 'Error!',
-            description: error,
-            status: 'error',
+            title: 'Saved',
+            description: "Study room details have been updated.",
+            status: 'success',
             duration: 5000,
             isClosable: true,
           })
-      }
+        }
+        else {
+          setErrorMsg(response.data)
+        }
+      })
+      .catch((error)=>{
+        console.log(error);
+        toast({
+          title: 'Error!',
+          description: error,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
     }
     else {
       if (roomName === "") {
@@ -299,8 +389,8 @@ export default function StudyRooms() {
 
   const closeModal = () => {
     setOpenModal(false);
-    setModalData({});
-    setErrorMsg(null);
+    setModalData(null);
+    setErrorMsg("");
     fetchStudyRooms();
   }
 
@@ -351,6 +441,7 @@ export default function StudyRooms() {
             pe={0}
             minW={0}
             w={5}
+            zIndex={10}
             style={{display: `${showDrawer ? "none" : "block"}`}}
             onClick={()=>showAdminDrawer(setShowDrawer)}
           >
@@ -439,7 +530,7 @@ export default function StudyRooms() {
                 as={BigCalendar}
                 localizer={localizer}
                 events={requests}
-                onSelectEvent={()=>modalOpenForRequest()}
+                onSelectEvent={(e: any)=>modalOpenForRequest(e)}
                 sx={{
                   '& .rbc-toolbar-label': {
                     fontWeight: '900',
@@ -459,8 +550,8 @@ export default function StudyRooms() {
         </Box>
         <Drawer 
           isOpen={showDrawer} 
-          onClose={e=>setShowDrawer(false)} 
-          scroll="true"
+          onClose={()=>setShowDrawer(false)} 
+          // scroll="true"
           placement="end"
         >
           <DrawerOverlay/>
@@ -521,7 +612,7 @@ export default function StudyRooms() {
                     color="black"
                     placeholder="Study Room" 
                     type="text" 
-                    ref={roomNameInputTextRef}
+                    ref={roomNameInputTextRef as any}
                     _dark={{
                       color: "white"
                     }}
@@ -530,7 +621,7 @@ export default function StudyRooms() {
                     colorScheme="green"
                     size="sm"
                     type="submit" 
-                    onClick={e=>{addRoomFunction(e)}}
+                    onClick={()=>{addRoomFunction()}}
                   >
                     Add
                   </Button>
@@ -540,7 +631,7 @@ export default function StudyRooms() {
                     size="sm" 
                     color="black"
                     borderColor="black" 
-                    ref={roomToDeleteRef}
+                    ref={roomToDeleteRef as any}
                     _dark={{
                       color: "white"
                     }}
@@ -561,7 +652,7 @@ export default function StudyRooms() {
                     colorScheme="red"
                     size="sm"
                     type="submit"
-                    onClick={e=>deleteRoom(e)}
+                    onClick={()=>deleteRoom()}
                   >
                     Delete
                   </Button>
@@ -577,7 +668,7 @@ export default function StudyRooms() {
           <ModalContent>
             <ModalCloseButton/>
             <ModalHeader borderBottom="1px solid lightgray">
-              <Heading as="h4" size="md">{modalData?.studyroom?.name}</Heading>
+              <Heading as="h4" size="md">{modalData?.studyRoom?.name}</Heading>
             </ModalHeader>
             <ModalBody pb="1.5rem" px="1.5rem">
 
@@ -585,13 +676,13 @@ export default function StudyRooms() {
               <Input 
                 type="text" 
                 id="studyRoomName"
-                defaultValue={modalData?.studyroom?.name}
+                defaultValue={modalData?.studyRoom?.name}
                 ref={studyRoomNameRef}
               />
               <FormLabel mt={5} htmlFor="studyRoomDescription">Description:</FormLabel>
               <Textarea 
                 id="studyRoomDescription"
-                defaultValue={modalData?.studyroom?.description}
+                defaultValue={modalData?.studyRoom?.description as string}
                 ref={studyRoomDescriptionRef}
               >
               </Textarea>
@@ -600,7 +691,7 @@ export default function StudyRooms() {
                 type="number" 
                 id="studyRoomMinCap"
                 min="0"
-                defaultValue={modalData?.studyroom?.minimum_capacity}
+                defaultValue={modalData?.studyRoom?.minimum_capacity as number}
                 ref={studyRoomMinCapRef}
               />
               <FormLabel mt={5} htmlFor="studyRoomMaxCap">Maximum capacity:</FormLabel>
@@ -608,14 +699,14 @@ export default function StudyRooms() {
                 type="number" 
                 id="studyRoomMaxCap"
                 min="0"
-                defaultValue={modalData?.studyroom?.maximum_capacity}
+                defaultValue={modalData?.studyRoom?.maximum_capacity as number}
                 ref={studyRoomMaxCapRef}
               />
               <FormLabel mt={5} htmlFor="studyRoomForm">Form:</FormLabel>
               <Select
                 id="studyRoomForm"
                 ref={studyRoomFormRef}
-                defaultValue={modalData?.studyroom?.form}
+                defaultValue={modalData?.studyRoom?.form as number}
               >
                 <option value="Select One">Select One</option>
                 {modalData?.forms?.map((form,i)=>{
@@ -632,7 +723,7 @@ export default function StudyRooms() {
                 </Text>
                 <Button
                   colorScheme="green"
-                  value={modalData?.studyroom?.id}
+                  value={modalData?.studyRoom?.id}
                   onClick={e=>updateStudyRoom(e)}
                 >
                   Submit

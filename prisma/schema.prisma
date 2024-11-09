@@ -160,7 +160,6 @@ model emailpassword_users {
   reference_count             reference_count[]
   reference_count_departments reference_count_departments[]
   reference_count_types       reference_count_types[]
-  reserve_forms               reserve_forms[]
   schools                     schools[]
 }
 
@@ -313,6 +312,7 @@ model library {
   event_types_event_types_libraryTolibrary                   event_types[]          @relation("event_types_libraryTolibrary")
   logos_logos_libraryTolibrary                               logos[]                @relation("logos_libraryTolibrary")
   namelist_namelist_libraryTolibrary                         namelist[]             @relation("namelist_libraryTolibrary")
+  reserve_forms_reserve_forms_libraryTolibrary               reserve_forms[]        @relation("reserve_forms_libraryTolibrary")
   study_room_form_data_study_room_form_data_libraryTolibrary study_room_form_data[] @relation("study_room_form_data_libraryTolibrary")
   study_rooms_study_rooms_libraryTolibrary                   study_rooms[]          @relation("study_rooms_libraryTolibrary")
   user_user_libraryTolibrary                                 user[]                 @relation("user_libraryTolibrary")
@@ -453,17 +453,17 @@ model reference_count_types {
 }
 
 model reserve_forms {
-  id                   Int                    @id @default(autoincrement())
-  user_id              String                 @db.Char(36)
-  title                String?                @db.Text
-  form_schema          String?                @db.Text
-  form_ui_schema       String?                @db.Text
-  date_created         DateTime?              @db.DateTime(0)
-  emailpassword_users  emailpassword_users    @relation(fields: [user_id], references: [user_id], onUpdate: Restrict, map: "reserve_forms_ibfk_1")
-  study_room_form_data study_room_form_data[]
-  study_rooms          study_rooms[]
+  id                                     Int                    @id @default(autoincrement())
+  library                                Int
+  title                                  String?                @db.Text
+  form_schema                            String?                @db.Text
+  form_ui_schema                         String?                @db.Text
+  date_created                           DateTime?              @db.DateTime(0)
+  library_reserve_forms_libraryTolibrary library                @relation("reserve_forms_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reserve_forms_ibfk_1")
+  study_room_form_data                   study_room_form_data[]
+  study_rooms                            study_rooms[]
 
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
 }
 
 model schools {

@@ -72,3 +72,93 @@ export async function getStudyRoomData(): Promise<ServerResponseType> {
     return {success: false, message: "Failed to get study rooms"}
   }
 }
+
+export async function postSaveStudyRoom(roomName: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!roomName) {
+      return {success: false, message: "Please enter a room name"}
+    }
+    
+    await prisma.study_rooms.create({
+      data: {
+        library: libraryId,
+        name: roomName
+      }
+    })
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: null}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to save study room"}
+  }
+}
+
+export async function deleteStudyRoom(roomId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!roomId) {
+      return {success: false, message: "Failed to delete study room"}
+    }
+    
+    await prisma.study_rooms.delete({
+      where: {
+        library: libraryId,
+        id: Number(roomId)
+      }
+    })
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: null}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to delete study room"}
+  }
+}
+
+export async function getEditStudyRoom(roomId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!roomId) {
+      return {success: false, message: "Failed to get study room"}
+    }
+
+    let studyRoom = await prisma.study_rooms.findUnique({
+      where: {
+        library: libraryId,
+        id: Number(roomId)
+      }
+    })
+
+    let forms = await prisma.reserve_forms.findMany({
+      where: {
+        library: libraryId
+      }
+    })
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: {studyRoom, forms}}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to get study room"}
+  }
+}

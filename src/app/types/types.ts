@@ -241,3 +241,35 @@ export type SetFormType = {
   formeventtypename: string; 
   formeventtypeid: string;
 }
+
+export type StudyRoomFormDataType = {
+  id: number;
+  library: number;
+  form_id: number;
+  form_data: string | null;
+  study_room_name: string | null;
+  study_room_id: number;
+  request_datetime_from: Date;
+  request_datetime_to: Date;
+  datetime_submitted: Date;
+  confirmed: number | null;
+}
+
+export type StudyRoomType = {
+  id: number;
+  library: number;
+  name: string;
+  description: string | null;
+  form: number | null;
+  minimum_capacity: number | null;
+  maximum_capacity: number | null;
+}
+
+export type ReserveFormType = {
+  id: number;
+  library: number;
+  title: string | null;
+  form_schema: string | null;
+  form_ui_schema: string | null;
+  date_created: Date | null;
+}
