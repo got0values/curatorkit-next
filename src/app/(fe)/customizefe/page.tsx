@@ -47,7 +47,6 @@ export default function CustomizeFrontEnd() {
     eventCalendarShow: false,
     requestStudyRoom: false,
     requestStudyRoomShow: false,
-    readingClubShow: false,
     bigCalendarView: false,
     keepAccordionsOpen: false
   });
@@ -69,6 +68,9 @@ export default function CustomizeFrontEnd() {
           setSubdomain(response.data.subdomain)
           setIsLoading(false)
           if (r) {
+            setFormValues(prev=>({...prev,allowDarkMode: r.allow_dark_mode}))
+            setFormValues(prev=>({...prev,eventCalendarShow: r.show_event_calendar}))
+            setFormValues(prev=>({...prev,requestStudyRoomShow: r.show_request_study_room}))
             if (r.big_calendar_view !== null) {
               setFormValues(prev=>({...prev,bigCalendarView: r.big_calendar_view}))
             }
@@ -584,16 +586,6 @@ export default function CustomizeFrontEnd() {
                   m="5px"
                 >
                   Show Request a Study Room?
-                </Checkbox>
-              </Flex>
-              <Flex alignItems="center" h="3rem">
-                <Checkbox
-                  name="readingClubShow"
-                  isChecked={formValues.readingClubShow}
-                  onChange={(e)=>setFormValues(prev=>({...prev,readingClubShow: e.target.checked ? true : false}))}
-                  m="5px"
-                >
-                  Show Reading Club?
                 </Checkbox>
               </Flex>
             </Box>

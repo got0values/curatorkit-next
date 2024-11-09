@@ -125,7 +125,7 @@ export async function postSaveCustomizeFe(formData: FormData): Promise<ServerRes
       await prisma.logos.create({
         data: {
           library: libraryId,
-          logo_blob: new Buffer(logoData)
+          logo_blob: logoData
         }
       })
     }
