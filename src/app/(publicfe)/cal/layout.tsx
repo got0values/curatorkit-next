@@ -258,7 +258,7 @@ export default function FrontEndLayout({children}:Readonly<{
               px={3}
             >
               <Link
-                onClick={e=>router.push("/cal")}
+                href="/cal"
               >
                 Event Calendar
               </Link>
@@ -270,7 +270,7 @@ export default function FrontEndLayout({children}:Readonly<{
               px={3}
             >
               <Link
-                onClick={e=>router.push("/roomreserve/studyroom")}
+                href="/roomreserve/studyroom"
               >
                 Request a Study Room
               </Link>
@@ -282,7 +282,7 @@ export default function FrontEndLayout({children}:Readonly<{
               px={3}
             >
               <Link
-                onClick={()=>router.push("/readingclub")}
+                href="/readingclub"
               >
                 Reading Club
               </Link>
