@@ -539,6 +539,7 @@ export const MainStack = ({showSidebar, children, ...rest}: {showSidebar: boolea
     <Stack 
       as="main" 
       ml={{ base: 0, md: showSidebar ? sidebarWidth : 0 }} 
+      px={10}
       h="full"
       // overflow="auto"
     >

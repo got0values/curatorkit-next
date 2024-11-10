@@ -33,7 +33,7 @@ import {
 } from "@chakra-ui/react"
 import {FaChevronLeft} from 'react-icons/fa';
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
-import { getStudyRooms, getStudyRoomData, postSaveStudyRoom, deleteStudyRoom, getEditStudyRoom } from '@/app/actions/studyrooms.actions';
+import { getStudyRooms, getStudyRoomData, postSaveStudyRoom, deleteStudyRoom, getEditStudyRoom, deleteStudyRoomReserve, putEditStudyRoomFormData, putEditStudyRoom } from '@/app/actions/studyrooms.actions';
 import { StudyRoomFormDataType, StudyRoomType, ReserveFormType } from '@/app/types/types';
 
 export default function StudyRooms() {
@@ -213,7 +213,7 @@ export default function StudyRooms() {
       })
   }
 
-  const [requestModalData,setRequestModalData] = useState(null);
+  const [requestModalData,setRequestModalData] = useState<StudyRoomFormDataType | null>(null);
   const [openRequestModal,setOpenRequestModal] = useState(false);
   function modalOpenForRequest(e: any) {
     setRequestModalData(e);
@@ -233,21 +233,12 @@ export default function StudyRooms() {
     const formTo = formToRef.current.value;
     const confirmed = confirmedRef.current.checked;
     const formDataId = e.target.dataset.formdataid
-    await axios
-      .put(server + "/editstudyroomformdata", {
-          headers : {
-              'Content-Type':'application/json'
-          },
-          form_from: formFrom,
-          form_to: formTo,
-          confirmed: confirmed,
-          form_data_id: formDataId
-      })
+    await putEditStudyRoomFormData(formFrom, formTo, confirmed, formDataId)
       .then((response)=>{
         if (response.success) {
           toast({
             description: "Updated!",
-            status: 'sucess',
+            status: 'success',
             duration: 5000,
             isClosable: true,
           })
@@ -276,22 +267,14 @@ export default function StudyRooms() {
       })
   }
 
-  async function deleteReserve(e) {
+  async function deleteReserve(e: any) {
     e.preventDefault();
     const formDataId = e.target.dataset.formdataid;
-    await axios
-      .delete(server + "/studyroomformdata", {
-          headers : {
-              'Content-Type':'application/json'
-          },
-          data: {
-            form_id: formDataId
-          }
-      })
+    await deleteStudyRoomReserve(formDataId)
       .then((response)=>{
         if (response.success) {
           toast({
-            description: "Deleted",
+            description: "Deleted reserve",
             status: 'success',
             duration: 5000,
             isClosable: true,
@@ -337,41 +320,32 @@ export default function StudyRooms() {
     const roomMax = studyRoomMaxCapRef.current.value;
     const roomId = e.target.value;
     if (roomName !== "") {
-    await axios
-      .put(server + "/editstudyroom", {
-          studyroomname: roomName,
-          studyroomformid: roomForm,
-          studyroomid: roomId,
-          studyroomdesc: roomDesc,
-          studyroommin: roomMin,
-          studyroommax: roomMax
-          
-      })
-      .then((response)=>{
-        if (response.success) {
-          closeModal();
+      await putEditStudyRoom(roomName, roomForm, roomId, roomDesc, roomMin, roomMax)
+        .then((response)=>{
+          if (response.success) {
+            closeModal();
+            toast({
+              title: 'Saved',
+              description: "Study room details have been updated.",
+              status: 'success',
+              duration: 5000,
+              isClosable: true,
+            })
+          }
+          else {
+            setErrorMsg(response.data)
+          }
+        })
+        .catch((error)=>{
+          console.log(error);
           toast({
-            title: 'Saved',
-            description: "Study room details have been updated.",
-            status: 'success',
+            title: 'Error!',
+            description: error,
+            status: 'error',
             duration: 5000,
             isClosable: true,
           })
-        }
-        else {
-          setErrorMsg(response.data)
-        }
-      })
-      .catch((error)=>{
-        console.log(error);
-        toast({
-          title: 'Error!',
-          description: error,
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
         })
-      })
     }
     else {
       if (roomName === "") {
@@ -483,7 +457,7 @@ export default function StudyRooms() {
                   return (
                     <Box 
                       key={room.id} 
-                      id={room.id} 
+                      id={room.id.toString()} 
                       className="addRowFade"
                     >
 
@@ -641,9 +615,9 @@ export default function StudyRooms() {
                         return (
                           <option
                             key={i}
-                            value={room.roomid}
+                            value={room.id}
                           >
-                            {room.roomname}
+                            {room.name}
                           </option>
                         )
                       })}
@@ -740,7 +714,7 @@ export default function StudyRooms() {
           <ModalContent>
             <ModalCloseButton/>
             <ModalHeader borderBottom="1px solid lightgray">
-              <Heading as="h4" size="md">{requestModalData.title}</Heading>
+              <Heading as="h4" size="md">{requestModalData.study_room_name}</Heading>
             </ModalHeader>
             <ModalBody pb="1.5rem" px="1.5rem">
 
@@ -756,17 +730,17 @@ export default function StudyRooms() {
                       </Box>
                     )
                   })} */}
-                  {Object.entries(requestModalData.form_data.schema.properties).map((datakey,i)=>{
+                  {Object.entries(JSON.parse(requestModalData.form_data!).schema.properties).map((datakey,i)=>{
                     return (
                       <Flex key={i} alignItems="center" gap={2}>
                         <Text fontWeight="700">
-                          {Object.values(datakey)[0]}:
+                          {Object.values(datakey)[0] as any}:
                         </Text>
                         <Text>
-                          {Object.entries(requestModalData.form_data.formData).map((datavalue,i)=>{
+                          {Object.entries(JSON.parse(requestModalData.form_data!).formData).map((datavalue,i)=>{
                           return (
                               <Text as="span" key={i}>
-                                {Object.values(datavalue)[0] === Object.values(datakey)[0] ? Object.values(datavalue)[1] : null}
+                                {Object.values(datavalue)[0] === Object.values(datakey)[0] ? Object.values(datavalue)[1] as any : null}
                               </Text>
                             )
                           })}
@@ -791,7 +765,7 @@ export default function StudyRooms() {
                   <Input
                     type="datetime-local"
                     id="datetimeFrom"
-                    defaultValue={requestModalData.start}
+                    defaultValue={requestModalData.request_datetime_from.toString()}
                     ref={formFromRef}
                     flex="1 0 80%"
                   />
@@ -811,7 +785,7 @@ export default function StudyRooms() {
                   <Input
                     type="datetime-local"
                     id="datetimeTo"
-                    defaultValue={requestModalData.end}
+                    defaultValue={requestModalData.request_datetime_to.toString()}
                     ref={formToRef}
                     flex="1 0 80%"
                   />
@@ -823,7 +797,7 @@ export default function StudyRooms() {
                   flexWrap="wrap"
                 >
                   <Checkbox
-                    defaultChecked={requestModalData.confirmed === true ? 1 : 0}
+                    defaultChecked={requestModalData.confirmed ? true : false}
                     ref={confirmedRef}
                   >
                     Confirmed?

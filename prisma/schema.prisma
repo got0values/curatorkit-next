@@ -496,7 +496,7 @@ model study_room_form_data {
   request_datetime_from                         DateTime      @db.DateTime(6)
   request_datetime_to                           DateTime      @db.DateTime(6)
   datetime_submitted                            DateTime      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
-  confirmed                                     Int?          @default(0) @db.TinyInt
+  confirmed                                     Boolean?      @default(false)
   study_rooms                                   study_rooms   @relation(fields: [study_room_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_5")
   reserve_forms                                 reserve_forms @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "study_room_form_data_ibfk_6")
   library_study_room_form_data_libraryTolibrary library       @relation("study_room_form_data_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "study_room_form_data_ibfk_7")

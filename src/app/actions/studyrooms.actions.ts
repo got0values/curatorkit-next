@@ -162,3 +162,98 @@ export async function getEditStudyRoom(roomId: string): Promise<ServerResponseTy
     return {success: false, message: "Failed to get study room"}
   }
 }
+
+export async function putEditStudyRoomFormData(formFrom: string, formTo: string, confirmed: boolean, formDataId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+    const library = await prisma.library.findUnique({
+      where: {
+        id: libraryId
+      }
+    })
+
+    const libraryTimezone = library?.timezone ?? "US/Eastern";
+
+    await prisma.study_room_form_data.update({
+      where: {
+        library: libraryId,
+        id: Number(formDataId)
+      },
+      data: {
+        request_datetime_from: formFrom ? momentTimezone.tz(formFrom, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : undefined,
+        request_datetime_to: formTo ? momentTimezone.tz(formTo, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : undefined,
+        confirmed: confirmed
+      }
+    })
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: null}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to update reserve"}
+  }
+}
+
+export async function deleteStudyRoomReserve(formDataId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!formDataId) {
+      return {success: false, message: "Failed to delete reserve"}
+    }
+    
+    await prisma.study_room_form_data.delete({
+      where: {
+        library: libraryId,
+        id: Number(formDataId)
+      }
+    })
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: null}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to delete reserve"}
+  }
+}
+
+export async function putEditStudyRoom(studyRoomName: string, studyRoomFormId: string, studyRoomId: string, studyRoomDesc: string, studyRoomMin: string, studyRoomMax: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    await prisma.study_rooms.update({
+      where: {
+        library: libraryId,
+        id: Number(studyRoomId)
+      },
+      data: {
+        name: studyRoomName,
+        form: Number(studyRoomFormId),
+        description: studyRoomDesc,
+        minimum_capacity: Number(studyRoomMin),
+        maximum_capacity: Number(studyRoomMax)
+      }
+    })
+    
+    await prisma.$disconnect();
+    return {success: true, message: "Success", data: null}
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to update study room"}
+  }
+}
