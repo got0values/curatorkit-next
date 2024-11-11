@@ -25,6 +25,7 @@ import JSONSchemaForm from "@rjsf/core";
 import { StudyRoomType } from '@/app/types/types';
 import { getStudyRoomsFe, postStudyRoomFeRegData } from '@/app/actions/festudyrooms.actions';
 import validator from '@rjsf/validator-ajv8';
+import '../../../css/form-bs.css';
 
 export default function StudyRoomReserve() {
   const toast = useToast();
@@ -373,15 +374,17 @@ export default function StudyRoomReserve() {
                   id="formTimeTo"
                   ref={regFormTimeToRef}
                 />
-                <JSONSchemaForm 
-                  uiSchema={JSON.parse(modalData.reserveform).form_ui_schema !== null ? JSON.parse(modalData.reserveform).form_ui_schema :{"ui:title": " "}}
-                  schema={
-                    JSON.parse(modalData.reserveform).form_schema !== null ? JSON.parse(modalData.reserveform).form_schema : {}
-                  } 
-                  onSubmit={e=>submitRegForm(e)}
-                  autoComplete="on"
-                  validator={validator}
-                />
+                <Box className="json-schema-form">
+                  <JSONSchemaForm 
+                    uiSchema={JSON.parse(modalData.reserveform).form_ui_schema !== null ? JSON.parse(modalData.reserveform).form_ui_schema :{"ui:title": " "}}
+                    schema={
+                      JSON.parse(modalData.reserveform).form_schema !== null ? JSON.parse(modalData.reserveform).form_schema : {}
+                    } 
+                    onSubmit={e=>submitRegForm(e)}
+                    autoComplete="on"
+                    validator={validator}
+                  />
+                </Box>
               </Box>
             </ModalBody>
             <ModalFooter>
