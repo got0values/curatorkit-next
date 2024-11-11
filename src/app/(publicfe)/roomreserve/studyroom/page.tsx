@@ -23,7 +23,8 @@ import {
 } from "@chakra-ui/react";
 import JSONSchemaForm from "@rjsf/core";
 import { StudyRoomType } from '@/app/types/types';
-import { getStudyRoomsFe } from '@/app/actions/festudyrooms.actions';
+import { getStudyRoomsFe, postStudyRoomFeRegData } from '@/app/actions/festudyrooms.actions';
+import validator from '@rjsf/validator-ajv8';
 
 export default function StudyRoomReserve() {
   const toast = useToast();
@@ -56,8 +57,15 @@ export default function StudyRoomReserve() {
     fetchStudyRooms()
   },[])
 
+  type ModalDataType = {
+    reserveform: string;
+    reserveformid: string;
+    roomname: string;
+    roomid: string;
+  }
+
   const initialRef = useRef(null)
-  const [modalData,setModalData] = useState(null);
+  const [modalData,setModalData] = useState<ModalDataType | null>(null);
   const [openFormModal,setOpenFormModal] = useState(false)
   const openRegForm = (e: any) => {
     const reserveform = e.target.dataset.reserveform
@@ -74,10 +82,12 @@ export default function StudyRoomReserve() {
       setOpenFormModal(true);
 
       setTimeout(function(){
-        const submitFormButton = document.querySelector('button[type="submit"].btn-info');
-        submitFormButton.setAttribute("aria-label","submit")
-        submitFormButton.parentNode.style.display = "flex";
-        submitFormButton.parentNode.style.justifyContent = "flex-end";
+        const submitFormButton: HTMLElement | null = document.querySelector('button[type="submit"].btn-info');
+        if (submitFormButton) {
+          submitFormButton.setAttribute("aria-label","submit");
+          (submitFormButton.parentNode as HTMLElement).style.display = "flex";
+          (submitFormButton.parentNode as HTMLElement).style.justifyContent = "flex-end";
+        }
       },100)
     }
     else {
@@ -87,51 +97,49 @@ export default function StudyRoomReserve() {
 
   function closeFormModal() {
     setOpenFormModal(false)
-    setRegFormErrorMsg(null)
+    setRegFormErrorMsg("")
     setModalData(null)
   }
 
-  const [regFormErrorMsg,setRegFormErrorMsg] = useState();
-  const regFormIdRef = useRef();
-  const regFormDateRef = useRef();
-  const regFormTimeFromRef = useRef();
-  const regFormTimeToRef = useRef();
-  const regFormRoomNameRef = useRef();
-  const regFormRoomIdRef = useRef();
-  const submitRegForm = useCallback(async (e) => {
+  const [regFormErrorMsg,setRegFormErrorMsg] = useState("");
+  const regFormIdRef = useRef<any>();
+  const regFormDateRef = useRef<any>();
+  const regFormTimeFromRef = useRef<any>();
+  const regFormTimeToRef = useRef<any>();
+  const regFormRoomNameRef = useRef<any>();
+  const regFormRoomIdRef = useRef<any>();
+  const submitRegForm = useCallback(async (e: any) => {
     const regformid = regFormIdRef.current.value;
     const regformroomname = regFormRoomNameRef.current.value;
     const regformroomid = regFormRoomIdRef.current.value;
     const regformdate = regFormDateRef.current.value;
     const regformtimefrom = regFormTimeFromRef.current.value;
     const regformtimeto = regFormTimeToRef.current.value;
-    try {
-      await axios
-      .post(server + "/studyroomsferegdata", {
-          headers : {
-              'Content-Type':'application/json'
-          },
-          regformdata: e,
-          regformid: regformid,
-          regformroomname: regformroomname,
-          regformroomid: regformroomid,
-          regformdate: regformdate,
-          regformtimefrom: regformtimefrom ? regformdate + " " + regformtimefrom : "",
-          regformtimeto: regformtimeto ? regformdate + " " + regformtimeto : "",
-          subdomain: subdomain
-      })
+    await postStudyRoomFeRegData(e, regformid, regformroomname, regformroomid, regformdate, regformtimefrom, regformtimeto, subdomain)
       .then((response)=>{
-        if (response.data === "OK") {
+        if (response.success) {
           window.alert("Reservation form submitted")
           closeFormModal();
         }
         else {
           setRegFormErrorMsg(response.data)
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          })
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
+        })
+      })
   },[])
 
   return (
@@ -243,7 +251,7 @@ export default function StudyRoomReserve() {
                           color: "white"
                         }}
                         data-reserveform={JSON.stringify(studyRoom.form)}
-                        data-reserveformid={studyRoom.formid}
+                        data-reserveformid={studyRoom.form}
                         data-roomname={studyRoom.name}
                         data-roomid={studyRoom.id}
                         onClick={e=>openRegForm(e)}
@@ -372,6 +380,7 @@ export default function StudyRoomReserve() {
                   } 
                   onSubmit={e=>submitRegForm(e)}
                   autoComplete="on"
+                  validator={validator}
                 />
               </Box>
             </ModalBody>
