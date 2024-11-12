@@ -42,8 +42,6 @@ export default function StudyRooms() {
 
   const toast = useToast();
 
-  
-
   const [subdomain,setSubdomain] = useState("");
   const [roomList, setRoomList] = useState<StudyRoomType[] | []>([]);
   async function fetchStudyRooms() {
@@ -499,6 +497,10 @@ export default function StudyRooms() {
               overflow="auto"
               px={3}
               pb={5}
+              minH='82vh'
+              height='82vh'
+              maxHeight='82vh'
+              padding='1rem'
             >
               <Box 
                 as={BigCalendar}
@@ -720,7 +722,7 @@ export default function StudyRooms() {
 
               {/* <Input type="hidden" value={modalData.roomname} ref={regFormRoomNameRef}/>
               <Input type="hidden" value={modalData.roomid} ref={regFormRoomIdRef}/> */}
-              <Box>
+              {console.log(JSON.parse(requestModalData.form_data))}
 
                 <Box my={5}>
                   {/* {Object.entries(requestModalData.form_data.formData).map((data,i)=>{
@@ -750,6 +752,8 @@ export default function StudyRooms() {
                   })}
                 </Box>
 
+
+              <Box>
                 <Flex
                   alignItems="center"
                   mt={3}

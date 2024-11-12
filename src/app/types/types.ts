@@ -265,6 +265,17 @@ export type StudyRoomType = {
   maximum_capacity: number | null;
 }
 
+export type StudyRoomDTOType = {
+  id: number;
+  library: number;
+  name: string;
+  description: string | null;
+  form: string;
+  formId: number | null;
+  minimum_capacity: number | null;
+  maximum_capacity: number | null;
+}
+
 export type ReserveFormType = {
   id: number;
   library: number;

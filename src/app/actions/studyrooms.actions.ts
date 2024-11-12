@@ -59,8 +59,12 @@ export async function getStudyRoomData(): Promise<ServerResponseType> {
     })
     studyRoomData = studyRoomData.map((r)=>({
       ...r,
-      request_datetime_from: momentTimezone.tz(r.request_datetime_from, 'UTC').tz(libraryTimezone!).format('MM/DD/YYYY hh:mm A'),
-      request_datetime_to: momentTimezone.tz(r.request_datetime_to, 'UTC').tz(libraryTimezone!).format('MM/DD/YYYY hh:mm A')
+      request_datetime_from: momentTimezone.tz(r.request_datetime_from, 'UTC').tz(libraryTimezone!).format('YYYY-MM-DD HH:mm'),
+      request_datetime_to: momentTimezone.tz(r.request_datetime_to, 'UTC').tz(libraryTimezone!).format('YYYY-MM-DD HH:mm'),
+      id: r.study_room_id,
+      title: r.study_room_name,
+      start: momentTimezone.tz(r.request_datetime_from, 'UTC').tz(libraryTimezone!).format(),
+      end: momentTimezone.tz(r.request_datetime_to, 'UTC').tz(libraryTimezone!).format()
     }))
     
     await prisma.$disconnect();

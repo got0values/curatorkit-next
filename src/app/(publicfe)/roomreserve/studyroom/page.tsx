@@ -22,17 +22,18 @@ import {
   useToast
 } from "@chakra-ui/react";
 import JSONSchemaForm from "@rjsf/core";
-import { StudyRoomType } from '@/app/types/types';
+import { StudyRoomDTOType } from '@/app/types/types';
 import { getStudyRoomsFe, postStudyRoomFeRegData } from '@/app/actions/festudyrooms.actions';
 import validator from '@rjsf/validator-ajv8';
 import '../../../css/form-bs.css';
+import {stringify} from 'flatted';
 
 export default function StudyRoomReserve() {
   const toast = useToast();
   const {primaryColor,secondaryColor} = useCustomTheme();
   const subdomain = window.location.host.split(".")[0]
 
-  const [studyRooms,setStudyRooms] = useState<StudyRoomType[] | []>([]);
+  const [studyRooms,setStudyRooms] = useState<StudyRoomDTOType[] | []>([]);
   async function fetchStudyRooms() {
     await getStudyRoomsFe(subdomain)
       .then((response) => {
@@ -116,7 +117,7 @@ export default function StudyRoomReserve() {
     const regformdate = regFormDateRef.current.value;
     const regformtimefrom = regFormTimeFromRef.current.value;
     const regformtimeto = regFormTimeToRef.current.value;
-    await postStudyRoomFeRegData(e, regformid, regformroomname, regformroomid, regformdate, regformtimefrom, regformtimeto, subdomain)
+    await postStudyRoomFeRegData(stringify(e), regformid, regformroomname, regformroomid, regformdate, regformtimefrom, regformtimeto, subdomain)
       .then((response)=>{
         if (response.success) {
           window.alert("Reservation form submitted")
@@ -252,7 +253,7 @@ export default function StudyRoomReserve() {
                           color: "white"
                         }}
                         data-reserveform={JSON.stringify(studyRoom.form)}
-                        data-reserveformid={studyRoom.form}
+                        data-reserveformid={studyRoom.formId}
                         data-roomname={studyRoom.name}
                         data-roomid={studyRoom.id}
                         onClick={e=>openRegForm(e)}
@@ -376,9 +377,9 @@ export default function StudyRoomReserve() {
                 />
                 <Box className="json-schema-form">
                   <JSONSchemaForm 
-                    uiSchema={JSON.parse(modalData.reserveform).form_ui_schema !== null ? JSON.parse(modalData.reserveform).form_ui_schema :{"ui:title": " "}}
+                    uiSchema={modalData.reserveform ? JSON.parse(JSON.parse(modalData.reserveform).form_ui_schema) :{"ui:title": " "}}
                     schema={
-                      JSON.parse(modalData.reserveform).form_schema !== null ? JSON.parse(modalData.reserveform).form_schema : {}
+                      modalData?.reserveform ? JSON.parse(JSON.parse(modalData.reserveform).form_schema) : {}
                     } 
                     onSubmit={e=>submitRegForm(e)}
                     autoComplete="on"
