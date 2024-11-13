@@ -24,7 +24,7 @@ import {
 } from "@chakra-ui/react"
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
 import { deleteComputer, getCompSignIns, postAddComputer, postAddTimeIn, postAddTimeOut } from '@/app/actions/compsignin.actions';
-import { ComputerType } from '@/app/types/types';
+import { ComputerType, CompCardDataType } from '@/app/types/types';
 
 export default function CompSignIn() {
   const toast = useToast();
@@ -61,7 +61,7 @@ export default function CompSignIn() {
       fetchComputers();
   },[fetchComputers])
 
-  const [pages, setPages] = useState<any[][]>([]);
+  const [pages, setPages] = useState<CompCardDataType[][]>([]);
   useEffect(()=>{
     setPages(paginate(computers, 12))
   },[computers])
@@ -287,17 +287,19 @@ export default function CompSignIn() {
                       justifyContent="space-between"
                       flexGrow="1"
                       mt={2}
-                      id={`signedin-${computer.signindata["transid"]}`} 
-                      data-signedin={computer.signindata["transid"]} 
+                      id={`signedin-${computer.signindata.transid}`} 
+                      data-signedin={computer.signindata.transid} 
                     >
-                      {countDown(computer.signindata["transid"])}
+                      <>
+                        {countDown(computer.signindata.transid.toString())}
+                      </>
                       <Box>
                         Name: {computer.signindata["name"]}
                       </Box>
-                      <Box id={`timelength-${computer.signindata["transid"]}`} data-timelength={computer.signindata["length"]}>
+                      <Box id={`timelength-${computer.signindata.transid}`} data-timelength={computer.signindata["length"]}>
                         Length: {computer.signindata["length"]} min
                       </Box>
-                      <Box id={`datetimein-${computer.signindata["transid"]}`} data-datetimein={computer.signindata["datetimein"]}>
+                      <Box id={`datetimein-${computer.signindata.transid}`} data-datetimein={computer.signindata["datetimein"]}>
                         Time in: {moment.utc(computer.signindata.datetimein).local().format('h:mm A')}
                       </Box>
                       <Box>
@@ -333,7 +335,7 @@ export default function CompSignIn() {
                           max="240"
                           id="compSignInTime" 
                           placeholder="30"
-                          onChange={e=>setTimeInput(e.target.value)}
+                          onChange={e=>setTimeInput(Number(e.target.value))}
                         />
                         <Box as="span">min</Box>
                       </Flex>

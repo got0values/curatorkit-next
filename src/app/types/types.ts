@@ -295,6 +295,19 @@ export type EventFormDataType = {
   eventtypeid: number | null;
 }
 
+export type CompCardDataType = {
+  id: number;
+    name: string;
+    signindata: {
+        transid: number;
+        name: string;
+        length: number;
+        timein: string;
+        timeout: string;
+        datetimein: string;
+    };
+}
+
 export type ComputerType = {
   id: number;
   name: string;
