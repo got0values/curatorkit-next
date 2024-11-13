@@ -35,6 +35,7 @@ import {FaChevronLeft} from 'react-icons/fa';
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
 import { getStudyRooms, getStudyRoomData, postSaveStudyRoom, deleteStudyRoom, getEditStudyRoom, deleteStudyRoomReserve, putEditStudyRoomFormData, putEditStudyRoom } from '@/app/actions/studyrooms.actions';
 import { StudyRoomFormDataType, StudyRoomType, ReserveFormType } from '@/app/types/types';
+import { parse } from 'flatted';
 
 export default function StudyRooms() {
   const localizer = momentLocalizer(moment)
@@ -719,11 +720,6 @@ export default function StudyRooms() {
               <Heading as="h4" size="md">{requestModalData.study_room_name}</Heading>
             </ModalHeader>
             <ModalBody pb="1.5rem" px="1.5rem">
-
-              {/* <Input type="hidden" value={modalData.roomname} ref={regFormRoomNameRef}/>
-              <Input type="hidden" value={modalData.roomid} ref={regFormRoomIdRef}/> */}
-              {console.log(JSON.parse(requestModalData.form_data))}
-
                 <Box my={5}>
                   {/* {Object.entries(requestModalData.form_data.formData).map((data,i)=>{
                     return (
@@ -732,14 +728,14 @@ export default function StudyRooms() {
                       </Box>
                     )
                   })} */}
-                  {Object.entries(JSON.parse(requestModalData.form_data!).schema.properties).map((datakey,i)=>{
+                  {Object.entries(parse(requestModalData.form_data!).schema.properties).map((datakey,i)=>{
                     return (
                       <Flex key={i} alignItems="center" gap={2}>
                         <Text fontWeight="700">
                           {Object.values(datakey)[0] as any}:
                         </Text>
                         <Text>
-                          {Object.entries(JSON.parse(requestModalData.form_data!).formData).map((datavalue,i)=>{
+                          {Object.entries(parse(requestModalData.form_data!).formData).map((datavalue,i)=>{
                           return (
                               <Text as="span" key={i}>
                                 {Object.values(datavalue)[0] === Object.values(datakey)[0] ? Object.values(datavalue)[1] as any : null}

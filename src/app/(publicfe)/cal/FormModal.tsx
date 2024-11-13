@@ -20,7 +20,7 @@ import JSONSchemaForm from "@rjsf/core";
 import validator from '@rjsf/validator-ajv8';
 import { postRegForm } from "@/app/actions/frontendcalendar/frontendcalendar.actions";
 import { SetFormType } from '@/app/types/types';
-import {stringify} from 'flatted';
+import {stringify, parse} from 'flatted';
 import '../../css/form-bs.css';
 
 type FormModalProps = {

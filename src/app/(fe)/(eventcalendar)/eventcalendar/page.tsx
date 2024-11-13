@@ -28,7 +28,7 @@ import {
   useToast
 } from "@chakra-ui/react";
 import {MdAdd} from 'react-icons/md';
-import showAdminDrawer from '../../utils/showAdminDrawer';
+import showAdminDrawer from '../../../utils/showAdminDrawer';
 import EditEventPage from'./EditEventPage';
 import {FaChevronLeft} from 'react-icons/fa';
 import EventCalendarDrawers from './EventCalendarDrawers';

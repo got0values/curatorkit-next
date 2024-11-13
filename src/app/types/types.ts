@@ -284,3 +284,13 @@ export type ReserveFormType = {
   form_ui_schema: string | null;
   date_created: Date | null;
 }
+
+export type EventFormDataType = {
+  id: number;
+  library: number;
+  form_id: number;
+  form_data: string | null;
+  datetime: Date;
+  eventtypename: string | null;
+  eventtypeid: number | null;
+}

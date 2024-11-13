@@ -15,7 +15,7 @@ import {
   Text, 
   useToast
 } from "@chakra-ui/react"
-import { hexToRgb } from '../../utils/hexToRgb';
+import { hexToRgb } from '../../../utils/hexToRgb';
 import { postRoom, deleteRoom, postType, postTypeColor, deleteType, postEquipment, deleteEquipment } from '@/app/actions/eventcalendar/drawers.actions';
 import { EventType, EventRoomType, EventTypeType, EquipmentType, GetEventsReturnType } from '@/app/types/types';
 
