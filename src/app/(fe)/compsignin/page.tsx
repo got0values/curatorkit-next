@@ -27,7 +27,7 @@ import { getCompSignIns } from '@/app/actions/compsignin.actions';
 
 export default function CompSignIn() {
   const toast = useToast();
-  const [showDrawer,setShowDrawer] = useState()
+  const [showDrawer,setShowDrawer] = useState(false)
 
   const [computers,setComputers] = useState([]);
   const fetchComputers = useCallback(async () => {
@@ -60,17 +60,17 @@ export default function CompSignIn() {
       fetchComputers();
   },[fetchComputers])
 
-  const [pages, setPages] = useState([]);
+  const [pages, setPages] = useState<any[][]>([]);
   useEffect(()=>{
     setPages(paginate(computers, 12))
   },[computers])
 
   const [page,setPage] = useState(0);
-    function changePage(e) {
+    function changePage(e: any) {
       e.preventDefault();
       let selectedPage = e.target;
       const pageButtons = document.querySelectorAll(".page-button")
-      for (let pageButton of pageButtons) {
+      for (let pageButton of pageButtons as unknown as any) {
         pageButton.classList.remove("selected")
       }
       selectedPage.classList.add("selected")
@@ -78,8 +78,7 @@ export default function CompSignIn() {
     }
 
   const addCompTextRef = useRef();
-  async function addComputer(e) {
-    e.preventDefault();
+  async function addComputer() {
     try {
         await axios
         .post(server + "/compsignin", {
@@ -215,7 +214,7 @@ export default function CompSignIn() {
             minW={0}
             w={5}
             style={{display: `${showDrawer ? "none" : "block"}`}}
-            onClick={e=>showAdminDrawer(server,setShowDrawer)}
+            onClick={e=>showAdminDrawer(setShowDrawer)}
           >
             <FaChevronLeft/>
           </Button>
@@ -379,7 +378,7 @@ export default function CompSignIn() {
                     color="black"
                     placeholder="Computer Name" 
                     type="text" 
-                    ref={addCompTextRef}
+                    ref={addCompTextRef as any}
                     _dark={{
                       color: "white"
                     }}
@@ -388,7 +387,7 @@ export default function CompSignIn() {
                     colorScheme="green"
                     size="sm"
                     type="submit" 
-                    onClick={e=>{addComputer(e)}}
+                    onClick={()=>{addComputer()}}
                   >
                     Add
                   </Button>
@@ -398,7 +397,7 @@ export default function CompSignIn() {
                     size="sm" 
                     color="black"
                     borderColor="black" 
-                    ref={compToDeleteRef}
+                    ref={compToDeleteRef as any}
                     _dark={{
                       color: "white"
                     }}
