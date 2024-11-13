@@ -23,13 +23,14 @@ import {
   useToast
 } from "@chakra-ui/react"
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
-import { getCompSignIns } from '@/app/actions/compsignin.actions';
+import { deleteComputer, getCompSignIns, postAddComputer, postAddTimeIn, postAddTimeOut } from '@/app/actions/compsignin.actions';
+import { ComputerType } from '@/app/types/types';
 
 export default function CompSignIn() {
   const toast = useToast();
   const [showDrawer,setShowDrawer] = useState(false)
 
-  const [computers,setComputers] = useState([]);
+  const [computers,setComputers] = useState<ComputerType[] | []>([]);
   const fetchComputers = useCallback(async () => {
     await getCompSignIns()
       .then((response) => {
@@ -77,106 +78,145 @@ export default function CompSignIn() {
       setPage(e.target.value)
     }
 
-  const addCompTextRef = useRef();
+  const addCompTextRef = useRef<any>();
   async function addComputer() {
-    try {
-        await axios
-        .post(server + "/compsignin", {
-          headers : {
-              'Content-Type':'application/json'
-          },
-          compname: addCompTextRef.current.value
-        })
-        .then((response) => {
+    await postAddComputer(addCompTextRef.current.value)
+      .then((response) => {
+        if (response.success) {
           fetchComputers();
           addCompTextRef.current.value = "";
+          toast({
+            description: "Computer added",
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
+        else {
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
+      })
+      .catch((res)=> {
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
         })
-    } catch(error) {
-        console.log(error);
-    }
+      })
   }
 
-  const compToDeleteRef = useRef()
-  async function deleteComp(e) {
+  const compToDeleteRef = useRef<any>()
+  async function deleteComp(e: any) {
     e.preventDefault();
     const compToDelete = compToDeleteRef.current.value
     if (compToDelete !== "") {
       if(window.confirm("Are you sure you want to delete this computer?")) {
-        try {
-          await axios
-          .delete(server + "/compsignin", {
-            headers : {
-                'Content-Type':'application/json'
-            },
-            data: {
-              compid: compToDelete
+        await deleteComputer(compToDelete)
+          .then((response) => {
+            if (response.success) {
+              fetchComputers();
+            }
+            else {
+              console.error(response);
+              toast({
+                description: response.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              })
             }
           })
-          .then((response) => {
-            fetchComputers();
+          .catch((res)=>{
+            console.error(res);
+            toast({
+              description: res.message,
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+            })
           })
-        } catch(error) {
-            console.log(error);
-        }
       }
     }
   }
 
-  const [nameInput,setNameInput] = useState();
-  const [timeInput,setTimeInput] = useState();
-  async function addTimeIn(e) {
+  const [nameInput,setNameInput] = useState("");
+  const [timeInput,setTimeInput] = useState(0);
+  async function addTimeIn(e: any) {
     e.preventDefault();
-    try {
-      await axios
-      .post(server + "/compsignin", {
-        headers : {
-            'Content-Type':'application/json'
-        },
-        nameinput: JSON.stringify(nameInput),
-        timeinput: JSON.stringify(timeInput),
-        compid: e.target.value
-      })
+    await postAddTimeIn(nameInput.toString(), timeInput.toString(), e.target.value)
       .then((response) => {
-        if (response.data === "NEGATIVE") {
-          const errorRow = document.getElementById(`error-${e.target.value}`)
-          errorRow.innerText = "No Negative Numbers";
-        }
-        else {
+        if (response.success) {
           setNameInput("")
           setTimeInput(30)
           fetchComputers();
         }
+        else {
+          const errorRow = document.getElementById(`error-${e.target.value}`)
+          if (errorRow) {
+            errorRow.innerText = "No Negative Numbers";
+          }
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }  
 
-  async function addTimeOut(e) {
+  async function addTimeOut(e: any) {
     e.preventDefault();
-    try {
-      await axios
-      .post(server + "/compsignin", {
-        headers : {
-            'Content-Type':'application/json'
-        },
-        timeout: e.target.value
-      })
+    await postAddTimeOut(e.target.value)
       .then((response) => {
-        fetchComputers();
+        if (response.success) {
+          fetchComputers();
+        }
+        else {
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }  
 
-  function countDown(transid) {
+  function countDown(transid: string) {
     setInterval(()=>{
-      let datetimein = document.getElementById(`datetimein-${transid}`)
-      datetimein = datetimein && datetimein.dataset.datetimein
-      let timelength = document.getElementById(`timelength-${transid}`)
-      timelength = timelength && parseInt(timelength.dataset.timelength);
-      let timeToSignOut = new Date(datetimein).getTime() + timelength*60000;
+      let datetimeinEl = document.getElementById(`datetimein-${transid}`)
+      let datetimein = datetimeinEl && datetimeinEl.dataset.datetimein
+      let timelengthEl = document.getElementById(`timelength-${transid}`)
+      let timelength = timelengthEl && parseInt(timelengthEl.dataset.timelength as string);
+      let timeToSignOut = new Date(datetimein!).getTime() + timelength!*60000;
       let timeNow = new Date().getTime();
       if (timeNow >= timeToSignOut) {
         let scheduledtimeout = document.getElementById(`scheduledtimeout-${transid}`);
@@ -319,8 +359,8 @@ export default function CompSignIn() {
         </Container>
         <Drawer 
           isOpen={showDrawer} 
-          onClose={e=>setShowDrawer(false)} 
-          scroll="true"
+          onClose={()=>setShowDrawer(false)} 
+          // scroll="true"
           placement="end"
         >
           <DrawerOverlay/>

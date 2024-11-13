@@ -83,3 +83,137 @@ export async function getCompSignIns(): Promise<ServerResponseType> {
     return {success: false, message: "Failed to get computer sign-ins.", data: null}
   }
 }
+
+export async function postAddComputer(compName: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!compName) {
+      return {success: false, message: "Please add a computer name"}
+    }
+
+    await prisma.computers.create({
+      data: {
+        library: libraryId,
+        name: compName
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch(res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to add computer.", data: null}
+  }
+}
+
+export async function deleteComputer(compId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!compId) {
+      return {success: false, message: "Failed to delete computer"}
+    }
+
+    await prisma.computers.delete({
+      where: {
+        library: libraryId,
+        id: Number(compId)
+      }
+    })    
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch(res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to delete computer.", data: null}
+  }
+}
+
+export async function postAddTimeIn(nameInput: string, timeInput: string, compId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!nameInput || !timeInput || !compId) {
+      return {success: false, message: "Failed to add time-in"}
+    }
+
+    if (Number(timeInput) <= 0) {
+      return {success: false, message: "Time must be greater than 0"}
+    }
+
+    await prisma.compSignIns.create({
+      data: {
+        library: libraryId,
+        name: nameInput,
+        datetimein: new Date(),
+        length: Number(timeInput),
+        computer: Number(compId)
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch(res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to add time-in.", data: null}
+  }
+}
+
+export async function postAddTimeOut(timeOutTransId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!timeOutTransId) {
+      return {success: false, message: "Failed to time-out"}
+    }
+
+    await prisma.compSignIns.update({
+      where: {
+        library: libraryId,
+        transid: Number(timeOutTransId)
+      },
+      data: {
+        datetimeout: new Date()
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch(res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to time-out.", data: null}
+  }
+}

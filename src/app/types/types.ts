@@ -294,3 +294,9 @@ export type EventFormDataType = {
   eventtypename: string | null;
   eventtypeid: number | null;
 }
+
+export type ComputerType = {
+  id: number;
+  name: string;
+  library: number;
+}
