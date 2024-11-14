@@ -326,3 +326,19 @@ export type ComputSignInDataType = {
   length: number;
   notes: string | null;
 }
+
+export type CheckoutItemType = {
+  id: number;
+  name: string;
+  library: number;
+}
+
+export type CheckoutTypes = {
+  item: string | undefined;
+  id: number;
+  library: number;
+  card: string;
+  name: string | null;
+  checked_out: Date;
+  returned: Date | null;
+}
