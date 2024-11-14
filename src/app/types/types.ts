@@ -313,3 +313,16 @@ export type ComputerType = {
   name: string;
   library: number;
 }
+
+export type ComputSignInDataType = {
+  name: string | undefined;
+  datetimein: string;
+  datetimeout: string;
+  transid: number;
+  library: number;
+  barcode: string | null;
+  computer: number;
+  computerName: string;
+  length: number;
+  notes: string | null;
+}
