@@ -152,12 +152,20 @@ export async function postCheckoutItem(card: string, itemId: string): Promise<Se
       return {success: false, message: "Please select an item"}
     }
 
+    let person = await prisma.namelist.findFirst({
+      where: {
+        card: card
+      }
+    })
+    let personName = person ? person.name : null;
+
     await prisma.in_house_checkout.create({
       data: {
         library: libraryId,
         item: Number(itemId),
         checked_out: new Date(),
-        card: card
+        card: card,
+        name: personName
       }
     })
     
