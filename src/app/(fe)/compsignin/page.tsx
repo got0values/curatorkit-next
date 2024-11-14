@@ -300,16 +300,16 @@ export default function CompSignIn() {
                         Length: {computer.signindata["length"]} min
                       </Box>
                       <Box id={`datetimein-${computer.signindata.transid}`} data-datetimein={computer.signindata["datetimein"]}>
-                        Time in: {moment.utc(computer.signindata.datetimein).local().format('h:mm A')}
+                        Time in: {moment(computer.signindata.datetimein).format('h:mm A')}
                       </Box>
                       <Box>
-                        Scheduled time out: <span id={`scheduledtimeout-${computer.signindata["transid"]}`}>{moment.utc(computer.signindata.datetimein).add(computer.signindata["length"],'minutes').local().format('h:mm A')}</span>
+                        Scheduled time out: <span id={`scheduledtimeout-${computer.signindata["transid"]}`}>{moment(computer.signindata.datetimein).add(computer.signindata["length"],'minutes').format('h:mm A')}</span>
                       </Box>
                       <Flex textAlign="center">
                         <Button 
                           colorScheme="red" 
                           flexGrow="1"
-                          value={computer.signindata["transid"]} 
+                          value={computer.signindata.transid} 
                           onClick={e=>addTimeOut(e)} 
                           className="mt-1"
                         >
