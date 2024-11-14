@@ -24,8 +24,6 @@ export async function getCompSignIns(): Promise<ServerResponseType> {
     }
 
     const libraryTimezone = library?.timezone;
-    const now = momentTimezone().tz(libraryTimezone!);
-    const currentDate = now.format('YYYY-MM-DD');
 
     let computers = await prisma.computers.findMany({
       where: {

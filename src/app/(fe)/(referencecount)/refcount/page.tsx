@@ -39,70 +39,95 @@ import {
 import {FaChevronLeft} from 'react-icons/fa';
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
 import moment from 'moment';
+import { getReferenceCountData, postCreateReferenceCount } from '@/app/actions/referencecount.actions';
+import { ReferenceCountDepartmentType, ReferenceCountTypeType, ReferenceCountType } from '@/app/types/types';
 
 export default function ReferenceCount() {
+  const toast = useToast();
   const [showDrawer,setShowDrawer] = useState(false)
 
   const [modalIsEditableForNotes,setModalIsEditableForNotes] = useState(false)
-  function closeModal() {
+  async function closeModal() {
     setModalIsEditableForNotes(false)
     setNotesModalData(null)
-    setFormErrorMsg(null)
-    setDeleteDepartmentId(null)
-    setDeleteTypeId(null)
-    fetchReferenceCountData()
+    setFormErrorMsg("")
+    setDeleteDepartmentId("")
+    setDeleteTypeId("")
+    await fetchReferenceCountData()
   }
 
   const [isLoading,setIsLoading] = useState(false)
-  const [referenceCount,setReferenceCount] = useState()
-  const [departments,setDepartments] = useState(null)
-  const [types,setTypes] = useState(null)
-  const [formErrorMsg,setFormErrorMsg] = useState(null)
+  const [referenceCount,setReferenceCount] = useState<ReferenceCountType[] | []>([])
+  const [departments,setDepartments] = useState<ReferenceCountDepartmentType[] | []>([])
+  const [types,setTypes] = useState<ReferenceCountTypeType[] | []>([])
+  const [formErrorMsg,setFormErrorMsg] = useState("")
   const fetchReferenceCountData = useCallback(async () => {
-    try {
-      setIsLoading(true)
-      await axios
-      .get(`${server}/referencecount`)
+    setIsLoading(true)
+    await getReferenceCountData()
       .then((response) => {
-        setReferenceCount(response.data.referencecount)
-        setDepartments(response.data.departments)
-        setTypes(response.data.types)
-        setIsLoading(false)
+        if (response.success) {
+          setReferenceCount(response.data.referenceCount)
+          setDepartments(response.data.departments)
+          setTypes(response.data.types)
+          setIsLoading(false)
+        }
+        else {
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
-  } catch(error) {
-      console.log(error);
-  }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   },[])
   useEffect(()=>{
     fetchReferenceCountData()
   },[fetchReferenceCountData])
 
-  const departmentIdRef = useRef()
-  const typeIdRef = useRef()
-  const notesRef = useRef()
-  async function createReferenceCount(e) {
-    e.preventDefault();
-    try {
-      await axios
-      .put(server + "/createreferencecount", {
-          departmentid: departmentIdRef.current.value,
-          typeid: typeIdRef.current.value,
-          notes: notesRef.current.value
-
-      })
+  const departmentIdRef = useRef<any>()
+  const typeIdRef = useRef<any>()
+  const notesRef = useRef<any>()
+  async function createReferenceCount() {
+    await postCreateReferenceCount(departmentIdRef.current.value, typeIdRef.current.value, notesRef.current.value)
       .then((response)=>{
-        notesRef.current.value = "";
-        fetchReferenceCountData();
+        if (response.success) {
+          notesRef.current.value = "";
+          fetchReferenceCountData();
+        }
+        else {
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
-  async function deleteReferenceCount(e,rCountId) {
-    e.preventDefault()
-    try {
-      await axios
+  async function deleteReferenceCount(rCountId) {
+    await axios
       .delete(server + "/deletereferencecount", {
           headers : {
               'Content-Type':'application/json'
@@ -112,16 +137,33 @@ export default function ReferenceCount() {
           }
       })
       .then((response)=>{
-        fetchReferenceCountData();
+        if (response.success) {
+          fetchReferenceCountData();
+        }
+        else {
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
   const [notesModalData,setNotesModalData] = useState()
   const [editNotesMode,setEditNotesMode] = useState(false)
-  function openViewNotesModal(e) {
+  function openViewNotesModal(e: any) {
     setModalIsEditableForNotes(true)
     setNotesModalData({
       id: e.target.dataset.id,
@@ -130,34 +172,43 @@ export default function ReferenceCount() {
     })
   }
 
-  const departmentNameRef = useRef();
-  async function createReferenceCountDepartment(e) {
-    e.preventDefault();
-    try {
-      await axios
+  const departmentNameRef = useRef<any>();
+  async function createReferenceCountDepartment() {
+    await axios
       .put(server + "/createdepartment", {
           department_name: departmentNameRef.current.value
       })
       .then((response)=>{
-        if (response.data === "OK") {
+        if (response.success) {
           fetchReferenceCountData();
         }
         else {
-          setFormErrorMsg(response.data)
+          setFormErrorMsg(response.message)
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
-  const [deleteDepartmentId,setDeleteDepartmentId] = useState(null)
-  async function deleteReferenceCountDepartment(e) {
-    e.preventDefault();
+  const [deleteDepartmentId,setDeleteDepartmentId] = useState("")
+  async function deleteReferenceCountDepartment() {
     if (deleteDepartmentId !== null && deleteDepartmentId !== "") {
       if (window.confirm("Are you sure you would like to delete this room?\nDoing so will delete all history for this department")) {
-        try {
-          await axios
+        await axios
           .delete(server + "/deletedepartment", {
               headers : {
                   'Content-Type':'application/json'
@@ -167,48 +218,70 @@ export default function ReferenceCount() {
               }
           })
           .then((response)=>{
-            if (response.data === "OK") {
+            if (response.success) {
               fetchReferenceCountData();
             }
             else {
               setFormErrorMsg(response.data)
+              console.error(response);
+              toast({
+                description: response.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              })
             }
           })
-        } catch(error) {
-            console.log(error);
-        }
+          .catch((res)=>{
+            console.error(res);
+            toast({
+              description: res.message,
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+            })
+          })
       }
     }
   }
 
-  const typeNameRef = useRef()
-  async function createReferenceCountType(e) {
-    e.preventDefault();
-    try {
-      await axios
+  const typeNameRef = useRef<any>()
+  async function createReferenceCountType() {
+    await axios
       .put(server + "/createtype", {
           type_name: typeNameRef.current.value
       })
       .then((response)=>{
-        if (response.data === "OK") {
+        if (response.success) {
           fetchReferenceCountData();
         }
         else {
           setFormErrorMsg(response.data)
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
         }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
-  const [deleteTypeId,setDeleteTypeId] = useState(null)
-  async function deleteReferenceCountType(e) {
-    e.preventDefault();
+  const [deleteTypeId,setDeleteTypeId] = useState("")
+  async function deleteReferenceCountType() {
     if (deleteTypeId !== null && deleteTypeId !== "") {
       if (window.confirm("Are you sure you would like to delete this type?\nDoing so will delete all history for this type")) {
-        try {
-          await axios
+        await axios
           .delete(server + "/deletetype", {
               headers : {
                   'Content-Type':'application/json'
@@ -218,33 +291,62 @@ export default function ReferenceCount() {
               }
           })
           .then((response)=>{
-            if (response.data === "OK") {
+            if (response.success) {
               fetchReferenceCountData();
             }
             else {
               setFormErrorMsg(response.data)
+              console.error(response);
+              toast({
+                description: response.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+              })
             }
           })
-        } catch(error) {
-            console.log(error);
-        }
+          .catch((res)=>{
+            console.error(res);
+            toast({
+              description: res.message,
+              status: 'error',
+              duration: 5000,
+              isClosable: true,
+            })
+          })
       }
     }
   }
 
-  async function saveNotes(e) {
-    try {
-      await axios
+  async function saveNotes() {
+    await axios
       .post(server + "/saverefcountnotes", {
           notesid: notesModalData.id,
           notes: notesModalData.notes
       })
       .then((response)=>{
-        setEditNotesMode(false)
+        if (response.success) {
+          setEditNotesMode(false)
+        }
+        else {
+          console.error(response);
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+        }
       })
-    } catch(error) {
-        console.log(error);
-    }
+      .catch((res)=>{
+        console.error(res);
+        toast({
+          description: res.message,
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+      })
   }
 
 
@@ -272,15 +374,15 @@ export default function ReferenceCount() {
             minW={0}
             w={5}
             style={{display: `${showDrawer ? "none" : "block"}`}}
-            onClick={e=>showAdminDrawer(server,setShowDrawer)}
+            onClick={()=>showAdminDrawer(setShowDrawer)}
           >
           <FaChevronLeft/>
           </Button>
 
           <Drawer 
             isOpen={showDrawer} 
-            onClose={e=>setShowDrawer(false)} 
-            scroll="true"
+            onClose={()=>setShowDrawer(false)} 
+            // scroll="true"
             placement="end"
           >
             <DrawerOverlay/>
@@ -351,7 +453,7 @@ export default function ReferenceCount() {
                       colorScheme="green"
                       size="sm"
                       type="submit" 
-                      onClick={e=>{createReferenceCountDepartment(e)}}
+                      onClick={()=>{createReferenceCountDepartment()}}
                     >
                       Add
                     </Button>
@@ -386,7 +488,7 @@ export default function ReferenceCount() {
                       colorScheme="red"
                       size="sm"
                       type="submit"
-                      onClick={e=>deleteReferenceCountDepartment(e)}
+                      onClick={()=>deleteReferenceCountDepartment()}
                     >
                       Delete
                     </Button>
@@ -441,7 +543,7 @@ export default function ReferenceCount() {
                         colorScheme="green"
                         size="sm"
                         type="submit" 
-                        onClick={e=>{createReferenceCountType(e)}}
+                        onClick={()=>{createReferenceCountType()}}
                       >
                         Add
                       </Button>
@@ -474,7 +576,7 @@ export default function ReferenceCount() {
                         colorScheme="red"
                         size="sm"
                         type="submit"
-                        onClick={e=>deleteReferenceCountType(e)}
+                        onClick={()=>deleteReferenceCountType()}
                       >
                         Delete
                       </Button>
@@ -553,7 +655,7 @@ export default function ReferenceCount() {
               <Flex ms="auto" me="auto" alignItems="center" justifyContent="flex-end">
                 <Button 
                   colorScheme="green"
-                  onClick={e=>createReferenceCount(e)}
+                  onClick={()=>createReferenceCount()}
                 >
                   Submit
                 </Button>
@@ -580,7 +682,7 @@ export default function ReferenceCount() {
                   {referenceCount?.map((rc,i)=>
                     <Tr key={i}>
                       <Td><Text color="gray">{i+1}</Text></Td>
-                      <Td>{moment.utc(rc["datetime"]).local().format('h:mm A').toString()}</Td>
+                      <Td>{moment.utc(rc.datetime).local().format('h:mm A').toString()}</Td>
                       <Td>{rc["department"]}</Td>
                       <Td>{rc["type"]}</Td>
                       <Td>
@@ -611,7 +713,7 @@ export default function ReferenceCount() {
                       <Td>
                         <CloseButton
                           color="red"
-                          onClick={e=>deleteReferenceCount(e,rc.id)}
+                          onClick={()=>deleteReferenceCount(rc.id)}
                         />
                       </Td>
                     </Tr>
@@ -621,7 +723,7 @@ export default function ReferenceCount() {
             </TableContainer>
             ): (
             <Flex justifyContent="center" className="d-flex justify-content-center">
-              <Loading/>
+              <Spinner size="lg" />
             </Flex>
             )}
 
@@ -663,7 +765,7 @@ export default function ReferenceCount() {
               <>
                 <Button 
                   colorScheme="green"
-                  onClick={e=>saveNotes(e)}
+                  onClick={()=>saveNotes()}
                 >
                   Save
                 </Button>

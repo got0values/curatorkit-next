@@ -142,23 +142,20 @@ model email_reminders {
 }
 
 model emailpassword_users {
-  user_id                     String                        @id @db.Char(36)
-  email                       String                        @unique(map: "email") @db.VarChar(256)
-  password_hash               String                        @db.VarChar(128)
-  time_joined                 BigInt                        @db.UnsignedBigInt
-  user_name                   String?                       @unique(map: "user_name") @db.VarChar(50)
-  time_zone                   String                        @default("US/Eastern") @db.VarChar(50)
-  subdomain                   String?                       @db.Char(50)
-  admin_pw                    String                        @default("bananas") @db.VarChar(50)
-  posts                       posts[]
-  reading_club_form_data      reading_club_form_data[]
-  reading_club_forms          reading_club_forms[]
-  reading_club_registrations  reading_club_registrations[]
-  reading_clubs               reading_clubs[]
-  reference_count             reference_count[]
-  reference_count_departments reference_count_departments[]
-  reference_count_types       reference_count_types[]
-  schools                     schools[]
+  user_id                    String                       @id @db.Char(36)
+  email                      String                       @unique(map: "email") @db.VarChar(256)
+  password_hash              String                       @db.VarChar(128)
+  time_joined                BigInt                       @db.UnsignedBigInt
+  user_name                  String?                      @unique(map: "user_name") @db.VarChar(50)
+  time_zone                  String                       @default("US/Eastern") @db.VarChar(50)
+  subdomain                  String?                      @db.Char(50)
+  admin_pw                   String                       @default("bananas") @db.VarChar(50)
+  posts                      posts[]
+  reading_club_form_data     reading_club_form_data[]
+  reading_club_forms         reading_club_forms[]
+  reading_club_registrations reading_club_registrations[]
+  reading_clubs              reading_clubs[]
+  schools                    schools[]
 }
 
 model event_calendar {
@@ -287,35 +284,38 @@ model jwt_signing_keys {
 }
 
 model library {
-  id                                                               Int                       @id @default(autoincrement())
-  name                                                             String                    @db.Text
-  subdomain                                                        String                    @db.Text
-  timezone                                                         String                    @default("US/Eastern") @db.VarChar(50)
-  admin_pw                                                         String                    @default("bananas") @db.Text
-  created_on                                                       DateTime                  @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
-  CompMasterPW_CompMasterPW_libraryTolibrary                       CompMasterPW[]            @relation("CompMasterPW_libraryTolibrary")
-  CompSignIns_CompSignIns_libraryTolibrary                         CompSignIns[]             @relation("CompSignIns_libraryTolibrary")
-  Computers_Computers_libraryTolibrary                             Computers[]               @relation("Computers_libraryTolibrary")
-  ComputersPW_ComputersPW_libraryTolibrary                         ComputersPW[]             @relation("ComputersPW_libraryTolibrary")
-  History_History_libraryTolibrary                                 History[]                 @relation("History_libraryTolibrary")
-  SignInLists_SignInLists_libraryTolibrary                         SignInLists[]             @relation("SignInLists_libraryTolibrary")
-  SignIns_SignIns_libraryTolibrary                                 SignIns[]                 @relation("SignIns_libraryTolibrary")
-  allowed_modules_allowed_modules_libraryTolibrary                 allowed_modules[]         @relation("allowed_modules_libraryTolibrary")
-  customize_front_end_customize_front_end_libraryTolibrary         customize_front_end[]     @relation("customize_front_end_libraryTolibrary")
-  event_calendar_event_calendar_libraryTolibrary                   event_calendar[]          @relation("event_calendar_libraryTolibrary")
-  event_equipment_event_equipment_libraryTolibrary                 event_equipment[]         @relation("event_equipment_libraryTolibrary")
-  event_form_data_event_form_data_libraryTolibrary                 event_form_data[]         @relation("event_form_data_libraryTolibrary")
-  event_forms_event_forms_libraryTolibrary                         event_forms[]             @relation("event_forms_libraryTolibrary")
-  event_rooms_event_rooms_libraryTolibrary                         event_rooms[]             @relation("event_rooms_libraryTolibrary")
-  event_types_event_types_libraryTolibrary                         event_types[]             @relation("event_types_libraryTolibrary")
-  in_house_checkout_in_house_checkout_libraryTolibrary             in_house_checkout[]       @relation("in_house_checkout_libraryTolibrary")
-  in_house_checkout_items_in_house_checkout_items_libraryTolibrary in_house_checkout_items[] @relation("in_house_checkout_items_libraryTolibrary")
-  logos_logos_libraryTolibrary                                     logos[]                   @relation("logos_libraryTolibrary")
-  namelist_namelist_libraryTolibrary                               namelist[]                @relation("namelist_libraryTolibrary")
-  reserve_forms_reserve_forms_libraryTolibrary                     reserve_forms[]           @relation("reserve_forms_libraryTolibrary")
-  study_room_form_data_study_room_form_data_libraryTolibrary       study_room_form_data[]    @relation("study_room_form_data_libraryTolibrary")
-  study_rooms_study_rooms_libraryTolibrary                         study_rooms[]             @relation("study_rooms_libraryTolibrary")
-  user_user_libraryTolibrary                                       user[]                    @relation("user_libraryTolibrary")
+  id                                                                       Int                           @id @default(autoincrement())
+  name                                                                     String                        @db.Text
+  subdomain                                                                String                        @db.Text
+  timezone                                                                 String                        @default("US/Eastern") @db.VarChar(50)
+  admin_pw                                                                 String                        @default("bananas") @db.Text
+  created_on                                                               DateTime                      @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  CompMasterPW_CompMasterPW_libraryTolibrary                               CompMasterPW[]                @relation("CompMasterPW_libraryTolibrary")
+  CompSignIns_CompSignIns_libraryTolibrary                                 CompSignIns[]                 @relation("CompSignIns_libraryTolibrary")
+  Computers_Computers_libraryTolibrary                                     Computers[]                   @relation("Computers_libraryTolibrary")
+  ComputersPW_ComputersPW_libraryTolibrary                                 ComputersPW[]                 @relation("ComputersPW_libraryTolibrary")
+  History_History_libraryTolibrary                                         History[]                     @relation("History_libraryTolibrary")
+  SignInLists_SignInLists_libraryTolibrary                                 SignInLists[]                 @relation("SignInLists_libraryTolibrary")
+  SignIns_SignIns_libraryTolibrary                                         SignIns[]                     @relation("SignIns_libraryTolibrary")
+  allowed_modules_allowed_modules_libraryTolibrary                         allowed_modules[]             @relation("allowed_modules_libraryTolibrary")
+  customize_front_end_customize_front_end_libraryTolibrary                 customize_front_end[]         @relation("customize_front_end_libraryTolibrary")
+  event_calendar_event_calendar_libraryTolibrary                           event_calendar[]              @relation("event_calendar_libraryTolibrary")
+  event_equipment_event_equipment_libraryTolibrary                         event_equipment[]             @relation("event_equipment_libraryTolibrary")
+  event_form_data_event_form_data_libraryTolibrary                         event_form_data[]             @relation("event_form_data_libraryTolibrary")
+  event_forms_event_forms_libraryTolibrary                                 event_forms[]                 @relation("event_forms_libraryTolibrary")
+  event_rooms_event_rooms_libraryTolibrary                                 event_rooms[]                 @relation("event_rooms_libraryTolibrary")
+  event_types_event_types_libraryTolibrary                                 event_types[]                 @relation("event_types_libraryTolibrary")
+  in_house_checkout_in_house_checkout_libraryTolibrary                     in_house_checkout[]           @relation("in_house_checkout_libraryTolibrary")
+  in_house_checkout_items_in_house_checkout_items_libraryTolibrary         in_house_checkout_items[]     @relation("in_house_checkout_items_libraryTolibrary")
+  logos_logos_libraryTolibrary                                             logos[]                       @relation("logos_libraryTolibrary")
+  namelist_namelist_libraryTolibrary                                       namelist[]                    @relation("namelist_libraryTolibrary")
+  reference_count_reference_count_libraryTolibrary                         reference_count[]             @relation("reference_count_libraryTolibrary")
+  reference_count_departments_reference_count_departments_libraryTolibrary reference_count_departments[] @relation("reference_count_departments_libraryTolibrary")
+  reference_count_types_reference_count_types_libraryTolibrary             reference_count_types[]       @relation("reference_count_types_libraryTolibrary")
+  reserve_forms_reserve_forms_libraryTolibrary                             reserve_forms[]               @relation("reserve_forms_libraryTolibrary")
+  study_room_form_data_study_room_form_data_libraryTolibrary               study_room_form_data[]        @relation("study_room_form_data_libraryTolibrary")
+  study_rooms_study_rooms_libraryTolibrary                                 study_rooms[]                 @relation("study_rooms_libraryTolibrary")
+  user_user_libraryTolibrary                                               user[]                        @relation("user_libraryTolibrary")
 }
 
 model logos {
@@ -416,40 +416,43 @@ model reading_clubs {
 }
 
 model reference_count {
-  id                          Int                         @id @default(autoincrement())
-  user_id                     String                      @db.Char(36)
-  department                  Int
-  type                        Int
-  notes                       String?                     @db.VarChar(400)
-  datetime                    DateTime                    @default(dbgenerated("('0000-00-00 00:00:00.000000')")) @db.DateTime(6)
-  reference_count_departments reference_count_departments @relation(fields: [department], references: [id], onDelete: Cascade, map: "reference_count_ibfk_6")
-  reference_count_types       reference_count_types       @relation(fields: [type], references: [id], onDelete: Cascade, map: "reference_count_ibfk_7")
-  emailpassword_users         emailpassword_users         @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reference_count_ibfk_8")
+  id                                       Int                         @id @default(autoincrement())
+  user                                     Int
+  library                                  Int
+  department                               Int
+  type                                     Int
+  notes                                    String?                     @db.VarChar(400)
+  datetime                                 DateTime                    @default(dbgenerated("('0000-00-00 00:00:00.000000')")) @db.DateTime(6)
+  reference_count_departments              reference_count_departments @relation(fields: [department], references: [id], onDelete: Cascade, map: "reference_count_ibfk_6")
+  reference_count_types                    reference_count_types       @relation(fields: [type], references: [id], onDelete: Cascade, map: "reference_count_ibfk_7")
+  library_reference_count_libraryTolibrary library                     @relation("reference_count_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reference_count_ibfk_8")
+  user_reference_count_userTouser          user                        @relation("reference_count_userTouser", fields: [user], references: [id], onDelete: NoAction, onUpdate: Restrict, map: "reference_count_ibfk_9")
 
   @@index([datetime], map: "datetime")
   @@index([department], map: "department")
   @@index([type], map: "type")
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
+  @@index([user], map: "user")
 }
 
 model reference_count_departments {
-  id                  Int                 @id @default(autoincrement())
-  user_id             String              @db.Char(36)
-  name                String              @db.VarChar(20)
-  reference_count     reference_count[]
-  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reference_count_departments_ibfk_2")
+  id                                                   Int               @id @default(autoincrement())
+  library                                              Int
+  name                                                 String            @db.VarChar(20)
+  reference_count                                      reference_count[]
+  library_reference_count_departments_libraryTolibrary library           @relation("reference_count_departments_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reference_count_departments_ibfk_1")
 
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
 }
 
 model reference_count_types {
-  id                  Int                 @id @default(autoincrement())
-  user_id             String              @db.Char(36)
-  name                String              @db.VarChar(20)
-  reference_count     reference_count[]
-  emailpassword_users emailpassword_users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, map: "reference_count_types_ibfk_2")
+  id                                             Int               @id @default(autoincrement())
+  library                                        Int
+  name                                           String            @db.VarChar(20)
+  reference_count                                reference_count[]
+  library_reference_count_types_libraryTolibrary library           @relation("reference_count_types_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reference_count_types_ibfk_1")
 
-  @@index([user_id], map: "user_id")
+  @@index([library], map: "user_id")
 }
 
 model reserve_forms {
@@ -523,12 +526,13 @@ model study_rooms {
 }
 
 model user {
-  id                            Int      @id @default(autoincrement())
-  email                         String   @unique(map: "email") @db.VarChar(128)
-  password                      String   @db.VarChar(128)
-  library                       Int
-  created_on                    DateTime @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
-  library_user_libraryTolibrary library  @relation("user_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_ibfk_2")
+  id                                         Int               @id @default(autoincrement())
+  email                                      String            @unique(map: "email") @db.VarChar(128)
+  password                                   String            @db.VarChar(128)
+  library                                    Int
+  created_on                                 DateTime          @default(dbgenerated("('0000-00-00 00:00:00')")) @db.DateTime(0)
+  reference_count_reference_count_userTouser reference_count[] @relation("reference_count_userTouser")
+  library_user_libraryTolibrary              library           @relation("user_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_ibfk_2")
 
   @@index([library], map: "library")
 }

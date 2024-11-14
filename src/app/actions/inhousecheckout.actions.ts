@@ -2,7 +2,7 @@
 
 import {tokenCookieToLibraryId} from '../helpers/tokenCookieToUserId';
 import { PrismaClient } from '@prisma/client';
-import { ServerResponseType, SignInType } from '../types/types';
+import { ServerResponseType } from '../types/types';
 import momentTimezone from 'moment-timezone';
 
 const prisma = new PrismaClient()

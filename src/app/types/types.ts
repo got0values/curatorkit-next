@@ -342,3 +342,26 @@ export type CheckoutTypes = {
   checked_out: Date;
   returned: Date | null;
 }
+
+export type ReferenceCountDepartmentType = {
+  id: number;
+  name: string;
+  library: number;
+}
+
+export type ReferenceCountTypeType = {
+  id: number;
+  name: string;
+  library: number;
+}
+
+export type ReferenceCountType = {
+  id: number;
+  notes: string | null;
+  datetime: Date;
+  type: number;
+  department: number;
+  library: number;
+  reference_count_departments: ReferenceCountDepartmentType;
+  reference_count_types: ReferenceCountTypeType;
+}
