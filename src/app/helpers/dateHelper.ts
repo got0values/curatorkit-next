@@ -1,5 +1,13 @@
 import momentTimezone from "moment-timezone";
 
+export function getInputLibraryTimezoneDateStart(inputDate: string, libraryTimezone: string){
+  return momentTimezone.tz(inputDate, libraryTimezone).startOf('day').utc().toDate();
+};
+
+export function getInputLibraryTimezoneDateEnd(inputDate: string, libraryTimezone: string){
+  return momentTimezone.tz(inputDate, libraryTimezone).endOf('day').utc().toDate();
+};
+
 export function getCurrentLibraryTimezoneDateStart(libraryTimezone: string){
   let startOfDay = momentTimezone().tz(libraryTimezone!).startOf("day");
   return startOfDay.toDate();

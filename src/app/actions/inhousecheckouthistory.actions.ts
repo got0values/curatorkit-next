@@ -4,6 +4,7 @@ import {tokenCookieToLibraryId} from '../helpers/tokenCookieToUserId';
 import { PrismaClient } from '@prisma/client';
 import { ServerResponseType } from '../types/types';
 import momentTimezone from 'moment-timezone';
+import { getInputLibraryTimezoneDateStart, getInputLibraryTimezoneDateEnd } from '../helpers/dateHelper';
 
 const prisma = new PrismaClient()
 
@@ -51,14 +52,17 @@ export async function getInHouseCheckoutHistory(item: string, inputDate1: string
     })
     const libraryTimezone = library?.timezone ?? "US/Eastern";
 
+    const inputDate1UTC = getInputLibraryTimezoneDateStart(inputDate1, libraryTimezone);
+    const inputDate2UTC = getInputLibraryTimezoneDateEnd(inputDate2, libraryTimezone);
+
     let results = [];
     if (item === "All") {
       results = await prisma.in_house_checkout.findMany({
         where: {
           library: libraryId,
           checked_out: {
-            gte: new Date(inputDate1),
-            lte: new Date(inputDate2)
+            gte: inputDate1UTC,
+            lte: inputDate2UTC
           }
         }
       })
@@ -68,8 +72,8 @@ export async function getInHouseCheckoutHistory(item: string, inputDate1: string
         where: {
           library: libraryId,
           checked_out: {
-            gte: new Date(inputDate1),
-            lte: new Date(inputDate2)
+            gte: inputDate1UTC,
+            lte: inputDate2UTC
           },
           item: Number(item)
         }

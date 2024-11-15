@@ -3,7 +3,7 @@
 import {tokenCookieToLibraryId} from '../helpers/tokenCookieToUserId';
 import { PrismaClient } from '@prisma/client';
 import { ServerResponseType, SignInType } from '../types/types';
-import momentTimezone from 'moment-timezone';
+import { getInputLibraryTimezoneDateStart, getInputLibraryTimezoneDateEnd } from '../helpers/dateHelper';
 
 const prisma = new PrismaClient()
 
@@ -22,9 +22,10 @@ export async function getRoomSignInHistory(listId: string, inputDate1: string, i
         timezone: true
       }
     })
-    const localTimezone = library?.timezone;
-    const now = momentTimezone().tz(localTimezone!);
-    const currentDate = now.format('YYYY-MM-DD');
+    const libraryTimezone = library?.timezone ?? "US/Eastern";
+
+    const inputDate1UTC = getInputLibraryTimezoneDateStart(inputDate1, libraryTimezone);
+    const inputDate2UTC = getInputLibraryTimezoneDateEnd(inputDate2, libraryTimezone);
 
     let results: SignInType[] | [] = []
     if (listId === "All") {
@@ -32,8 +33,8 @@ export async function getRoomSignInHistory(listId: string, inputDate1: string, i
         where: {
           library: libraryId,
           datetime: {
-            gte: new Date(inputDate1),
-            lte: new Date(inputDate2)
+            gte: inputDate1UTC,
+            lte: inputDate2UTC
           },
         }
       })
@@ -44,8 +45,8 @@ export async function getRoomSignInHistory(listId: string, inputDate1: string, i
           library: libraryId,
           listId: Number(listId),
           datetime: {
-            gte: new Date(inputDate1),
-            lte: new Date(inputDate2)
+            gte: inputDate1UTC,
+            lte: inputDate2UTC
           },
         }
       })
