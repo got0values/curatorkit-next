@@ -31,7 +31,7 @@ import {stringify} from 'flatted';
 export default function StudyRoomReserve() {
   const toast = useToast();
   const {primaryColor,secondaryColor} = useCustomTheme();
-  const subdomain = window.location.host.split(".")[0]
+  const subdomain = typeof window !== "undefined" ? window.location.host.split(".")[0] : "";
 
   const [studyRooms,setStudyRooms] = useState<StudyRoomDTOType[] | []>([]);
   async function fetchStudyRooms() {

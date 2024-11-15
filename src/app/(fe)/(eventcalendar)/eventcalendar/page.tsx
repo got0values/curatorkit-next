@@ -41,7 +41,7 @@ import 'react-calendar/dist/Calendar.css';
 import { getEvents, getBigCalData, deleteEvent } from '@/app/actions/eventcalendar/eventcalendar.actions';
 import { GetEventsReturnType, EventType, EventRoomType, EventFormType, EditEventPageFormDataType, EquipmentType, EventTypeType, EventsTwoType } from '@/app/types/types';
 
-const EventCalendar = () => {
+export default function EventCalendar() {
   const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showDrawer,setShowDrawer] = useState(false);
@@ -115,7 +115,7 @@ const EventCalendar = () => {
   },[inputDate,calEventRoomId])
   useEffect(()=>{
     fetchEvents()
-  },[fetchEvents])
+  },[])
 
   function modalOpenForEvent(e: any) {
     setModalData(events.filter((event)=>event.transid.toString() === e.currentTarget.dataset.transid)[0])
@@ -215,7 +215,7 @@ const EventCalendar = () => {
 
   async function removeEvent(e: any) {
     e.preventDefault();
-    if (window.confirm("Are you sure you would like to delete this event?")) {
+    if (typeof window !== "undefined" && window.confirm("Are you sure you would like to delete this event?")) {
       try {
         await deleteEvent(e.target.dataset.eventid)
           .then((response)=>{
@@ -525,5 +525,3 @@ const EventCalendar = () => {
     </Box>
   )
 }
-
-export default EventCalendar;

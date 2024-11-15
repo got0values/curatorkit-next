@@ -1,3 +1,5 @@
+'use client'
+
 import { getLibraryAdminPw } from "../actions/utils.actions"
 
 const showAdminDrawer = async (setShowDrawer: React.Dispatch<React.SetStateAction<boolean>>) => {

@@ -1,7 +1,6 @@
 'use client'
 
-import {useState,useCallback,useRef, useEffect} from 'react';
-import JoditEditor from "jodit-react";
+import {useState,useRef, useEffect} from 'react';
 import { 
   Box, 
   Flex,
@@ -12,7 +11,6 @@ import {
   Text,
   FormControl,
   FormLabel,
-  Link,
   Select,
   Badge,
   Tag,
@@ -23,6 +21,11 @@ import {
 import {AiOutlineArrowLeft} from 'react-icons/ai';
 import { postCreateEvent } from '@/app/actions/eventcalendar/eventcalendar.actions';
 import { EditEventPageFormDataType, EquipmentType, EventFormType, EventRoomType, EventTypeType } from '@/app/types/types';
+import dynamic from 'next/dynamic';
+
+const JoditEditor = dynamic(() => import("jodit-react"), {
+  ssr: false,
+});
 
 type EditEventPageProps = {
   formData: EditEventPageFormDataType,
@@ -47,22 +50,32 @@ const EditEventPage = (props: EditEventPageProps) => {
   },[])
 
   async function createEvent(eventPageFormData: FormData) {
-    try {
-      await postCreateEvent(eventPageFormData)
-        .then(async (response)=>{
-          if (response.success) {
-            await fetchEvents();
-            setPageIsEditableForEvent(false);
-          }
-          else {
-            setFormErrorMsg("")
-            setFormErrorMsg(response.message)
-          }
+    await postCreateEvent(eventPageFormData)
+      .then(async (response)=>{
+        if (response.success) {
+          await fetchEvents();
+          setPageIsEditableForEvent(false);
+        }
+        else {
+          setFormErrorMsg("")
+          setFormErrorMsg(response.message)
+          toast({
+            description: response.message,
+            status: 'error',
+            duration: 9000,
+            isClosable: true,
+          })
+        }
+      })
+      .catch((error)=>{
+        console.error(error)
+        toast({
+          description: error.message,
+          status: 'error',
+          duration: 9000,
+          isClosable: true,
         })
-    } 
-    catch(error) {
-      console.error(error);
-    }
+      })
   }
 
   const [attendees,setAttendees] = useState(regForms.filter((regForm)=>regForm.id===formData.registrationForm)[0]?.attendees);
@@ -85,7 +98,7 @@ const EditEventPage = (props: EditEventPageProps) => {
   function handleDeleteEquipment(e: any) {
     e.preventDefault()
     const {id} = e.target.dataset
-    setFormData({...formData, equipment_ids: formData.equipment_ids.filter((fid,i,self)=> i !== self.indexOf(id))})
+    setFormData({...formData, equipment_ids: formData.equipment_ids.filter((fid,i,arr)=> i !== arr?.indexOf(id))})
     // setFormData({...formData, equipment_ids: formData.equipment_ids.filter((fid)=>fid !== id)})
     // setFormData({...formData, equipment_ids: [...formData.equipment_ids, e.target.value]})
   }
@@ -102,7 +115,7 @@ const EditEventPage = (props: EditEventPageProps) => {
 
   function handleDeleteTag(e: any) {
     const {tagname} = e.target.parentNode.dataset;
-    setFormData({...formData, tags: formData.tags.filter((tag,i,self)=> tag !== tagname)})
+    setFormData({...formData, tags: formData.tags.filter((tag)=> tag !== tagname)})
   }
 
 
