@@ -34,6 +34,9 @@ export type SignInType = {
   datetime: Date;
   notes: string | null;
   listIdName?: string;
+  signInLists: {
+    name: string;
+  }
 }
 
 export type NameListType = {
@@ -223,6 +226,10 @@ export type EventDataType = {
   description: string;
   form_id: number | null;
   eventtype: number;
+
+  event_types: {
+    name: string;
+  }
   
   showroom: boolean | null;
   roomName: string;
@@ -314,7 +321,7 @@ export type ComputerType = {
   library: number;
 }
 
-export type ComputSignInDataType = {
+export type CompSignInDataType = {
   name: string | undefined;
   datetimein: string;
   datetimeout: string;
@@ -365,4 +372,12 @@ export type ReferenceCountType = {
   reference_count_departments: ReferenceCountDepartmentType;
   reference_count_types: ReferenceCountTypeType;
   user_reference_count_userTouser: User;
+}
+
+export type DashboardDataType = {
+  events: EventDataType[];
+  registrations: EventFormDataType[];
+  referenceCount: ReferenceCountType[];
+  roomSignIns: SignInType[];
+  compSignIns: CompSignInDataType[];
 }

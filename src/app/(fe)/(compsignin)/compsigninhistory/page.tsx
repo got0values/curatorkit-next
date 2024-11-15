@@ -21,14 +21,14 @@ import {
   useToast
 } from "@chakra-ui/react"
 import moment from 'moment';
-import { ComputSignInDataType } from '@/app/types/types';
+import { CompSignInDataType } from '@/app/types/types';
 import { getCompSignInHistory } from '@/app/actions/compsigninhistory.actions';
 
 export default function CompSignInHistory() {
   const toast = useToast();
   const inputDateRef = useRef<any>();
   const inputDateRef2 = useRef<any>();
-  const [signIns, setSignIns] = useState<ComputSignInDataType[] | []>([]);
+  const [signIns, setSignIns] = useState<CompSignInDataType[] | []>([]);
   const [total,setTotal] = useState(0);
   const fetchHistory = async () => {
     const inputDate = inputDateRef.current.value;
