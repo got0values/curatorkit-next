@@ -23,12 +23,12 @@ export default function RootLayout({
   const showSidebar = pathname !== "/login" && pathname !== "/register" && pathname !== "/cal";
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <title>CuratorKit</title>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
-      <body>
+      <body suppressHydrationWarning>
         <ColorModeScript initialColorMode={theme.config.initialColorMode}/>
         <ChakraProvider theme={theme}>
           <AllContextProvider>

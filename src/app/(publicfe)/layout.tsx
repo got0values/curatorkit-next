@@ -10,12 +10,12 @@ export default function RootFeLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <title>CuratorKit</title>
       <Head>
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
-      <body>
+      <body suppressHydrationWarning>
         <ColorModeScript initialColorMode={theme.config.initialColorMode}/>
         <ChakraProvider theme={theme}>
           {children}

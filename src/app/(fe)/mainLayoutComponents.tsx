@@ -141,7 +141,7 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
           <form action={onLogout}>
             <Box
               as={IconButton}
-              icon={<Icon as={FiLogOut} size="xs" mr={4} />}
+              icon={<Icon as={FiLogOut} mr={4} />}
               isDisabled={isPending}
               isLoading={isPending}
               type="submit"

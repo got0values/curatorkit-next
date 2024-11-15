@@ -22,7 +22,8 @@ import {
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
-  DrawerCloseButton
+  DrawerCloseButton,
+  Link
 } from "@chakra-ui/react"
 import {FaChevronLeft} from 'react-icons/fa';
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
@@ -127,7 +128,7 @@ const RoomSignInLists = () => {
               overflowX="hidden"
               w="100%"
             >
-              <Table variant="simple" w="100%">
+              <Table variant="simple" w="100%" size="sm">
                 <Thead>
                   <Tr>
                     <Th>Name</Th>
@@ -139,8 +140,19 @@ const RoomSignInLists = () => {
                     return (
                       <Tr key={room.id} id={room.id.toString()} className="addRowFade">
                         <Td>{room.name}</Td>
-                        <Td> 
-                          <Button me={1} colorScheme="green" onClick={e=>viewRoom(e)} value={room.id}>View</Button>
+                        <Td textAlign="end"> 
+                          <Button 
+                            as={Link} 
+                            href={`/roomsignin/${room.id}`} me={1} 
+                            colorScheme="black"
+                            variant="outline"
+                            size="sm"
+                            _hover={{
+                              textDecoration: "none"
+                            }}
+                          >
+                            View
+                          </Button>
                         </Td>
                       </Tr>
                     )
