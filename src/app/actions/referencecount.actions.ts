@@ -49,8 +49,6 @@ export async function getReferenceCountData(): Promise<ServerResponseType> {
       }
       referenceCount.push(r);
     }
-    console.log(currentUTCDateStart)
-    console.log(referenceCount)
 
     let departments = await prisma.reference_count_departments.findMany({
       where: {
