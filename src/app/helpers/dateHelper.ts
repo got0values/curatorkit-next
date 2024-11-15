@@ -8,6 +8,10 @@ export function getInputLibraryTimezoneDateEnd(inputDate: string, libraryTimezon
   return momentTimezone.tz(inputDate, libraryTimezone).endOf('day').utc().toDate();
 };
 
+export function getCurrentLibraryTimezoneDatetime(libraryTimezone: string){
+  return momentTimezone().tz(libraryTimezone!).toDate();
+};
+
 export function getCurrentLibraryTimezoneDateStart(libraryTimezone: string){
   let startOfDay = momentTimezone().tz(libraryTimezone!).startOf("day");
   return startOfDay.toDate();

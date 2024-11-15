@@ -19,8 +19,9 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
     }
 
     const libraryTimezone = library?.timezone;
-    const now = momentTimezone().tz(libraryTimezone!);
-    const currentDate = now.format('YYYY-MM-DD');
+
+    const currentUTCDatetime = new Date();
+
     let events = [];
     if (calTypesId == "All") {
       events = await prisma.event_calendar.findMany({
@@ -30,10 +31,10 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
             gte: new Date(inputDate),
           },
           displaystart: {
-            lt: new Date(currentDate),
+            lt: currentUTCDatetime,
           },
           displayend: {
-            gt: new Date(currentDate),
+            gt: currentUTCDatetime,
           },
           eventhidden: false,
         }
@@ -58,10 +59,10 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
             gte: new Date(inputDate.replace(/"/g, '')),
           },
           displaystart: {
-            lt: new Date(currentDate),
+            lt: currentUTCDatetime,
           },
           displayend: {
-            gt: new Date(currentDate),
+            gt: currentUTCDatetime,
           },
           eventhidden: false,
           eventtype: Number(calTypesId)
@@ -151,10 +152,10 @@ export async function getFeEvents(subdomain: string, inputDate: string, calTypes
       where: {
         library: libraryId,
         displaystart: {
-          lt: new Date(currentDate),
+          lt: currentUTCDatetime,
         },
         displayend: {
-          gt: new Date(currentDate),
+          gt: currentUTCDatetime,
         },
         eventhidden: false
       }

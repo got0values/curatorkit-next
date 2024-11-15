@@ -273,12 +273,12 @@ export default function FrontEndCalendar() {
         let eventsLocalized = eventsSorted.map((e: any)=>{
           return {
             ...e, 
-            displaystart: moment.utc(e.displaystart, "MM-DD-YYYY").local().format('MM/DD/YY hh:mm:ss A'),
-            displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-            reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-            reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-            eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-            eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
+            displaystart: moment(e.displaystart, "MM-DD-YYYY").format('MM/DD/YY hh:mm:ss A'),
+            displayend: moment(e.displayend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+            reservestart: moment(e.reservestart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+            reserveend: moment(e.reserveend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+            eventstart: moment(e.eventstart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+            eventend: moment(e.eventend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A')
           }
         }).filter((e: any)=>moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local() >= moment(inputDate))
         setEvents(eventsLocalized);
@@ -288,8 +288,8 @@ export default function FrontEndCalendar() {
           return {
             ...e, 
             title: e.eventname,
-            start: moment.utc(e.eventstart).local().format('MM/DD/YY hh:mm:ss A'),
-            end: moment.utc(e.eventend).local().format('MM/DD/YY hh:mm:ss A')
+            start: moment(e.eventstart).format('MM/DD/YY hh:mm:ss A'),
+            end: moment(e.eventend).format('MM/DD/YY hh:mm:ss A')
           }
         })
         setBigCalendarEvents(bigCalendarEventsLocalized)
@@ -341,12 +341,12 @@ export default function FrontEndCalendar() {
           let eventsLocalized = eventsSorted.map((e: any)=>{
             return {
               ...e, 
-              displaystart: moment.utc(e.displaystart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-              eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
+              displaystart: moment(e.displaystart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+              displayend: moment(e.displayend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+              reservestart: moment(e.reservestart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+              reserveend: moment(e.reserveend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+              eventstart: moment(e.eventstart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+              eventend: moment(e.eventend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A')
             }
           })
           setEvents(eventsLocalized);
@@ -374,12 +374,12 @@ export default function FrontEndCalendar() {
             let eventsLocalized = eventsSorted.map((e: any)=>{
               return {
                 ...e, 
-                displaystart: moment.utc(e.displaystart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-                displayend: moment.utc(e.displayend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-                reservestart: moment.utc(e.reservestart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-                reserveend: moment.utc(e.reserveend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-                eventstart: moment.utc(e.eventstart, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A'),
-                eventend: moment.utc(e.eventend, "MM-DD-YYYY hh:mm:ss A").local().format('MM/DD/YY hh:mm:ss A')
+                displaystart: moment(e.displaystart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+                displayend: moment(e.displayend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+                reservestart: moment(e.reservestart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+                reserveend: moment(e.reserveend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+                eventstart: moment(e.eventstart, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A'),
+                eventend: moment(e.eventend, "MM-DD-YYYY hh:mm:ss A").format('MM/DD/YY hh:mm:ss A')
               }
             })
             setEvents(eventsLocalized);
