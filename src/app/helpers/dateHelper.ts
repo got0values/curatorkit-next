@@ -19,13 +19,9 @@ export function getCurrentUTCDateString(){
 };
 
 export function getCurrentUTCDateStart(){
-  const currentUTCDateString = getCurrentUTCDateString();
-  const currentUTCDateStart = `${currentUTCDateString} 00:00:00`;
-  return new Date(currentUTCDateStart);
+  return momentTimezone().utc().startOf("day").toDate()
 };
 
 export function getCurrentUTCDateEnd(){
-  const currentUTCDateString = getCurrentUTCDateString();
-  const currentUTCDateStart = `${currentUTCDateString} 23:59:59`;
-  return new Date(currentUTCDateStart);
+  return momentTimezone().utc().endOf("day").toDate()
 };

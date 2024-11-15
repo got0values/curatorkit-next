@@ -28,8 +28,7 @@ export async function getReferenceCountData(): Promise<ServerResponseType> {
     const currentUTCDateStart = getCurrentUTCDateStart();
     const currentUTCDateEnd = getCurrentUTCDateEnd();
 
-    let referenceCount = [];
-    referenceCount = await prisma.reference_count.findMany({
+    let referenceCountData = await prisma.reference_count.findMany({
       where: {
         library: libraryId,
         datetime: {
@@ -42,12 +41,16 @@ export async function getReferenceCountData(): Promise<ServerResponseType> {
         reference_count_types: true
       }
     })
-    for (var r of referenceCount) {
+    let referenceCount = [];
+    for (var r of referenceCountData) {
       r = {
         ...r,
         datetime: momentTimezone.utc(r.datetime).tz(libraryTimezone).toDate()
       }
+      referenceCount.push(r);
     }
+    console.log(currentUTCDateStart)
+    console.log(referenceCount)
 
     let departments = await prisma.reference_count_departments.findMany({
       where: {
@@ -111,5 +114,177 @@ export async function postCreateReferenceCount(departmentId: string, typeId: str
     console.error(res)
     await prisma.$disconnect();
     return {success: false, message: "Failed to create reference count", data: null}
+  }
+}
+
+export async function deleteRefCount(refCountId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+    
+    await prisma.reference_count.delete({
+      where: {
+        id: Number(refCountId)
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to delete reference count", data: null}
+  }
+}
+
+export async function postCreateRefCountDepartment(departmentName: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!departmentName) {
+      return {success: false, message: "Please enter a department name"}
+    }
+    
+    await prisma.reference_count_departments.create({
+      data: {
+        library: libraryId,
+        name: departmentName
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to create reference department", data: null}
+  }
+}
+
+export async function deleteRefCountDepartment(departmentId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+    
+    await prisma.reference_count_departments.delete({
+      where: {
+        library: libraryId,
+        id: Number(departmentId)
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to delete reference department", data: null}
+  }
+}
+
+export async function postCreateRefCountType(typeName: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+
+    if (!typeName) {
+      return {success: false, message: "Please enter a department name"}
+    }
+    
+    await prisma.reference_count_types.create({
+      data: {
+        library: libraryId,
+        name: typeName
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to create reference count type", data: null}
+  }
+}
+
+export async function deleteRefCountType(typeId: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+    
+    await prisma.reference_count_types.delete({
+      where: {
+        library: libraryId,
+        id: Number(typeId)
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to delete reference type", data: null}
+  }
+}
+
+export async function postSaveRefCountNotes(refCountId: string, notes: string): Promise<ServerResponseType> {
+  try {
+    const libraryId = await tokenCookieToLibraryId();
+    if (!libraryId) {
+      return {success: false, message: "unauthorized"}
+    }
+    
+    await prisma.reference_count.update({
+      where: {
+        id: Number(refCountId),
+        library: libraryId
+      },
+      data: {
+        notes: notes
+      }
+    })
+
+    await prisma.$disconnect();
+    return {
+      success: true, 
+      message: "Success"
+    }
+  }
+  catch (res) {
+    console.error(res)
+    await prisma.$disconnect();
+    return {success: false, message: "Failed to update reference count notes", data: null}
   }
 }

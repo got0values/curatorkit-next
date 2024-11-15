@@ -39,8 +39,14 @@ import {
 import {FaChevronLeft} from 'react-icons/fa';
 import showAdminDrawer from '@/app/utils/showAdminDrawer';
 import moment from 'moment';
-import { getReferenceCountData, postCreateReferenceCount } from '@/app/actions/referencecount.actions';
+import { deleteRefCount, getReferenceCountData, postCreateRefCountDepartment, postCreateReferenceCount, deleteRefCountDepartment, deleteRefCountType, postSaveRefCountNotes, postCreateRefCountType } from '@/app/actions/referencecount.actions';
 import { ReferenceCountDepartmentType, ReferenceCountTypeType, ReferenceCountType } from '@/app/types/types';
+
+type NotesModalDataType = {
+  id: string;
+  notes: string;
+  datetime: string;
+}
 
 export default function ReferenceCount() {
   const toast = useToast();
@@ -126,16 +132,8 @@ export default function ReferenceCount() {
       })
   }
 
-  async function deleteReferenceCount(rCountId) {
-    await axios
-      .delete(server + "/deletereferencecount", {
-          headers : {
-              'Content-Type':'application/json'
-          },
-          data: {
-            deletereferencecountid: JSON.stringify(rCountId)
-          }
-      })
+  async function deleteReferenceCount(rCountId: string) {
+    await deleteRefCount(rCountId)
       .then((response)=>{
         if (response.success) {
           fetchReferenceCountData();
@@ -161,7 +159,7 @@ export default function ReferenceCount() {
       })
   }
 
-  const [notesModalData,setNotesModalData] = useState()
+  const [notesModalData,setNotesModalData] = useState<NotesModalDataType | null>()
   const [editNotesMode,setEditNotesMode] = useState(false)
   function openViewNotesModal(e: any) {
     setModalIsEditableForNotes(true)
@@ -174,13 +172,16 @@ export default function ReferenceCount() {
 
   const departmentNameRef = useRef<any>();
   async function createReferenceCountDepartment() {
-    await axios
-      .put(server + "/createdepartment", {
-          department_name: departmentNameRef.current.value
-      })
+    await postCreateRefCountDepartment(departmentNameRef.current.value)
       .then((response)=>{
         if (response.success) {
           fetchReferenceCountData();
+          toast({
+            description: "Reference count department created",
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          })
         }
         else {
           setFormErrorMsg(response.message)
@@ -208,18 +209,16 @@ export default function ReferenceCount() {
   async function deleteReferenceCountDepartment() {
     if (deleteDepartmentId !== null && deleteDepartmentId !== "") {
       if (window.confirm("Are you sure you would like to delete this room?\nDoing so will delete all history for this department")) {
-        await axios
-          .delete(server + "/deletedepartment", {
-              headers : {
-                  'Content-Type':'application/json'
-              },
-              data: {
-                deletedepartmentid: JSON.stringify(deleteDepartmentId)
-              }
-          })
+        await deleteRefCountDepartment(deleteDepartmentId)
           .then((response)=>{
             if (response.success) {
               fetchReferenceCountData();
+              toast({
+                description: "Reference count department deleted",
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+              })
             }
             else {
               setFormErrorMsg(response.data)
@@ -247,13 +246,16 @@ export default function ReferenceCount() {
 
   const typeNameRef = useRef<any>()
   async function createReferenceCountType() {
-    await axios
-      .put(server + "/createtype", {
-          type_name: typeNameRef.current.value
-      })
+    await postCreateRefCountType(typeNameRef.current.value)
       .then((response)=>{
         if (response.success) {
           fetchReferenceCountData();
+          toast({
+            description: "Reference count type created",
+            status: 'success',
+            duration: 5000,
+            isClosable: true,
+          })
         }
         else {
           setFormErrorMsg(response.data)
@@ -281,18 +283,16 @@ export default function ReferenceCount() {
   async function deleteReferenceCountType() {
     if (deleteTypeId !== null && deleteTypeId !== "") {
       if (window.confirm("Are you sure you would like to delete this type?\nDoing so will delete all history for this type")) {
-        await axios
-          .delete(server + "/deletetype", {
-              headers : {
-                  'Content-Type':'application/json'
-              },
-              data: {
-                deletetypeid: JSON.stringify(deleteTypeId)
-              }
-          })
+        await deleteRefCountType(deleteTypeId)
           .then((response)=>{
             if (response.success) {
               fetchReferenceCountData();
+              toast({
+                description: "Reference count type deleted",
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+              })
             }
             else {
               setFormErrorMsg(response.data)
@@ -319,11 +319,8 @@ export default function ReferenceCount() {
   }
 
   async function saveNotes() {
-    await axios
-      .post(server + "/saverefcountnotes", {
-          notesid: notesModalData.id,
-          notes: notesModalData.notes
-      })
+    if (!notesModalData) return;
+    await postSaveRefCountNotes(notesModalData.id, notesModalData.notes)
       .then((response)=>{
         if (response.success) {
           setEditNotesMode(false)
@@ -647,7 +644,7 @@ export default function ReferenceCount() {
                 </Box>
                 <Textarea 
                   id="notestext" 
-                  cols="25"
+                  // cols="25"
                   ref={notesRef}
                 />
               </Flex>
@@ -713,7 +710,7 @@ export default function ReferenceCount() {
                       <Td>
                         <CloseButton
                           color="red"
-                          onClick={()=>deleteReferenceCount(rc.id)}
+                          onClick={()=>deleteReferenceCount(rc.id.toString())}
                         />
                       </Td>
                     </Tr>
@@ -754,7 +751,9 @@ export default function ReferenceCount() {
                   <Textarea 
                     width="100%"
                     height="10em"
-                    onChange={e=>setNotesModalData({...notesModalData, notes: e.target.value })}
+                    onChange={e=>setNotesModalData((prev)=>{
+                      return {...prev!, notes: e.target.value}
+                    })}
                     value={notesModalData?.notes}
                   />
                 </Flex>
