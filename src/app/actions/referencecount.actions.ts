@@ -38,7 +38,12 @@ export async function getReferenceCountData(): Promise<ServerResponseType> {
       },
       include: {
         reference_count_departments: true,
-        reference_count_types: true
+        reference_count_types: true,
+        user_reference_count_userTouser: {
+          select: {
+            email: true
+          }
+        }
       }
     })
     let referenceCount = [];

@@ -227,6 +227,7 @@ export default function RefCountHistory() {
                   <Th>#</Th>    
                   <Th>Date</Th>
                   <Th>Time</Th>
+                  <Th>User</Th>
                   <Th>Department</Th>
                   <Th>Type</Th>
                   <Th>Notes</Th>
@@ -241,6 +242,7 @@ export default function RefCountHistory() {
                       </Td>
                       <Td>{moment.utc(rc.datetime).local().format('MM-DD-Y')}</Td>
                       <Td>{moment.utc(rc.datetime).local().format('h:mm A')}</Td>
+                      <Td>{rc.user_reference_count_userTouser.email.split("@")[0]}</Td>
                       <Td>{rc.department}</Td>
                       <Td>{rc.type}</Td>
                       <Td>

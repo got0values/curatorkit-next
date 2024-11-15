@@ -68,7 +68,7 @@ export async function getReferenceCountHistory(department: string, type: string,
     const inputDate1UTC = getInputLibraryTimezoneDateStart(inputDate1, libraryTimezone);
     const inputDate2UTC = getInputLibraryTimezoneDateEnd(inputDate2, libraryTimezone);
 
-    let results: ReferenceCountType[] | [] = [];
+    let results: any[] | [] = [];
     if (department === "All" && type === "All") {
       results = await prisma.reference_count.findMany({
         where: {
@@ -80,7 +80,12 @@ export async function getReferenceCountHistory(department: string, type: string,
         },
         include: {
           reference_count_departments: true,
-          reference_count_types: true
+          reference_count_types: true,
+          user_reference_count_userTouser: {
+            select: {
+              email: true
+            }
+          }
         }
       })
     }
@@ -96,7 +101,12 @@ export async function getReferenceCountHistory(department: string, type: string,
         },
         include: {
           reference_count_departments: true,
-          reference_count_types: true
+          reference_count_types: true,
+          user_reference_count_userTouser: {
+            select: {
+              email: true
+            }
+          }
         }
       })
     }
@@ -112,7 +122,12 @@ export async function getReferenceCountHistory(department: string, type: string,
         },
         include: {
           reference_count_departments: true,
-          reference_count_types: true
+          reference_count_types: true,
+          user_reference_count_userTouser: {
+            select: {
+              email: true
+            }
+          }
         }
       })
     }
@@ -129,7 +144,12 @@ export async function getReferenceCountHistory(department: string, type: string,
         },
         include: {
           reference_count_departments: true,
-          reference_count_types: true
+          reference_count_types: true,
+          user_reference_count_userTouser: {
+            select: {
+              email: true
+            }
+          }
         }
       })
     }

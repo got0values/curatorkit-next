@@ -364,4 +364,5 @@ export type ReferenceCountType = {
   library: number;
   reference_count_departments: ReferenceCountDepartmentType;
   reference_count_types: ReferenceCountTypeType;
+  user_reference_count_userTouser: User;
 }

@@ -669,6 +669,7 @@ export default function ReferenceCount() {
                   <Tr>
                     <Th>#</Th>
                     <Th>Time</Th>
+                    <Th>User</Th>
                     <Th>Department</Th>
                     <Th>Type</Th>
                     <Th>Notes</Th>
@@ -680,16 +681,17 @@ export default function ReferenceCount() {
                     <Tr key={i}>
                       <Td><Text color="gray">{i+1}</Text></Td>
                       <Td>{moment.utc(rc.datetime).local().format('h:mm A').toString()}</Td>
-                      <Td>{rc["department"]}</Td>
-                      <Td>{rc["type"]}</Td>
+                      <Td>{rc.user_reference_count_userTouser.email.split("@")[0]}</Td>
+                      <Td>{rc.department}</Td>
+                      <Td>{rc.type}</Td>
                       <Td>
                         {rc["notes"] === "" ? (
                           <Button 
                             colorScheme="black"
                             variant="outline"
-                            data-id={rc["id"]}
-                            data-notes={rc["notes"]}
-                            data-datetime={moment(rc["datetime"]).format('h:mm A').toString()}
+                            data-id={rc.id}
+                            data-notes={rc.notes}
+                            data-datetime={moment(rc.datetime).format('h:mm A').toString()}
                             onClick={e=>openViewNotesModal(e)}
                           >
                             Add
@@ -698,9 +700,9 @@ export default function ReferenceCount() {
                           <Button 
                             colorScheme="black"
                             variant="outline"
-                            data-id={rc["id"]}
-                            data-notes={rc["notes"]}
-                            data-datetime={moment(rc["datetime"]).format('h:mm A').toString()}
+                            data-id={rc.id}
+                            data-notes={rc.notes}
+                            data-datetime={moment(rc.datetime).format('h:mm A').toString()}
                             onClick={e=>openViewNotesModal(e)}
                           >
                             View
