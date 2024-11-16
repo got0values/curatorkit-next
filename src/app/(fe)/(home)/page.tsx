@@ -187,8 +187,8 @@ export default function Home() {
             if(!roomSigninMonthLabelsTemp.includes(moment(signin.datetime).format('MMM YYYY'))) {
               roomSigninMonthLabelsTemp.push(moment.utc(signin.datetime).local().format("MMM YYYY"))
             }
-            if (!roomSigninRooms.includes(signin?.SignInLists?.name)) {
-              roomSigninRooms.push(signin.SignInLists.name)
+            if (signin.SignInLists && !roomSigninRooms.includes(signin?.SignInLists?.name)) {
+              roomSigninRooms.push(signin.SignInLists?.name)
             }
           }
           let p = 0;
@@ -198,7 +198,7 @@ export default function Home() {
             roomSigninMonthLabelsTemp.forEach((signinMonth) => {
                   let count = 0;
                   roomsignins.forEach((roomsignin)=>{
-                      if(moment(roomsignin.datetime).format("MMM YYYY")===signinMonth && roomsignin.SignInLists.name===roomSigninRoom) {
+                      if(moment(roomsignin.datetime).format("MMM YYYY")===signinMonth && roomsignin.SignInLists && roomsignin.SignInLists.name===roomSigninRoom) {
                         count = count + 1;
                       }
                     })

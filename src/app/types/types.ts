@@ -34,7 +34,7 @@ export type SignInType = {
   datetime: Date;
   notes: string | null;
   listIdName?: string;
-  SignInLists: {
+  SignInLists?: {
     name: string;
   }
 }

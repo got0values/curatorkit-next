@@ -22,8 +22,6 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       return {success: false, message: "Unauthorized"}
     }
 
-    const libraryTimezone = library?.timezone;
-
     let dashboardEvents = await prisma.event_calendar.findMany({
       where: {
         library: libraryId
