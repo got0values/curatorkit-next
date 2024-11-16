@@ -483,11 +483,6 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
                     </Link>
                   </ListItem>
                   <ListItem ps="2.8rem" fontSize="sm">
-                    <Link href="/docs/extratools" onClick={onClose}>
-                      Extra Tools
-                    </Link>
-                  </ListItem>
-                  <ListItem ps="2.8rem" fontSize="sm">
                     <Link href="/support" onClick={onClose}>
                       Support
                     </Link>
