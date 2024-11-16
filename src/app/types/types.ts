@@ -34,7 +34,7 @@ export type SignInType = {
   datetime: Date;
   notes: string | null;
   listIdName?: string;
-  signInLists: {
+  SignInLists: {
     name: string;
   }
 }
@@ -300,6 +300,9 @@ export type EventFormDataType = {
   datetime: Date;
   eventtypename: string | null;
   eventtypeid: number | null;
+  event_types: {
+    name: string;
+  }
 }
 
 export type CompCardDataType = {
@@ -332,6 +335,9 @@ export type CompSignInDataType = {
   computerName: string;
   length: number;
   notes: string | null;
+  Computers: {
+    name: string;
+  }
 }
 
 export type CheckoutItemType = {

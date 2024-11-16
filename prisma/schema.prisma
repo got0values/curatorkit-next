@@ -199,18 +199,20 @@ model event_equipment {
 }
 
 model event_form_data {
-  id                                       Int         @id @default(autoincrement())
+  id                                       Int          @id @default(autoincrement())
   form_id                                  Int
-  form_data                                String?     @db.Text
-  datetime                                 DateTime    @db.DateTime(6)
-  eventtypename                            String?     @db.Text
+  form_data                                String?      @db.Text
+  datetime                                 DateTime     @db.DateTime(6)
+  eventtypename                            String?      @db.Text
   eventtypeid                              Int?
   library                                  Int
-  event_forms                              event_forms @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "event_form_data_ibfk_3")
-  library_event_form_data_libraryTolibrary library     @relation("event_form_data_libraryTolibrary", fields: [library], references: [id], onUpdate: Restrict, map: "event_form_data_ibfk_4")
+  event_forms                              event_forms  @relation(fields: [form_id], references: [id], onDelete: Cascade, map: "event_form_data_ibfk_3")
+  library_event_form_data_libraryTolibrary library      @relation("event_form_data_libraryTolibrary", fields: [library], references: [id], onUpdate: Restrict, map: "event_form_data_ibfk_4")
+  event_types                              event_types? @relation(fields: [eventtypeid], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "event_form_data_ibfk_5")
 
   @@index([form_id], map: "fk_foreign_event_form_data_form_id")
   @@index([library], map: "user_id")
+  @@index([eventtypeid], map: "eventtypeid")
 }
 
 model event_forms {
@@ -240,12 +242,13 @@ model event_rooms {
 }
 
 model event_types {
-  id                                   Int              @id @default(autoincrement())
+  id                                   Int               @id @default(autoincrement())
   library                              Int
-  name                                 String           @db.Text
-  color                                String           @db.Text
+  name                                 String            @db.Text
+  color                                String            @db.Text
   event_calendar                       event_calendar[]
-  library_event_types_libraryTolibrary library          @relation("event_types_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "event_types_ibfk_1")
+  event_form_data                      event_form_data[]
+  library_event_types_libraryTolibrary library           @relation("event_types_libraryTolibrary", fields: [library], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "event_types_ibfk_1")
 
   @@index([library], map: "fk_foreign_event_types_user_id")
   @@index([id], map: "id")

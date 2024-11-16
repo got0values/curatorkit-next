@@ -40,6 +40,13 @@ export async function getDashboardData(): Promise<ServerResponseType> {
     let dashboardRegistrations = await prisma.event_form_data.findMany({
       where: {
         library: libraryId
+      },
+      include: {
+        event_types: {
+          select: {
+            name: true
+          }
+        }
       }
     })
 

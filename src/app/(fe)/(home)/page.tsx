@@ -33,6 +33,13 @@ import { getDashboardData } from '@/app/actions/dashboard.actions';
 import { DashboardDataType } from '@/app/types/types';
 
 
+type DataTempType = {
+  label: string;
+  data: number[];
+  borderColor: string;
+  backgroundColor: string;
+}
+
 export default function Home() {
   const toast = useToast();
   ChartJS.register(
@@ -49,18 +56,18 @@ export default function Home() {
       Legend
     );
 
-  const [eventTypeLabels,setEventTypeLabels] = useState();
-  const [eventTypeData,setEventTypeData] = useState();
-  const [regMonthLabels,setRegMonthLabels] = useState();
-  const [regData,setRegData] = useState();
-  const [refCountLabels,setRefCountLabels] = useState();
-  const [refCountData,setRefCountData] = useState();
-  const [signinData,setSigninData] = useState();
-  const [signinLabels,setSigninLabels] = useState();
-  const [compSigninData,setCompSigninData] = useState();
-  const [compSigninLabels,setCompSigninLabels] = useState();
-  const [isLoading,setIsLoading] = useState();
-  const fetchDashboardEvents = useCallback(async (e: any) => {
+  const [eventTypeLabels,setEventTypeLabels] = useState<string[]>([]);
+  const [eventTypeData,setEventTypeData] = useState<number[]>([]);
+  const [regMonthLabels,setRegMonthLabels] = useState<string[]>([]);
+  const [regData,setRegData] = useState<DataTempType[]>([]);
+  const [refCountLabels,setRefCountLabels] = useState<string[]>([]);
+  const [refCountData,setRefCountData] = useState<DataTempType[]>([]);
+  const [signinData,setSigninData] = useState<DataTempType[]>([]);
+  const [signinLabels,setSigninLabels] = useState<string[]>([]);
+  const [compSigninData,setCompSigninData] = useState<DataTempType[]>([]);
+  const [compSigninLabels,setCompSigninLabels] = useState<string[]>([]);
+  const [isLoading,setIsLoading] = useState(false);
+  const fetchDashboardEvents = useCallback(async () => {
     setIsLoading(true)
     await getDashboardData()
       .then((response) => {
@@ -68,18 +75,18 @@ export default function Home() {
           let responseData: DashboardDataType = response.data;
           //EVENT TYPE REGISTRATIONS 
           //only let non duplicate eventtypes into type array
-          let eventTypeLabelsTemp = []
+          let eventTypeLabelsTemp: string[] = [];
           responseData.events.forEach((e)=>{
-            if (!eventTypeLabelsTemp.includes(e.eventtype)) {
-              eventTypeLabelsTemp.push(e.eventtype)
+            if (e.event_types && !eventTypeLabelsTemp.includes(e.event_types.name)) {
+              eventTypeLabelsTemp.push(e.event_types.name)
             }
           })
-          let allTypeData = []
+          let allTypeData: number[] = []
           eventTypeLabelsTemp.forEach(eventType => {
-            allTypeData.push(responseData.events.filter(x=> x.eventtype===eventType).length)
+            allTypeData.push(responseData.events.filter(x=> x.event_types && x.event_types.name===eventType).length)
           })
           //convert null eventtypes to n/a
-          let eventTypeLabelsNa = []
+          let eventTypeLabelsNa: string[] = []
           eventTypeLabelsTemp.forEach((eventTypeLabel)=>{
             eventTypeLabelsNa.push(eventTypeLabel === null ? "N/A" : eventTypeLabel)
           })
@@ -87,26 +94,26 @@ export default function Home() {
           setEventTypeLabels(eventTypeLabelsNa)
 
           //PROGRAM REGISTRATIONS
-          let regMonthLabelsTemp = []
-          let regTypeLabelsTemp = []
+          let regMonthLabelsTemp: string[] = []
+          let regTypeLabelsTemp: string[] = []
           let regDataTemp = []
           let registrations = responseData.registrations.sort((a,b)=>{
-            return moment.utc(a.datetime).local() - moment.utc(b.datetime).local()
+            return (moment(new Date(a.datetime)) as any) - (moment(new Date(b.datetime)) as any)
           })
           //put labels in temp arrays if they're not already in it
           for (let registration of registrations) {
             if (!regMonthLabelsTemp.includes(moment(registration.datetime).format("MMM YYYY"))) {
               regMonthLabelsTemp.push(moment.utc(registration.datetime).local().format("MMM YYYY"))
             }
-            if (!regTypeLabelsTemp.includes(registration.eventtypename)) {
-              regTypeLabelsTemp.push(registration.eventtypename)
+            if (!regTypeLabelsTemp.includes(registration.event_types.name)) {
+              regTypeLabelsTemp.push(registration.event_types.name)
             }
           }
           let k = 0;
           let j = 99;
           //loop through the month labels array and get the registration count for each month
           for (let regType of regTypeLabelsTemp) {
-            let regData2 = []
+            let regData2: number[] = []
             regMonthLabelsTemp.map((regMonth) => {
                   let count = 0;
                   registrations.forEach((registration)=>{
@@ -130,28 +137,28 @@ export default function Home() {
 
 
           //REFERENCE QUESTIONS
-          let refMonthLabelsTemp = []
-          let refCountTypeLabelsTemp = []
+          let refMonthLabelsTemp: string[] = []
+          let refCountTypeLabelsTemp: string[] = []
           let refCountDataTemp = []
           let referencecount = responseData.referenceCount.sort((a,b)=>{
-            return moment(a.datetime) - moment(b.datetime)
+            return (moment(new Date(a.datetime)) as any) - (moment(new Date(b.datetime)) as any)
           })
           for (let reference of referencecount) {
             if (!refMonthLabelsTemp.includes(moment(reference.datetime).format("MMM YYYY"))) {
               refMonthLabelsTemp.push(moment.utc(reference.datetime).local().format("MMM YYYY"))
             }
-            if (!refCountTypeLabelsTemp.includes(reference.type)) {
-              refCountTypeLabelsTemp.push(reference.type)
+            if (!refCountTypeLabelsTemp.includes(reference.reference_count_types.name)) {
+              refCountTypeLabelsTemp.push(reference.reference_count_types.name)
             }
           }
           let l = 0;
           let m = 99;
           for (let refCount of refCountTypeLabelsTemp) {
-            let refCountData2 = []
+            let refCountData2: number[] = []
             refMonthLabelsTemp.map((refMonth) => {
                   let count = 0;
                   referencecount.forEach((ref)=>{
-                      if(moment(ref.datetime).format("MMM YYYY")===refMonth && ref.type===refCount) {
+                      if(moment(ref.datetime).format("MMM YYYY")===refMonth && ref.reference_count_types.name===refCount) {
                         count = count + 1;
                       }
                     })
@@ -170,28 +177,28 @@ export default function Home() {
           setRefCountData(refCountDataTemp)
 
           //ROOM SIGN INS
-          let roomSigninMonthLabelsTemp = []
-          let roomSigninRooms = []
+          let roomSigninMonthLabelsTemp: string[] = []
+          let roomSigninRooms: string[] = []
           let roomSigninDataTemp = []
           let roomsignins = responseData.roomSignIns.sort((a,b)=>{
-            return moment(a.datetime) - moment(b.datetime)
+            return (moment(new Date(a.datetime)) as any) - (moment(new Date(b.datetime)) as any)
           })
           for(let signin of roomsignins) {
             if(!roomSigninMonthLabelsTemp.includes(moment(signin.datetime).format('MMM YYYY'))) {
               roomSigninMonthLabelsTemp.push(moment.utc(signin.datetime).local().format("MMM YYYY"))
             }
-            if (!roomSigninRooms.includes(signin.room)) {
-              roomSigninRooms.push(signin.room)
+            if (!roomSigninRooms.includes(signin?.SignInLists?.name)) {
+              roomSigninRooms.push(signin.SignInLists.name)
             }
           }
           let p = 0;
           let q = 99;
           for (let roomSigninRoom of roomSigninRooms) {
-            let roomSigninData2 = []
+            let roomSigninData2: number[] = []
             roomSigninMonthLabelsTemp.forEach((signinMonth) => {
                   let count = 0;
                   roomsignins.forEach((roomsignin)=>{
-                      if(moment(roomsignin.datetime).format("MMM YYYY")===signinMonth && roomsignin.room===roomSigninRoom) {
+                      if(moment(roomsignin.datetime).format("MMM YYYY")===signinMonth && roomsignin.SignInLists.name===roomSigninRoom) {
                         count = count + 1;
                       }
                     })
@@ -212,28 +219,28 @@ export default function Home() {
 
 
           //COMPUTER SIGN-INS
-          let compSigninMonthLabelsTemp = []
-          let compSigninComps = []
+          let compSigninMonthLabelsTemp: string[] = []
+          let compSigninComps: string[] = []
           let compSigninDataTemp = []
           let compsignins = responseData.compSignIns.sort((a,b)=>{
-            return moment(a.datetime) - moment(b.datetime)
+            return (moment(new Date(a.datetimein)) as any) - (moment(new Date(b.datetimein)) as any)
           })
           for(let compsignin of compsignins) {
-            if(!compSigninMonthLabelsTemp.includes(moment(compsignin.datetime).format('MMM YYYY'))) {
-              compSigninMonthLabelsTemp.push(moment.utc(compsignin.datetime).local().format("MMM YYYY"))
+            if(!compSigninMonthLabelsTemp.includes(moment(compsignin.datetimein).format('MMM YYYY'))) {
+              compSigninMonthLabelsTemp.push(moment.utc(compsignin.datetimein).local().format("MMM YYYY"))
             }
-            if (!compSigninComps.includes(compsignin.comp)) {
-              compSigninComps.push(compsignin.comp)
+            if (!compSigninComps.includes(compsignin.Computers.name)) {
+              compSigninComps.push(compsignin.Computers.name)
             }
           }
           let r = 0;
           let s = 99;
           for (let compSigninComp of compSigninComps) {
-            let compSigninData2 = []
+            let compSigninData2: number[] = []
             compSigninMonthLabelsTemp.forEach((signinMonth) => {
                   let count = 0;
                   compsignins.forEach((compsignin)=>{
-                      if(moment(compsignin.datetime).format("MMM YYYY")===signinMonth && compsignin.comp===compSigninComp) {
+                      if(moment(compsignin.datetimein).format("MMM YYYY")===signinMonth && compsignin.Computers.name===compSigninComp) {
                         count = count + 1;
                       }
                     })
@@ -253,6 +260,7 @@ export default function Home() {
           setCompSigninLabels(compSigninMonthLabelsTemp)
 
           setIsLoading(false)
+        }
         else {
           console.error(response);
           toast({
@@ -330,13 +338,13 @@ export default function Home() {
     datasets: [
       {
         label: 'Dataset 1',
-        data: linearLabels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
+        data: linearLabels.map(() => faker.number.float({ min: -1000, max: 1000 })),
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
       {
         label: 'Dataset 2',
-        data: linearLabels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
+        data: linearLabels.map(() => faker.number.float({ min: -1000, max: 1000 })),
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
       },
@@ -354,7 +362,7 @@ export default function Home() {
                   <Heading as="h6" size="sm">Program Registrations</Heading>
                   <Bar
                     options = {options}
-                    data = {regData && regMonthLabels ? regLinearData : linearData}
+                    data={regData && regMonthLabels ? regLinearData : linearData}
                   />
                 </Flex>
 
@@ -362,7 +370,7 @@ export default function Home() {
                   <Heading as="h6" size="sm">Room Sign-ins</Heading>
                   <Bar
                     options = {options}
-                    data = {signinLabels && signinData ? roomSigninLinearData : linearData}
+                    data={signinLabels && signinData ? roomSigninLinearData : linearData}
                   />
                 </Flex>
 
