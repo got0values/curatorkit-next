@@ -61,7 +61,6 @@ export async function getStudyRoomData(): Promise<ServerResponseType> {
       ...r,
       request_datetime_from: momentTimezone.tz(r.request_datetime_from, 'UTC').tz(libraryTimezone!).format('YYYY-MM-DD HH:mm'),
       request_datetime_to: momentTimezone.tz(r.request_datetime_to, 'UTC').tz(libraryTimezone!).format('YYYY-MM-DD HH:mm'),
-      id: r.study_room_id,
       title: r.study_room_name,
       start: momentTimezone.tz(r.request_datetime_from, 'UTC').tz(libraryTimezone!).format(),
       end: momentTimezone.tz(r.request_datetime_to, 'UTC').tz(libraryTimezone!).format()
@@ -187,8 +186,8 @@ export async function putEditStudyRoomFormData(formFrom: string, formTo: string,
         id: Number(formDataId)
       },
       data: {
-        request_datetime_from: formFrom ? momentTimezone.tz(formFrom, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : undefined,
-        request_datetime_to: formTo ? momentTimezone.tz(formTo, 'UTC').tz(libraryTimezone).format('MM/DD/YYYY hh:mm A') : undefined,
+        request_datetime_from: formFrom ? momentTimezone.tz(formFrom, 'UTC').tz(libraryTimezone).toDate() : undefined,
+        request_datetime_to: formTo ? momentTimezone.tz(formTo, 'UTC').tz(libraryTimezone).toDate() : undefined,
         confirmed: confirmed
       }
     })
