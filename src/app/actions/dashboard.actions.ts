@@ -6,6 +6,21 @@ import { ServerResponseType } from '../types/types';
 
 const prisma = new PrismaClient()
 
+/**
+ * Retrieves comprehensive dashboard data for analytics and reporting
+ * 
+ * This function aggregates data from multiple sources including:
+ * - Event calendar entries with associated event types
+ * - Event registrations with type information  
+ * - Reference count entries with department and type details
+ * - Room sign-ins with associated room lists
+ * - Computer sign-ins with computer information
+ * 
+ * @returns Promise that resolves to success response with dashboard data or error response
+ * @throws Database connection errors or query failures
+ * @requires Valid authentication token in cookies
+ * @requires Library access permissions
+ */
 export async function getDashboardData(): Promise<ServerResponseType> {
   try {
     const libraryId = await tokenCookieToLibraryId();
@@ -22,7 +37,7 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       return {success: false, message: "Unauthorized"}
     }
 
-    let dashboardEvents = await prisma.event_calendar.findMany({
+    const dashboardEvents = await prisma.event_calendar.findMany({
       where: {
         library: libraryId
       },
@@ -35,7 +50,7 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       }
     })
 
-    let dashboardRegistrations = await prisma.event_form_data.findMany({
+    const dashboardRegistrations = await prisma.event_form_data.findMany({
       where: {
         library: libraryId
       },
@@ -48,7 +63,7 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       }
     })
 
-    let referenceCount = await prisma.reference_count.findMany({
+    const referenceCount = await prisma.reference_count.findMany({
       where: {
         library: libraryId
       },
@@ -66,7 +81,7 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       }
     })
 
-    let signIns = await prisma.signIns.findMany({
+    const signIns = await prisma.signIns.findMany({
       where: {
         library: libraryId
       },
@@ -79,7 +94,7 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       }
     })
 
-    let compSignIns = await prisma.compSignIns.findMany({
+    const compSignIns = await prisma.compSignIns.findMany({
       where: {
         library: libraryId
       },
@@ -92,7 +107,7 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       }
     })
 
-    let dashboardData = {
+    const dashboardData = {
       events: dashboardEvents,
       registrations: dashboardRegistrations,
       referenceCount: referenceCount,
@@ -107,8 +122,8 @@ export async function getDashboardData(): Promise<ServerResponseType> {
       data: dashboardData
     }
   }
-  catch(res) {
-    console.error(res)
+  catch(error) {
+    console.error('Error in getDashboardData:', error)
     await prisma.$disconnect();
     return {success: false, message: "Failed to get dashboard data.", data: null}
   }

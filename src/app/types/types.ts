@@ -1,7 +1,7 @@
-export type ServerResponseType = {
+export type ServerResponseType<T = unknown> = {
   success: boolean;
   message: string;
-  data?: any | null;
+  data?: T | null;
   tokens?: number | undefined;
 }
 
@@ -205,8 +205,8 @@ export type BigCalendarEventsType = {
   reserveend: string;
   displaystart: string | null;
   displayend: string | null;
-  tags: any;
-  equipment: any;
+  tags: string[];
+  equipment: string[];
   title: string;
   form_id: number | null;
 }
@@ -218,8 +218,8 @@ export type EventDataType = {
   reserveend: string;
   displaystart: string | null;
   displayend: string | null;
-  tags: any;
-  equipment: any;
+  tags: string[];
+  equipment: string[];
   transid: number;
   library: number;
   eventname: string;

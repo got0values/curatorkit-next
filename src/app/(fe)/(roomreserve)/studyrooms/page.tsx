@@ -48,8 +48,9 @@ export default function StudyRooms() {
   async function fetchStudyRooms() {
     await getStudyRooms()
       .then((response) => {
-          setRoomList(response.data.studyRooms);
-          setSubdomain(response.data.subdomain)
+          const data = response.data as { studyRooms: StudyRoomType[], subdomain: string };
+          setRoomList(data.studyRooms);
+          setSubdomain(data.subdomain)
       })
       .catch(res=>{
         console.error(res)
@@ -62,8 +63,9 @@ export default function StudyRooms() {
     await getStudyRoomData()
       .then((response) => {
         if (response.success) {
-          setRequests(response.data);
-          setOriginalRequests(response.data);
+          const data = response.data as StudyRoomFormDataType[];
+          setRequests(data);
+          setOriginalRequests(data);
         }
         else {
           console.error(response)
@@ -186,7 +188,8 @@ export default function StudyRooms() {
     await getEditStudyRoom(roomid)
       .then((response) => {
         if (response.success) {
-          setModalData(response.data)
+          const data = response.data as ModalDataType;
+          setModalData(data)
           setOpenModal(true);
         }
         else {
@@ -332,7 +335,7 @@ export default function StudyRooms() {
             })
           }
           else {
-            setErrorMsg(response.data)
+            setErrorMsg(response.data as string)
           }
         })
         .catch((error)=>{

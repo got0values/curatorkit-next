@@ -1,22 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CuratorKit Next.js
 
-## Getting Started
+A comprehensive library management system built with Next.js, TypeScript, and Prisma. CuratorKit provides tools for managing events, room reservations, computer sign-ins, reference counting, and more for library operations.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Event Calendar Management**: Create, manage, and track library events with registration forms
+- **Room Reservations**: Allow patrons to reserve study rooms and meeting spaces
+- **Computer Sign-ins**: Track computer usage and manage patron access
+- **Reference Count**: Monitor and analyze reference desk interactions
+- **In-House Checkout**: Manage internal item checkouts
+- **Custom Theming**: Personalize the interface with custom colors and branding
+- **Analytics Dashboard**: Comprehensive reporting and data visualization
+- **Multi-tenant Architecture**: Support for multiple library locations
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 14, React 18, TypeScript
+- **UI Components**: Chakra UI
+- **Database**: Prisma ORM
+- **Authentication**: JWT with secure cookie handling
+- **Charts**: Chart.js with react-chartjs-2
+- **Date Handling**: Moment.js with timezone support
+- **Email**: Nodemailer for notifications
+- **Form Validation**: Custom validation with password-validator
+
+## 📁 Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/          # Authentication pages
+│   ├── (fe)/            # Main application pages
+│   ├── (publicfe)/      # Public-facing pages
+│   ├── actions/         # Server actions
+│   ├── components/      # Reusable components
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Utility functions
+├── middleware.ts        # Auth middleware
+└── ...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- Database (PostgreSQL recommended)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd curatorkit-next
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
+
+4. Configure your database connection and other environment variables in `.env.local`
+
+5. Run database migrations:
+```bash
+npx prisma migrate dev
+```
+
+6. Start the development server:
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+## 🔧 Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server  
+- `npm run lint` - Run ESLint
+- `npx prisma studio` - Open Prisma database browser
+
+### Code Quality
+
+This project uses:
+- **ESLint** with TypeScript rules for code quality
+- **TypeScript** for type safety
+- **Prettier** for code formatting (recommended)
+- Strict linting rules to maintain code standards
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

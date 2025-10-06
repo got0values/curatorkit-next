@@ -2,11 +2,9 @@
 
 import {
   Flex,
-  Box,
   FormControl,
   Input,
   InputGroup,
-  HStack,
   InputRightElement,
   Stack,
   Button,
@@ -29,7 +27,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const [errorText,setErrorText] = useState("");
   const [isPending,startTransition] = useTransition();
-  var schema = new passwordValidator();
+  const schema = new passwordValidator();
   schema
   .is().min(8)// Minimum length 8
   .is().max(100)// Maximum length 100
@@ -40,16 +38,22 @@ export default function RegisterPage() {
   .has().not().spaces()// Should not have spaces
 
   const [password, setPassword] = useState("");
-  const [passwordError,setPasswordError] = useState(null)
+  const [passwordError,setPasswordError] = useState<string | null>(null)
+  
+  interface ValidationError {
+    message: string;
+    validation: string;
+  }
+  
   function checkPassword(pwInput: string) {
-    const pwValidationErrors = schema.validate(pwInput, {details:true})
-    if ((pwValidationErrors as any[]).length) {
-      setPasswordError((pwValidationErrors as any[]).length ? (pwValidationErrors as any[])[0].message : null)
+    const pwValidationErrors = schema.validate(pwInput, {details:true}) as ValidationError[];
+    if (pwValidationErrors.length) {
+      setPasswordError(pwValidationErrors.length ? pwValidationErrors[0].message : null)
     }
     else {
       setPasswordError(null)
     }
-    setPassword(prev=>pwInput)
+    setPassword(pwInput)
     return
   }
 

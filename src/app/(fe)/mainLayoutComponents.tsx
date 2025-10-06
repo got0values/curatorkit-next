@@ -61,7 +61,7 @@ export const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
     await getUser()
       .then((res)=>{
         if (res.success) {
-          setUser(res.data)
+          setUser(res.data as User)
         }
         else {
           console.error(res)

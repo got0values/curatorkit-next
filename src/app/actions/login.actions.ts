@@ -3,40 +3,56 @@
 import { PrismaClient } from '@prisma/client'
 import bcrypt from "bcrypt";
 import {SignJWT} from 'jose';
-import validator from 'validator';
 import { ServerResponseType } from '../types/types';
 import { cookies } from 'next/headers';
+import { validateEmail, validateRequired } from '../utils/validation';
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from '../constants';
 
 const prisma = new PrismaClient()
 const SECRET = process.env.SECRET;
-const SALT_ROUNDS = 10;
 
 export async function postLogin(formData: FormData): Promise<ServerResponseType> {
   try {
     const email = formData.get("email")?.valueOf() as string
     const password = formData.get("password")?.valueOf() as string
     
+    // Validate inputs
+    const emailValidation = validateEmail(email)
+    if (!emailValidation.isValid) {
+      return { success: false, message: emailValidation.message || 'Invalid email' }
+    }
+    
+    const passwordValidation = validateRequired(password, 'Password')
+    if (!passwordValidation.isValid) {
+      return { success: false, message: passwordValidation.message || 'Password is required' }
+    }
+    
     const user = await prisma.user.findUnique({
         where: {
             email: email
-        }
+        },
+
     });
+    
     if (!user) {
-      await prisma.$disconnect();
-      console.error(`Incorrect email or password ${email} ${password}`)
-      return {success: false, message: "Incorrect email or password"}
+      console.warn(`Login attempt with invalid email: ${email}`)
+      return {success: false, message: "Invalid email or password"}
     }
-    if (user.password === null || user.password === "") {
-      await prisma.$disconnect();
-      console.error(`No password found for user`)
-      return {success: false, message: "Error: P1"}
+    if (!user.password) {
+      console.error(`User ${user.id} has no password set`)
+      return {success: false, message: "Account setup incomplete. Please contact support."}
     }
-    //compare the provided password with the hashed password in the database
-    const result = await bcrypt.compare(password, user.password);
-    if (!result) {
-      await prisma.$disconnect();
-      console.error(`Password incorrect: ${password}`)
-      return {success: false, message: "Email or password is incorrect"}
+    
+    // Compare the provided password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      console.warn(`Failed login attempt for user: ${user.email}`)
+      return {success: false, message: "Invalid email or password"}
+    }
+    
+    if (!SECRET) {
+      console.error('JWT SECRET is not configured')
+      return {success: false, message: ERROR_MESSAGES.SERVER_ERROR}
     }
 
     const token = await new SignJWT({ userId: user.id })
@@ -52,13 +68,11 @@ export async function postLogin(formData: FormData): Promise<ServerResponseType>
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60
     })
-    await prisma.$disconnect();
-    return {success: true, message: "Success!"}
+    return {success: true, message: SUCCESS_MESSAGES.CREATED}
   }
   catch(error) {
-    console.error(error)
-    await prisma.$disconnect();
-    return {success: false, message: "Something went wrong"}
+    console.error('Login error:', error)
+    return {success: false, message: ERROR_MESSAGES.SERVER_ERROR}
   }
   finally {
     await prisma.$disconnect();
