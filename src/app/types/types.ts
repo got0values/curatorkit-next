@@ -1,8 +1,8 @@
-export type ServerResponseType<T = unknown> = {
+export type ServerResponseType<T = any> = {
   success: boolean;
   message: string;
-  data?: T | null;
-  tokens?: number | undefined;
+  data?: T;
+  tokens?: number;
 }
 
 export type Library = {

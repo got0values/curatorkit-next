@@ -64,7 +64,7 @@ export const createAPIResponse = <T>(
     response: {
       success,
       message,
-      data: data || null,
+      data,
     },
     status: statusCode,
   }
